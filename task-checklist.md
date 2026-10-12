@@ -14,21 +14,21 @@ Marks: `[ ]` open, `+` done, `-` not done or partially done (with a note).
 
 ## 1. Implementation
 
-[ ] Shared tracker layer for Habits and Rules (build, append, style, protect, restore)
-[ ] Config: `rules` in defaults, normalization, validation, example, schema
-[ ] Settings sheet: rules table (name, XP, type, days), read back on rebuild
-[ ] Dashboard: rule XP in totals and charts, rules section with streak and 30-day share
-[ ] Snapshot and restore of rule ticks and rule XP
-[ ] UI strings (English) for everything new
-[ ] Personal `my-config.json`: the owner's rules and Russian strings
++ Shared tracker layer for Habits and Rules (build, append, style, protect, restore)
++ Config: `rules` in defaults, normalization, validation, example, schema
++ Settings sheet: rules table (name, XP, type, days), read back on rebuild
++ Dashboard: rule XP in totals and charts, rules section with streak and 30-day share
++ Snapshot and restore of rule ticks and rule XP
++ UI strings (English) for everything new
++ Personal `my-config.json`: the owner's rules and Russian strings
 
 ## 2. Verification
 
-[ ] Tests for rules config and validation
-[ ] `npm run check` green
-[ ] Manual test plan for a real spreadsheet (`docs/manual-test-plan.md`)
++ Tests for rules config and validation
++ `npm run check` green
++ Manual test plan for a real spreadsheet (`docs/manual-test-plan.md`)
 
 ## 3. Completion
 
-[ ] Docs, changelog, version 2.3.0, rule modules synced
-[ ] Merge into `main`, push
++ Docs, changelog, version 2.3.0, rule modules synced
++ Merge into `main`, push
