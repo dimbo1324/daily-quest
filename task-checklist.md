@@ -1,32 +1,20 @@
-# Task: Logs sheet — a full audit log of the owner's actions (v2.5.0)
+# Task: bring documentation, comments and project state up to date (v2.5.0)
 
-Owner instruction of 2026-10-12: a visible sheet named `Logs` that records every action
-with its date and time — every edit of any cell (ticks included) and every operation:
-build, rebuild, reset, restore, import (with what was imported), export, and so on — so
-that anything can be reconstructed if needed.
-
-Design: `src/logs.js`; columns Time (with seconds and zone) | Event | Sheet | Cell | Old value
-| New value | Details. User edits come from `onEdit` (single cells with old and new value,
-multi-cell edits with their new values); tracker ticks carry the item name and date. Menu
-operations, imports (full JSON), exports, backups, errors and game outcomes are logged by
-the code. The sheet name is fixed (`Logs`) and the sheet survives every rebuild, like
-`_backup`. Logging never throws.
+Owner instruction of 2026-10-12: refresh the documentation, comments and the project as a
+whole so everything is current; commit and push; everything ends up in `main`.
 
 Marks: `[ ]` open, `+` done, `-` not done or partially done (with a note).
 
-## 1. Implementation
+## 1. Audit and fixes
 
-+ `src/logs.js`: sheet creation, styling, `logEvent_`, `logEdit_`, value sanitizing
-+ Rebuilds keep the Logs sheet
-+ Hooks: onEdit, menu actions, import / export / reset config, backups, errors, game events
-+ English UI strings; Russian headers in the personal config
+[ ] Find stale references (old function names, sheet lists, versions, test lists)
+[ ] Code header comments match the modules (state, main, game)
+[ ] Agents and skills: current function names; mirror regenerated
+[ ] Rule modules: project map, commands, config reference
+[ ] State documents: roadmap, architecture, decisions, manual test plan
+[ ] README, SECURITY; package-lock version
 
-## 2. Verification
+## 2. Verification and publishing
 
-+ Tests for logging (sanitizing, edit capture, rebuild exemption), `npm run check` green
-+ Manual test plan updated
-
-## 3. Completion
-
-+ Docs, changelog, version 2.5.0, rule modules synced
-+ Merge into `main`
+[ ] `npm run check` green
+[ ] Merge into `main`, push to origin
