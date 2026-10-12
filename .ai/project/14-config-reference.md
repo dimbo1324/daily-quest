@@ -15,13 +15,15 @@
 | `xpPerLevel`, `coinsPerXp`, `streakThreshold` | numbers | game balance (also editable on the Settings sheet) |
 | `categories` | 1–12 names | task categories |
 | `habits` | `{ name, xp, days }[]` | `days`: `all`, `monsat`, `monfri`, `sat`, `sun` |
+| `rules` | `{ name, xp, kind, days }[]` | `kind`: `keep` or `avoid`; tick = kept that day; up to 30; empty = no Rules sheet |
 | `tasks` | `{ title, category, deadline, priority, xp }[]` | initial tasks (first build only); `priority`: `high`, `medium`, `low` (a label is accepted and mapped) |
 | `rewards` | `{ name, price }[]` | initial shop rewards (first build only) |
 | `strings` | `{ key: text }` | UI overrides; keys and defaults are `STRINGS_EN` |
 
 Unknown keys and unknown fields are validation errors (typos must not pass silently). A new
-habit kind (for example "avoid" habits) is a new field added through the one-pass procedure
-in `12-domain-rules.md`.
+field is added through the one-pass procedure in `12-domain-rules.md`. Habits and rules are
+both "trackers" (`trackers_()` in `src/trackers.js`): a new day-tracked list reuses that
+layer instead of copying it.
 
 ## Calendar period
 

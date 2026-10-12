@@ -9,6 +9,7 @@ const { run } = loadApp();
 const strings = run('STRINGS_EN');
 const days = Object.keys(run('DAYSETS'));
 const priorities = run('PRIORITY_KEYS');
+const kinds = run('RULE_KINDS');
 const maxDays = run('MAX_CALENDAR_DAYS');
 
 const date = { type: 'string', pattern: '^(\\d{4}-\\d{2}-\\d{2})?$', description: 'YYYY-MM-DD, or empty' };
@@ -41,6 +42,19 @@ const schema = {
           name: { type: 'string', minLength: 1 },
           xp: { type: 'number', exclusiveMinimum: 0, maximum: 1000 },
           days: { enum: days, description: 'Days of the week the habit is active.' },
+        },
+      },
+    },
+    rules: {
+      type: 'array', maxItems: 30,
+      description: 'Day-tracked rules: things to keep or to avoid. A tick means the rule was kept that day.',
+      items: {
+        type: 'object', additionalProperties: false, required: ['name', 'xp', 'kind', 'days'],
+        properties: {
+          name: { type: 'string', minLength: 1 },
+          xp: { type: 'number', exclusiveMinimum: 0, maximum: 1000 },
+          kind: { enum: kinds, description: 'keep: a healthy rule to follow; avoid: something to stay away from.' },
+          days: { enum: days, description: 'Days of the week the rule is active.' },
         },
       },
     },

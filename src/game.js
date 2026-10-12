@@ -10,7 +10,8 @@ function onEdit(e) {
     const SH = names_();
     const sh = r.getSheet();
     const name = sh.getName();
-    if (name === SH.habits) onHabitEdit_(sh, r);
+    const tracker = trackers_().filter(t => t.sheet === name)[0];
+    if (tracker) onTrackerEdit_(sh, r, tracker);
     else if (name === SH.tasks) onTaskEdit_(sh, r);
     else if (name === SH.shop) onShopEdit_(sh, r);
   } catch (err) {
@@ -18,12 +19,16 @@ function onEdit(e) {
   }
 }
 
-function onHabitEdit_(sh, r) {
-  const c = habitCols_();
+function onTrackerEdit_(sh, r, t) {
+  const c = trackCols_(t);
   const row = r.getRow(), col = r.getColumn();
   if (row < LAYOUT.FIRST_ROW || col < c.first || col > c.last) return;
   if (r.getValue() !== true) return;
   const xp = Number(sh.getRange(2, col).getValue()) || 0;
+  if (t.key === 'rules') {
+    celebrate_(xp, t_('msg.ruleKept', t.items[col - c.first].name));
+    return;
+  }
   celebrate_(xp);
   const pct = Number(sh.getRange(row, c.pct).getValue());
   if (pct >= 1) notify_(t_('msg.dayClosed'), 6);

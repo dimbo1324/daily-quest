@@ -16,18 +16,17 @@ npm tooling with clasp and ESLint, GitHub Actions CI with a forbidden-files guar
 storage); tests; language guard; `.ai/` rules, `CLAUDE.md`, generated `AGENTS.md` and
 `.codex/` mirror.
 
-## 3. Verify v2.2 in a real spreadsheet
+## 3. Rules to keep and to avoid (v2.3.0)
 
-Run `setup` in a fresh Google Sheet and in a sheet with v2.0 data; import the personal
-config; check every menu item, the dashboard formulas, the charts, `onEdit` reactions,
-backup and restore, a language switch. Fix what breaks. Nothing after this item should ship
-before it is done.
+**Done 2026-10-12 (code).** `rules` config list and a Rules sheet tracked day by day; rule XP
+in all totals; dashboard section with the clean streak and the 30-day share per rule. The
+owner's personal rules live in `my-config.json`.
 
-## 4. Habits to keep and habits to avoid
+## 4. Verify v2.3 in a real spreadsheet
 
-Owner's next request: a separate list of rules to keep or avoid (no fast food, no sweets,
-no soda, …) with its own sheet, categories and scoring. Scope with the
-`daily-quest-feature-planner` agent; details come from the owner.
+Walk through `docs/manual-test-plan.md` in a fresh test spreadsheet, then in the real one
+with the personal config. Fix what breaks. Nothing after this item should ship before it is
+done.
 
 ## 5. Content Tracker (second spreadsheet)
 

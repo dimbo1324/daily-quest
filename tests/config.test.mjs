@@ -139,3 +139,41 @@ test('a large config survives the chunked document-property storage', () => {
   run('setCfg_(null)');
   assert.deepEqual(plain(run('cfg_().habits')), habits);
 });
+
+test('rules: the demo config ships keep and avoid rules', () => {
+  const { run } = app();
+  const kinds = plain(run('cfg_().rules.map(r => r.kind)'));
+  assert.ok(kinds.includes('keep') && kinds.includes('avoid'));
+  assert.deepEqual(plain(run('trackers_().map(t => t.key)')), ['habits', 'rules']);
+});
+
+test('rules: an empty list removes the Rules tracker', () => {
+  const { run } = app({ rules: [] });
+  assert.deepEqual(plain(run('trackers_().map(t => t.key)')), ['habits']);
+  assert.deepEqual(plain(run('validateCfg_(cfg_())')), []);
+});
+
+test('rules: validation of kind, days, duplicates and fields', () => {
+  const { run, context } = app();
+  const check = (rules) => {
+    context.input = { rules };
+    return plain(run('validateCfg_(normalizeCfg_(input, DEFAULT_CFG))')).join();
+  };
+  assert.equal(check([{ name: 'No soda', xp: 10, kind: 'avoid', days: 'all' }]), '');
+  assert.match(check([{ name: 'No soda', xp: 10, kind: 'never', days: 'all' }]), /kind must be one of keep, avoid/);
+  assert.match(check([{ name: 'No soda', xp: 10, kind: 'avoid', days: 'often' }]), /unknown days/);
+  assert.match(check([{ name: 'No soda', xp: 0, kind: 'avoid', days: 'all' }]), /xp must be 1–1000/);
+  assert.match(check([{ name: 'A', xp: 1, kind: 'keep', days: 'all' }, { name: 'A', xp: 1, kind: 'keep', days: 'all' }]), /Duplicate rule: A/);
+  assert.match(check([{ name: 'A', xp: 1, kind: 'keep', days: 'all', note: 'x' }]), /unknown field «note»/);
+  assert.match(check(Array.from({ length: 31 }, (_, i) => ({ name: `R${i}`, xp: 1, kind: 'keep', days: 'all' }))), /30 at most/);
+});
+
+test('trackers: rules have no streak column, habits do', () => {
+  const { run } = app();
+  const habits = plain(run('trackCols_(tracker_("habits"))'));
+  const rules = plain(run('trackCols_(tracker_("rules"))'));
+  assert.equal(habits.width, habits.last + 3);
+  assert.ok(habits.streak > 0);
+  assert.equal(rules.streak, 0);
+  assert.equal(rules.width, rules.last + 2);
+});

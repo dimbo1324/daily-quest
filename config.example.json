@@ -47,6 +47,32 @@
       "days": "sun"
     }
   ],
+  "rules": [
+    {
+      "name": "📵 No phone in bed",
+      "xp": 10,
+      "kind": "avoid",
+      "days": "all"
+    },
+    {
+      "name": "🚬 No smoking",
+      "xp": 15,
+      "kind": "avoid",
+      "days": "all"
+    },
+    {
+      "name": "🛏️ Make the bed",
+      "xp": 5,
+      "kind": "keep",
+      "days": "all"
+    },
+    {
+      "name": "🌳 Fresh air 20 min",
+      "xp": 10,
+      "kind": "keep",
+      "days": "all"
+    }
+  ],
   "tasks": [
     {
       "title": "My first task",

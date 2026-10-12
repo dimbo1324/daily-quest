@@ -9,35 +9,25 @@ function exportState_() {
   const SH = names_();
   const state = {
     version: VERSION, exportedAt: new Date().toISOString(),
-    firstDate: '', habits: {}, xp: {}, params: null, tasks: [], shop: [],
+    firstDate: '', habits: {}, rules: {}, xp: {}, ruleXp: {}, params: null, tasks: [], shop: [],
   };
 
-  const h = sheet_(SH.habits);
-  if (h && h.getLastRow() >= LAYOUT.FIRST_ROW) {
-    const lastCol = h.getLastColumn();
-    const header = h.getRange(1, 1, 1, lastCol).getValues()[0].map(String);
-    let end = header.indexOf(t_('habits.xp'));
-    if (end < 0) end = header.indexOf('XP');
-    if (end < 0) end = lastCol;
-    const names = header.slice(2, end);
-    const rows = h.getLastRow() - LAYOUT.FIRST_ROW + 1;
-    const data = h.getRange(LAYOUT.FIRST_ROW, 1, rows, end).getValues();
-    // Dates that failed to compute (#ERROR! in v1) are recovered from the first row's formula.
-    const firstF = U.isoFromFormula(h.getRange(LAYOUT.FIRST_ROW, 1).getFormula());
-    data.forEach((r, i) => {
-      const iso = U.isoOrEmpty(r[0]) || (firstF ? U.isoFromParts(U.addDays(U.parts(firstF), i)) : '');
-      if (!iso) return;
-      if (!state.firstDate || iso < state.firstDate) state.firstDate = iso;
-      const done = names.filter((n, j) => r[2 + j] === true);
-      if (done.length) state.habits[iso] = done;
-    });
-  }
+  [['habits', SH.habits], ['rules', SH.rules]].forEach(([key, name]) => {
+    const ticks = readTicks_(sheet_(name));
+    state[key] = ticks.byDate;
+    if (ticks.firstDate && (!state.firstDate || ticks.firstDate < state.firstDate)) state.firstDate = ticks.firstDate;
+  });
 
   const c = sheet_(SH.cfg);
   if (c && c.getLastRow() >= 2) {
-    c.getRange(2, 1, c.getLastRow() - 1, 2).getValues().forEach(([n, x]) => {
-      if (n !== '' && x !== '' && Number.isFinite(Number(x))) state.xp[String(n)] = Number(x);
-    });
+    const readXp = (col, into) => {
+      if (c.getMaxColumns() < col + 1) return;
+      c.getRange(2, col, c.getLastRow() - 1, 2).getValues().forEach(([n, x]) => {
+        if (n !== '' && x !== '' && Number.isFinite(Number(x))) into[String(n)] = Number(x);
+      });
+    };
+    readXp(SETTINGS_COL.habits, state.xp);
+    readXp(SETTINGS_COL.rules, state.ruleXp);
     const p = c.getRange('F2:F4').getValues().map(r => Number(r[0]));
     if (p.every(v => Number.isFinite(v) && v > 0)) state.params = p;
   }
@@ -68,6 +58,30 @@ function exportState_() {
     });
   }
   return state;
+}
+
+/** Ticks of a tracker sheet: { firstDate, byDate: { iso: [item names] } }. Tolerates v1 sheets. */
+function readTicks_(sh) {
+  const out = { firstDate: '', byDate: {} };
+  if (!sh || sh.getLastRow() < LAYOUT.FIRST_ROW) return out;
+  const lastCol = sh.getLastColumn();
+  const header = sh.getRange(1, 1, 1, lastCol).getValues()[0].map(String);
+  let end = header.indexOf(t_('habits.xp'));
+  if (end < 0) end = header.indexOf('XP');
+  if (end < 0) end = lastCol;
+  const names = header.slice(2, end);
+  const rows = sh.getLastRow() - LAYOUT.FIRST_ROW + 1;
+  const data = sh.getRange(LAYOUT.FIRST_ROW, 1, rows, end).getValues();
+  // Dates that failed to compute (#ERROR! in v1) are recovered from the first row's formula.
+  const firstF = U.isoFromFormula(sh.getRange(LAYOUT.FIRST_ROW, 1).getFormula());
+  data.forEach((r, i) => {
+    const iso = U.isoOrEmpty(r[0]) || (firstF ? U.isoFromParts(U.addDays(U.parts(firstF), i)) : '');
+    if (!iso) return;
+    if (!out.firstDate || iso < out.firstDate) out.firstDate = iso;
+    const done = names.filter((n, j) => r[2 + j] === true);
+    if (done.length) out.byDate[iso] = done;
+  });
+  return out;
 }
 
 /** Backup into a hidden sheet: JSON split into chunks, stored as text. */
@@ -104,17 +118,18 @@ function readBackup_() {
   }
 }
 
-function restoreHabits_(sh, state) {
-  const c = habitCols_();
+function restoreTicks_(sh, t, state) {
+  const ticks = state[t.key] || {};
+  const c = trackCols_(t);
   const rows = sh.getLastRow() - LAYOUT.FIRST_ROW + 1;
   if (rows < 1) return;
-  const names = cfg_().habits.map(h => h.name);
+  const names = t.items.map(h => h.name);
   const dates = sh.getRange(LAYOUT.FIRST_ROW, 1, rows, 1).getValues();
   const block = sh.getRange(LAYOUT.FIRST_ROW, c.first, rows, c.n);
   const vals = block.getValues();
   let changed = 0, lost = 0;
   dates.forEach((d, i) => {
-    const list = state.habits[U.isoOrEmpty(d[0])];
+    const list = ticks[U.isoOrEmpty(d[0])];
     if (!list) return;
     list.forEach(nm => {
       const j = names.indexOf(nm);

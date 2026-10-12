@@ -11,6 +11,7 @@ const STRINGS_EN = {
 
   'sheet.dashboard': 'Dashboard',
   'sheet.habits': 'Habits',
+  'sheet.rules': 'Rules',
   'sheet.tasks': 'Tasks',
   'sheet.shop': 'Shop',
   'sheet.settings': 'Settings',
@@ -34,6 +35,9 @@ const STRINGS_EN = {
   'days.sun': 'Sun',
   'weekdays': ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
 
+  'kind.keep': '✅ Keep',
+  'kind.avoid': '🚫 Avoid',
+
   'priority.high': '🔥 High',
   'priority.medium': 'Medium',
   'priority.low': 'Low',
@@ -47,6 +51,7 @@ const STRINGS_EN = {
   'fmt.chartDayMonth': 'dd.MM',
   'fmt.dateTime': 'dd.MM.yyyy HH:mm',
   'fmt.daysLeft': '"in "0" d.";"overdue "0" d.";"today"',
+  'fmt.streakDays': '0" d."',
 
   'op.busy': '⏳ Another operation is running. Try again in a minute.',
   'op.error': 'Error: {0}\n\n{1}',
@@ -85,9 +90,11 @@ const STRINGS_EN = {
   'msg.notEnoughCoins': '🪙 {0} coins short for «{1}». A few more quests!',
   'msg.bought': '🛒 Bought: {0}. Balance left: {1} 🪙',
   'msg.levelUp': '🎉 NEW LEVEL {0}: {1}!',
+  'msg.ruleKept': '🛡️ {0}',
   'msg.xpGained': '+{0} XP · to level {1}: {2} XP',
 
   'err.settingsDays': 'Sheet «{0}», row {1}: pick the days from the list (now «{2}»).',
+  'err.settingsKind': 'Sheet «{0}», row {1}: pick the rule type from the list (now «{2}»).',
   'err.settingsXp': 'Sheet «{0}», row {1}: XP must be a number.',
   'err.lastDate': 'Could not read the last date on sheet «{0}».',
   'err.notJson': 'This is not JSON: {0}',
@@ -102,6 +109,8 @@ const STRINGS_EN = {
   'dialog.applying': 'Applying…',
 
   'settings.habit': 'Habit',
+  'settings.rule': 'Rule',
+  'settings.kind': 'Type',
   'settings.xp': 'XP',
   'settings.days': 'Days',
   'settings.param': 'Parameter',
@@ -114,10 +123,12 @@ const STRINGS_EN = {
     '• Change a habit\'s XP in column B — everything recalculates.',
     '• On the right: XP per level, coins per 1 XP, streak threshold (share of habits done).',
     '• New habit: add a row below the list (name, XP, days), then menu «♻️ Rebuild».',
+    '• Rules (table on the right): things to keep or to avoid. Tick a rule on the Rules sheet when you kept it that day.',
     '• A backup is saved automatically before every rebuild.',
     '• The script only works with this spreadsheet (@OnlyCurrentDoc).',
   ],
   'settings.daysHelp': 'Pick the days from the list',
+  'settings.kindHelp': 'Keep or avoid',
   'settings.xpHelp': 'XP: a number from 0 to 1000',
   'settings.thresholdHelp': 'For example 0.8 = 80 %',
 
@@ -126,6 +137,7 @@ const STRINGS_EN = {
   'habits.xp': 'XP',
   'habits.done': 'Done',
   'habits.streak': 'Streak',
+  'rules.kept': 'Kept',
 
   'tasks.done': '✓',
   'tasks.title': 'Task',
@@ -182,6 +194,9 @@ const STRINGS_EN = {
   'dash.habits30': '📊 HABITS, LAST 30 DAYS →',
   'dash.progress': 'PROGRESS',
   'dash.done': 'DONE',
+  'dash.rules': '🛡️ RULES →',
+  'dash.ruleStreak': 'STREAK',
+  'dash.ruleKept': 'KEPT, 30 D',
   'dash.chartDate': 'Date',
   'dash.chartXp': 'XP',
   'dash.chartDone': 'Done',
@@ -192,6 +207,7 @@ const STRINGS_EN = {
 
   'protect.dashboard': 'the dashboard is calculated automatically',
   'protect.habitHeader': 'habit headers and XP',
+  'protect.ruleHeader': 'rule headers and XP',
   'protect.dates': 'dates',
   'protect.formulas': 'XP / % / streak formulas',
   'protect.taskLeft': 'the «Left» column is calculated',
@@ -219,9 +235,10 @@ function tq_(key) {
 function names_() {
   return {
     dash: t_('sheet.dashboard'), habits: t_('sheet.habits'), tasks: t_('sheet.tasks'),
-    shop: t_('sheet.shop'), cfg: t_('sheet.settings'), backup: '_backup',
+    rules: t_('sheet.rules'), shop: t_('sheet.shop'), cfg: t_('sheet.settings'), backup: '_backup',
   };
 }
 
 function dayLabel_(key) { return t_('days.' + key); }
 function priorityLabel_(key) { return t_('priority.' + key); }
+function kindLabel_(key) { return t_('kind.' + key); }
