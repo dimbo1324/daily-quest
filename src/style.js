@@ -1,5 +1,6 @@
 /**
- * Dark, calm styling of every sheet, charts, and soft formula protection.
+ * Dark, calm styling of every sheet, the dashboard charts, and soft formula protection.
+ * The Stats and Logs sheets style themselves (stats.js, logs.js).
  */
 
 function styleAll_() {

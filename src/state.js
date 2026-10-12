@@ -1,7 +1,8 @@
 /**
  * User data snapshot, backup and restore. A snapshot is independent of the sheet layout so a
  * rebuild (new version, new habits, new language) can carry ticks, tasks and purchases over.
- * Ticks are matched by date and habit name: renaming a habit drops its old ticks.
+ * Ticks are matched by date and item name (habits and rules): renaming an item drops its old
+ * ticks.
  */
 
 /** Snapshot of all user data (tolerant of v1 sheets). */

@@ -1,5 +1,6 @@
 /**
- * Game reactions to edits (simple onEdit trigger): XP toasts, level-ups, purchase checks.
+ * Game reactions to edits (simple onEdit trigger): every edit is logged first, then XP toasts,
+ * level-ups, task completion dates and purchase checks.
  */
 
 function onEdit(e) {

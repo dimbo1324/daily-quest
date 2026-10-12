@@ -12,6 +12,7 @@
  *  - @OnlyCurrentDoc: the script can reach this spreadsheet only.
  *  - Every rebuild writes a backup to the hidden `_backup` sheet first.
  *  - Destructive actions ask for confirmation; a document lock prevents double runs.
+ *  - Every edit and operation is appended to the `Logs` sheet (logs.js).
  *
  * Personal settings never live in code: see config.js and README.md.
  */
