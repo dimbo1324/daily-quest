@@ -16,7 +16,7 @@
  * Personal settings never live in code: see config.js and README.md.
  */
 
-const VERSION = '2.4.0';
+const VERSION = '2.4.1';
 
 // ═════════════════════════ Menu and entry points ═════════════════════════
 

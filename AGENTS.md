@@ -469,6 +469,8 @@ These sharpen the universal rules for this codebase. Stricter wins.
   layouts); no per-cell calls or range lists over calendar-sized ranges — a year-long build
   must stay well inside the 6-minute execution limit (v2.3.1 hit it).
 - Only `SUMIF` / `COUNTIF` expand inside `ARRAYFORMULA`; `SUMIFS` / `COUNTIFS` do not.
+- Chart options: `chartArea` takes `left`, `top` and `backgroundColor` only — Google rejects
+  `right` and `bottom` and the whole build fails.
 - User data is matched by date and habit name. Renaming a habit loses its old ticks — say so
   whenever a task touches habit identity.
 

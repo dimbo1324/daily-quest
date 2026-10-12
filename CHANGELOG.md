@@ -2,6 +2,12 @@
 
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versioning: [SemVer](https://semver.org/).
 
+## [2.4.1] - 2026-10-12
+### Fixed
+- Rebuild failed with "chart option no longer supported: chartArea.bottom": charts now set
+  only `left` and `top` of the chart area. A rejected Stats chart is reported in a toast
+  instead of aborting the rebuild.
+
 ## [2.4.0] - 2026-10-12
 ### Added
 - Stats sheet: KPI tiles (best streak, perfect days, ticks, 30-day average with a sparkline),

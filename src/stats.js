@@ -260,7 +260,13 @@ function styleStats_(sh) {
     row.forEach(spec => {
       const [colA, offA] = statsAnchor_(x);
       const row0 = ST.CHARTS + Math.floor(y / ST.CHART_ROW_PX);
-      insertDarkChart_(sh, spec, row0, colA, offA);
+      // Charts are decoration: one rejected chart must not abort the whole rebuild.
+      try {
+        insertDarkChart_(sh, spec, row0, colA, offA);
+      } catch (e) {
+        console.error('Stats chart «' + spec.title + '»', e && e.stack ? e.stack : e);
+        notify_('⚠️ ' + spec.title + ': ' + e.message, 10);
+      }
       x += spec.w + GAP;
     });
     y += Math.max.apply(null, row.map(s => s.h)) + GAP;
@@ -282,7 +288,7 @@ function insertDarkChart_(sh, spec, row, col, offsetX) {
     .setOption('title', spec.title)
     .setOption('titleTextStyle', { color: TH.text, fontSize: 14, bold: true })
     .setOption('backgroundColor', TH.surface)
-    .setOption('chartArea', { backgroundColor: TH.surface, left: 60, right: 30, top: 56, bottom: 44 })
+    .setOption('chartArea', { backgroundColor: TH.surface, left: 60, top: 56 })
     .setOption('legend', { position: 'top', textStyle: axisText })
     .setOption('hAxis', Object.assign({ textStyle: axisText, gridlines: { color: TH.grid } }, opts.hAxis || {}))
     .setOption('vAxis', Object.assign({ textStyle: axisText, gridlines: { color: TH.grid } }, opts.vAxis || {}))

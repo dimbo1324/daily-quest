@@ -309,7 +309,7 @@ function styleDashboard_(sh) {
     .setOption('title', t_('dash.chartXpTitle'))
     .setOption('titleTextStyle', { color: TH.text, fontSize: 14, bold: true })
     .setOption('backgroundColor', TH.surface)
-    .setOption('chartArea', { backgroundColor: TH.surface, left: 50, right: 50, top: 56, bottom: 44 })
+    .setOption('chartArea', { backgroundColor: TH.surface, left: 50, top: 56 })
     .setOption('legend', { position: 'top', textStyle: axisText })
     .setOption('hAxis', { textStyle: axisText, format: t_('fmt.chartDayMonth'), gridlines: { color: 'transparent' } })
     .setOption('vAxes', {

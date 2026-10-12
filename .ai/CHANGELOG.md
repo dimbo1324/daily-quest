@@ -6,6 +6,16 @@ History of changes to the AI assistant rule system (`.ai/`, `CLAUDE.md`, `AGENTS
 
 Format: date, what changed, why, who decided. Newest first.
 
+## 2026-10-12 — Supported chart-area options
+
+**What changed.** `project/12-domain-rules.md` records that `chartArea` accepts only `left`,
+`top` and `backgroundColor`.
+
+**Why.** Google rejected `chartArea.bottom` in the owner's real spreadsheet and the rebuild
+failed. A constraint learned from a real failure, allowed without approval.
+
+**Decided by.** Agent, while fixing the owner-reported error of 2026-10-12.
+
 ## 2026-10-12 — Stats sheet and the execution-time rule
 
 **What changed.** `project/10-project-map.md` lists the Stats sheet and `src/stats.js`.
