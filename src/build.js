@@ -17,21 +17,22 @@ function buildAll_(state) {
   ss.getSheets().forEach(s => {
     if (s.getSheetId() !== tmp.getSheetId() && s.getName() !== SH.backup) ss.deleteSheet(s);
   });
+  const trackers = trackers_();
   const sheets = {};
-  [['dash', SH.dash], ['habits', SH.habits], ['tasks', SH.tasks], ['shop', SH.shop], ['cfg', SH.cfg]]
+  [['dash', SH.dash]].concat(trackers.map(t => [t.key, t.sheet]), [['tasks', SH.tasks], ['shop', SH.shop], ['cfg', SH.cfg]])
     .forEach(([k, n], i) => { sheets[k] = ss.insertSheet(n, i); });
   ss.deleteSheet(tmp);
 
   const [start, days] = calendarPeriod_(cfg, U.todayParts(), state && state.firstDate);
 
   buildSettings_(sheets.cfg, state);
-  buildHabits_(sheets.habits, start, days);
+  trackers.forEach(t => buildTracker_(sheets[t.key], t, start, days));
   buildTasks_(sheets.tasks, state);
   buildShop_(sheets.shop, state);
   buildDashboard_(sheets.dash);
   SpreadsheetApp.flush();
 
-  if (state) restoreHabits_(sheets.habits, state);
+  if (state) trackers.forEach(t => restoreTicks_(sheets[t.key], t, state));
 
   styleAll_();
   protectAll_();
@@ -55,12 +56,6 @@ function ensureRows_(sh, lastRow) {
   if (mr < lastRow) sh.insertRowsAfter(mr, lastRow - mr);
 }
 
-function habitCols_() {
-  const n = cfg_().habits.length;
-  const first = 3, last = 2 + n;
-  return { n, first, last, xp: last + 1, pct: last + 2, streak: last + 3, width: last + 3 };
-}
-
 function quoteList_(items) {
   return items.map(s => '"' + String(s).replace(/"/g, '""') + '"').join(',');
 }
@@ -71,9 +66,14 @@ function buildSettings_(sh, state) {
   const rows = cfg.habits.map(h => [
     h.name, (state && state.xp && state.xp[h.name] != null) ? state.xp[h.name] : h.xp, dayLabel_(h.days),
   ]);
+  const ruleXp = (state && state.ruleXp) || {};
+  const ruleRows = cfg.rules.map(r => [
+    r.name, ruleXp[r.name] != null ? ruleXp[r.name] : r.xp, kindLabel_(r.kind), dayLabel_(r.days),
+  ]);
   const params = (state && state.params) ? state.params : [cfg.xpPerLevel, cfg.coinsPerXp, cfg.streakThreshold];
   const help = t_('settings.help');
-  trimSheet_(sh, Math.max(rows.length + 13, help.length + 1), 8);
+  const R = SETTINGS_COL.rules;
+  trimSheet_(sh, Math.max(rows.length, ruleRows.length, help.length) + 13, R + 3);
 
   sh.getRange(1, 1, 1, 3).setValues([[t_('settings.habit'), t_('settings.xp'), t_('settings.days')]]);
   sh.getRange(2, 1, rows.length, 3).setValues(rows);
@@ -84,11 +84,19 @@ function buildSettings_(sh, state) {
     [t_('settings.streakThreshold'), params[2]],
   ]);
   sh.getRange(1, 8, help.length, 1).setValues(help.map(s => [s]));
-  sh.getRange(2, 3, rows.length + 12, 1).setDataValidation(SpreadsheetApp.newDataValidation()
-    .requireValueInList(Object.keys(DAYSETS).map(dayLabel_), true).setAllowInvalid(false)
-    .setHelpText(t_('settings.daysHelp')).build());
-  sh.getRange(2, 2, rows.length + 12, 1).setDataValidation(SpreadsheetApp.newDataValidation()
-    .requireNumberBetween(0, 1000).setAllowInvalid(false).setHelpText(t_('settings.xpHelp')).build());
+  sh.getRange(1, R, 1, 4).setValues([[t_('settings.rule'), t_('settings.xp'), t_('settings.kind'), t_('settings.days')]]);
+  if (ruleRows.length) sh.getRange(2, R, ruleRows.length, 4).setValues(ruleRows);
+
+  const dv = SpreadsheetApp.newDataValidation;
+  const daysRule = dv().requireValueInList(Object.keys(DAYSETS).map(dayLabel_), true).setAllowInvalid(false)
+    .setHelpText(t_('settings.daysHelp')).build();
+  const xpRule = dv().requireNumberBetween(0, 1000).setAllowInvalid(false).setHelpText(t_('settings.xpHelp')).build();
+  sh.getRange(2, 3, rows.length + 12, 1).setDataValidation(daysRule);
+  sh.getRange(2, 2, rows.length + 12, 1).setDataValidation(xpRule);
+  sh.getRange(2, R + 3, ruleRows.length + 12, 1).setDataValidation(daysRule);
+  sh.getRange(2, R + 1, ruleRows.length + 12, 1).setDataValidation(xpRule);
+  sh.getRange(2, R + 2, ruleRows.length + 12, 1).setDataValidation(dv()
+    .requireValueInList(RULE_KINDS.map(kindLabel_), true).setAllowInvalid(false).setHelpText(t_('settings.kindHelp')).build());
   sh.getRange('F2').setDataValidation(SpreadsheetApp.newDataValidation()
     .requireNumberBetween(1, 1000000).setAllowInvalid(false).build());
   sh.getRange('F3').setDataValidation(SpreadsheetApp.newDataValidation()
@@ -96,70 +104,6 @@ function buildSettings_(sh, state) {
   sh.getRange('F4').setDataValidation(SpreadsheetApp.newDataValidation()
     .requireNumberBetween(0.01, 1).setAllowInvalid(false).setHelpText(t_('settings.thresholdHelp')).build());
   sh.getRange('F4').setNumberFormat('0%');
-}
-
-// ---------- Habits ----------
-function buildHabits_(sh, start, days) {
-  const c = habitCols_();
-  const habits = cfg_().habits;
-  const cfgName = U.q(names_().cfg);
-  trimSheet_(sh, LAYOUT.FIRST_ROW - 1 + days, c.width);
-  const header = [t_('habits.date'), t_('habits.day')].concat(habits.map(h => h.name),
-    [t_('habits.xp'), t_('habits.done'), t_('habits.streak')]);
-  const xpRow = ['', t_('habits.xp')].concat(habits.map((h, i) => '=' + cfgName + '!B' + (i + 2)), ['', '', '']);
-  sh.getRange(1, 1, 1, c.width).setValues([header]);
-  sh.getRange(2, 1, 1, c.width).setValues([xpRow]);
-  appendDays_(sh, days, start, true);
-}
-
-/** Appends n days at the end of the sheet (or from `start` when the sheet is empty). */
-function appendDays_(sh, n, start, forceFresh) {
-  const c = habitCols_();
-  const habits = cfg_().habits;
-  const last = sh.getLastRow();
-  const fresh = forceFresh === true || last < LAYOUT.FIRST_ROW;
-  let base;
-  if (fresh) {
-    base = start || U.todayParts();
-  } else {
-    const lastIso = lastDateIso_(sh);
-    if (!lastIso) throw new Error(t_('err.lastDate', names_().habits));
-    base = U.addDays(U.parts(lastIso), 1);
-  }
-  const startRow = fresh ? LAYOUT.FIRST_ROW : last + 1;
-  ensureRows_(sh, startRow + n - 1);
-
-  // Dates and weekdays
-  const weekdayF = '=CHOOSE(WEEKDAY(RC1,2),' + quoteList_(t_('weekdays')) + ')';
-  const ab = [];
-  for (let i = 0; i < n; i++) {
-    const dateF = (i === 0 && fresh) ? '=DATE(' + base[0] + ',' + base[1] + ',' + base[2] + ')' : '=R[-1]C+1';
-    ab.push([dateF, weekdayF]);
-  }
-  sh.getRange(startRow, 1, n, 2).setFormulasR1C1(ab);
-
-  // Ticks: active days get checkboxes, inactive days get «—»
-  const block = sh.getRange(startRow, c.first, n, c.n);
-  block.setValues(U.fill(n, c.n, false));
-  block.insertCheckboxes();
-  const inactive = [];
-  for (let i = 0; i < n; i++) {
-    const wd = U.weekday(U.addDays(base, i));
-    habits.forEach((h, j) => {
-      if (!DAYSETS[h.days][wd]) inactive.push(U.col(c.first + j) + (startRow + i));
-    });
-  }
-  if (inactive.length) {
-    sh.getRangeList(inactive).removeCheckboxes();
-    sh.getRangeList(inactive).setValue('—');
-  }
-
-  // XP, completion %, streak
-  const r = 'RC' + c.first + ':RC' + c.last;
-  const xpF = '=SUMPRODUCT(--(' + r + '=TRUE),R2C' + c.first + ':R2C' + c.last + ')';
-  const pctF = '=IFERROR(COUNTIF(' + r + ',TRUE)/(COUNTIF(' + r + ',TRUE)+COUNTIF(' + r + ',FALSE)),0)';
-  const stF = '=IF(RC1>TODAY(),"",IF(RC[-1]>=' + U.q(names_().cfg) + '!R4C6,N(R[-1]C)+1,0))';
-  sh.getRange(startRow, c.xp, n, 3).setFormulasR1C1(U.fill(n, 1, null).map(() => [xpF, pctF, stF]));
 }
 
 // ---------- Tasks ----------
@@ -230,12 +174,21 @@ function buildDashboard_(sh) {
   const SH = names_();
   const c = habitCols_();
   const n = cfg.habits.length;
-  trimSheet_(sh, Math.max(D.HAB + n + 2, D.CAT_H + cfg.categories.length + 2), 26);
+  const rules = tracker_('rules');
+  const m = rules ? rules.items.length : 0;
+  const rH = rulesHeaderRow_();
+  trimSheet_(sh, Math.max(rH + m + 2, D.CAT_H + cfg.categories.length + 2), 26);
 
   const hS = U.q(SH.habits), tS = U.q(SH.tasks), sS = U.q(SH.shop), cS = U.q(SH.cfg);
   const xpL = U.col(c.xp), pctL = U.col(c.pct), stL = U.col(c.streak);
   const FR = LAYOUT.FIRST_ROW;
-  const at = (col, day) => 'IFERROR(INDEX(' + hS + '!' + col + ':' + col + ',MATCH(' + day + ',' + hS + '!A:A,0)),0)';
+  const atIn = (sheetQ, col, day) => 'IFERROR(INDEX(' + sheetQ + '!' + col + ':' + col + ',MATCH(' + day + ',' + sheetQ + '!A:A,0)),0)';
+  const at = (col, day) => atIn(hS, col, day);
+  const rc = rules ? trackCols_(rules) : null;
+  const rS = rules ? U.q(rules.sheet) : '';
+  const rXpL = rules ? U.col(rc.xp) : '';
+  const rPctL = rules ? U.col(rc.pct) : '';
+  const plusRules = expr => rules ? '+' + expr : '';
   const todayPct = at(pctL, 'TODAY()');
   const per = cS + '!$F$2', coin = cS + '!$F$3', thr = cS + '!$F$4';
   const spent = 'SUMIF(' + sS + '!C2:C,TRUE,' + sS + '!B2:B)';
@@ -256,7 +209,8 @@ function buildDashboard_(sh) {
 
     B5: t_('dash.level'), D5: t_('dash.totalXp'), F5: t_('dash.coins'),
     B6: '=INT(D6/' + per + ')+1',
-    D6: '=SUM(' + hS + '!' + xpL + FR + ':' + xpL + ')+SUMIF(' + tS + '!A2:A,TRUE,' + tS + '!F2:F)',
+    D6: '=SUM(' + hS + '!' + xpL + FR + ':' + xpL + ')' + plusRules('SUM(' + rS + '!' + rXpL + FR + ':' + rXpL + ')') +
+      '+SUMIF(' + tS + '!A2:A,TRUE,' + tS + '!F2:F)',
     F6: '=' + earned + '-' + spent,
     B7: '=CHOOSE(MIN(B6,' + nRanks + '),' + ranks + ')',
     D7: '=SPARKLINE(MOD(D6,' + per + '),{"charttype","bar";"max",' + per + ';"color1","' + TH.green + '"})',
@@ -266,7 +220,7 @@ function buildDashboard_(sh) {
     F8: '=' + tq_('dash.earned') + '&' + earned + '&' + tq_('dash.spent') + '&' + spent,
 
     B10: t_('dash.todayXp'), D10: t_('dash.streakDays'), F10: t_('dash.avg7'),
-    B11: '=' + at(xpL, 'TODAY()'),
+    B11: '=' + at(xpL, 'TODAY()') + plusRules(atIn(rS, rXpL, 'TODAY()')),
     D11: '=MAX(N(' + at(stL, 'TODAY()') + '),N(' + at(stL, 'TODAY()-1') + '))',
     F11: '=IFERROR(AVERAGEIFS(' + hS + '!' + pctL + ':' + pctL + ',' + last7 + '),0)',
     B12: '=SPARKLINE(' + todayPct + ',{"charttype","bar";"max",1;"color1","' + TH.green + '"})',
@@ -274,7 +228,8 @@ function buildDashboard_(sh) {
     F12: '=SPARKLINE(F11,{"charttype","bar";"max",1;"color1","' + TH.accent + '"})',
     B13: '=TEXT(' + todayPct + ',"0%")&' + tq_('dash.habitsToday'),
     D13: '=' + tq_('dash.record') + '&MAX(' + hS + '!' + stL + FR + ':' + stL + ')&' + tq_('dash.subDays'),
-    F13: '=' + tq_('dash.weekXp') + '&SUMIFS(' + hS + '!' + xpL + ':' + xpL + ',' + last7 + ')',
+    F13: '=' + tq_('dash.weekXp') + '&(SUMIFS(' + hS + '!' + xpL + ':' + xpL + ',' + last7 + ')' +
+      plusRules('SUMIFS(' + rS + '!' + rXpL + ':' + rXpL + ',' + rS + '!A:A,"<="&TODAY(),' + rS + '!A:A,">"&(TODAY()-7))') + ')',
 
     B15: t_('dash.overdue'), D15: t_('dash.dueSoon'), F15: t_('dash.openTasks'),
     B16: '=COUNTIFS(' + tS + '!A2:A,FALSE,' + tS + '!B2:B,"<>",' + tS + '!D2:D,"<"&TODAY())',
@@ -307,10 +262,31 @@ function buildDashboard_(sh) {
       '",IF(F' + r + '>=0.5,"' + TH.yellow + '","' + TH.red + '"))})';
   });
 
+  if (rules) {
+    const rWin = rS + '!$A$' + FR + ':$A,">"&(TODAY()-30),' + rS + '!$A$' + FR + ':$A,"<="&TODAY()';
+    const rStart = rS + '!$A$' + FR;
+    cells['B' + rH] = '=HYPERLINK("#gid=' + sheet_(rules.sheet).getSheetId() + '",' + tq_('dash.rules') + ')';
+    cells['D' + rH] = t_('dash.ruleStreak');
+    cells['F' + rH] = t_('dash.ruleKept');
+    rules.items.forEach((item, i) => {
+      const r = rH + 1 + i, L = U.col(rc.first + i);
+      const col = rS + '!' + L + '$' + FR + ':' + L;
+      const yes = 'COUNTIFS(' + col + ',TRUE,' + rWin + ')';
+      const no = 'COUNTIFS(' + col + ',FALSE,' + rWin + ')';
+      // Clean streak: days since the last missed day before today, plus today once it is ticked.
+      const lastMiss = 'MAXIFS(' + rS + '!$A$' + FR + ':$A,' + col + ',FALSE,' + rS + '!$A$' + FR + ':$A,"<"&TODAY())';
+      const todayKept = 'COUNTIFS(' + rS + '!$A$' + FR + ':$A,TODAY(),' + col + ',TRUE)';
+      cells['B' + r] = '=' + cS + '!' + U.col(SETTINGS_COL.rules) + (i + 2);
+      cells['D' + r] = '=MAX(0,TODAY()-1-MAX(' + lastMiss + ',' + rStart + '-1))+' + todayKept;
+      cells['F' + r] = '=IFERROR(' + yes + '/(' + yes + '+' + no + '),0)';
+    });
+  }
+
   // Hidden chart data (X:Z)
   cells.X2 = t_('dash.chartDate'); cells.Y2 = t_('dash.chartXp'); cells.Z2 = t_('dash.chartDone');
   cells.X3 = '=SEQUENCE(30,1,TODAY()-29,1)';
-  cells.Y3 = '=ARRAYFORMULA(IFERROR(VLOOKUP(X3:X32,' + hS + '!A' + FR + ':' + pctL + ',' + c.xp + ',FALSE),0))';
+  cells.Y3 = '=ARRAYFORMULA(IFERROR(VLOOKUP(X3:X32,' + hS + '!A' + FR + ':' + pctL + ',' + c.xp + ',FALSE),0)' +
+    plusRules('IFERROR(VLOOKUP(X3:X32,' + rS + '!A' + FR + ':' + rPctL + ',' + rc.xp + ',FALSE),0)') + ')';
   cells.Z3 = '=ARRAYFORMULA(IFERROR(VLOOKUP(X3:X32,' + hS + '!A' + FR + ':' + pctL + ',' + c.pct + ',FALSE),0))';
   cells['X' + D.CAT_H] = t_('dash.category');
   cells['Y' + D.CAT_H] = t_('dash.open');
@@ -332,6 +308,15 @@ function buildDashboard_(sh) {
   sh.getRange('D' + D.TASKS + ':D' + tEnd).setNumberFormat(t_('fmt.date'));
   sh.getRange('F' + D.TASKS + ':F' + tEnd).setNumberFormat(t_('fmt.daysLeft'));
   sh.getRange('F' + D.HAB + ':F' + (D.HAB + n - 1)).setNumberFormat('0%');
+  if (m) {
+    sh.getRange('D' + (rH + 1) + ':D' + (rH + m)).setNumberFormat(t_('fmt.streakDays'));
+    sh.getRange('F' + (rH + 1) + ':F' + (rH + m)).setNumberFormat('0%');
+  }
   sh.getRange('X3:X32').setNumberFormat(t_('fmt.dayMonth'));
   sh.getRange('Z3:Z32').setNumberFormat('0%');
+}
+
+/** Dashboard row of the rules section header: one gap row below the habit list. */
+function rulesHeaderRow_() {
+  return D.HAB + cfg_().habits.length + 1;
 }

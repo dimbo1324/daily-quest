@@ -16,7 +16,7 @@
  * Personal settings never live in code: see config.js and README.md.
  */
 
-const VERSION = '2.2.0';
+const VERSION = '2.3.0';
 
 // ═════════════════════════ Menu and entry points ═════════════════════════
 
@@ -48,7 +48,7 @@ function setup() {
     if (trackerExists_()) {
       const state = exportState_();
       writeBackup_(state);
-      applyHabitsFromSheet_();
+      applySettingsSheet_();
       buildAll_(state);
       notify_(t_('msg.rebuilt'), 8);
     } else {
@@ -110,10 +110,8 @@ function goToday() {
 
 function add30Days() {
   run_(t_('op.addDays'), () => {
-    const sh = requireTracker_();
-    if (!sh) return;
-    appendDays_(sh, 30);
-    styleHabits_(sh);
+    if (!requireTracker_()) return;
+    extendTrackers_(30);
     notify_(t_('msg.added30'));
   });
 }
@@ -142,8 +140,6 @@ function autoExtend_() {
   const lock = LockService.getDocumentLock();
   if (!lock.tryLock(5000)) return;
   try {
-    appendDays_(sh, 30);
-    styleHabits_(sh);
-    notify_(t_('msg.autoAdded30'));
+    if (extendTrackers_(30)) notify_(t_('msg.autoAdded30'));
   } finally { lock.releaseLock(); }
 }

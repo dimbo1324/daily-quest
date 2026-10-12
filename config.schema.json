@@ -91,6 +91,49 @@
         }
       }
     },
+    "rules": {
+      "type": "array",
+      "maxItems": 30,
+      "description": "Day-tracked rules: things to keep or to avoid. A tick means the rule was kept that day.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "xp",
+          "kind",
+          "days"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "xp": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "maximum": 1000
+          },
+          "kind": {
+            "enum": [
+              "keep",
+              "avoid"
+            ],
+            "description": "keep: a healthy rule to follow; avoid: something to stay away from."
+          },
+          "days": {
+            "enum": [
+              "all",
+              "monsat",
+              "monfri",
+              "sat",
+              "sun"
+            ],
+            "description": "Days of the week the rule is active."
+          }
+        }
+      }
+    },
     "tasks": {
       "type": "array",
       "items": {
@@ -170,6 +213,11 @@
           "type": "string",
           "minLength": 1,
           "default": "Habits"
+        },
+        "sheet.rules": {
+          "type": "string",
+          "minLength": 1,
+          "default": "Rules"
         },
         "sheet.tasks": {
           "type": "string",
@@ -283,6 +331,16 @@
             "Sun"
           ]
         },
+        "kind.keep": {
+          "type": "string",
+          "minLength": 1,
+          "default": "✅ Keep"
+        },
+        "kind.avoid": {
+          "type": "string",
+          "minLength": 1,
+          "default": "🚫 Avoid"
+        },
         "priority.high": {
           "type": "string",
           "minLength": 1,
@@ -346,6 +404,11 @@
           "type": "string",
           "minLength": 1,
           "default": "\"in \"0\" d.\";\"overdue \"0\" d.\";\"today\""
+        },
+        "fmt.streakDays": {
+          "type": "string",
+          "minLength": 1,
+          "default": "0\" d.\""
         },
         "op.busy": {
           "type": "string",
@@ -512,6 +575,11 @@
           "minLength": 1,
           "default": "🎉 NEW LEVEL {0}: {1}!"
         },
+        "msg.ruleKept": {
+          "type": "string",
+          "minLength": 1,
+          "default": "🛡️ {0}"
+        },
         "msg.xpGained": {
           "type": "string",
           "minLength": 1,
@@ -521,6 +589,11 @@
           "type": "string",
           "minLength": 1,
           "default": "Sheet «{0}», row {1}: pick the days from the list (now «{2}»)."
+        },
+        "err.settingsKind": {
+          "type": "string",
+          "minLength": 1,
+          "default": "Sheet «{0}», row {1}: pick the rule type from the list (now «{2}»)."
         },
         "err.settingsXp": {
           "type": "string",
@@ -582,6 +655,16 @@
           "minLength": 1,
           "default": "Habit"
         },
+        "settings.rule": {
+          "type": "string",
+          "minLength": 1,
+          "default": "Rule"
+        },
+        "settings.kind": {
+          "type": "string",
+          "minLength": 1,
+          "default": "Type"
+        },
         "settings.xp": {
           "type": "string",
           "minLength": 1,
@@ -628,6 +711,7 @@
             "• Change a habit's XP in column B — everything recalculates.",
             "• On the right: XP per level, coins per 1 XP, streak threshold (share of habits done).",
             "• New habit: add a row below the list (name, XP, days), then menu «♻️ Rebuild».",
+            "• Rules (table on the right): things to keep or to avoid. Tick a rule on the Rules sheet when you kept it that day.",
             "• A backup is saved automatically before every rebuild.",
             "• The script only works with this spreadsheet (@OnlyCurrentDoc)."
           ]
@@ -636,6 +720,11 @@
           "type": "string",
           "minLength": 1,
           "default": "Pick the days from the list"
+        },
+        "settings.kindHelp": {
+          "type": "string",
+          "minLength": 1,
+          "default": "Keep or avoid"
         },
         "settings.xpHelp": {
           "type": "string",
@@ -671,6 +760,11 @@
           "type": "string",
           "minLength": 1,
           "default": "Streak"
+        },
+        "rules.kept": {
+          "type": "string",
+          "minLength": 1,
+          "default": "Kept"
         },
         "tasks.done": {
           "type": "string",
@@ -932,6 +1026,21 @@
           "minLength": 1,
           "default": "DONE"
         },
+        "dash.rules": {
+          "type": "string",
+          "minLength": 1,
+          "default": "🛡️ RULES →"
+        },
+        "dash.ruleStreak": {
+          "type": "string",
+          "minLength": 1,
+          "default": "STREAK"
+        },
+        "dash.ruleKept": {
+          "type": "string",
+          "minLength": 1,
+          "default": "KEPT, 30 D"
+        },
         "dash.chartDate": {
           "type": "string",
           "minLength": 1,
@@ -976,6 +1085,11 @@
           "type": "string",
           "minLength": 1,
           "default": "habit headers and XP"
+        },
+        "protect.ruleHeader": {
+          "type": "string",
+          "minLength": 1,
+          "default": "rule headers and XP"
         },
         "protect.dates": {
           "type": "string",

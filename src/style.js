@@ -4,13 +4,15 @@
 
 function styleAll_() {
   const SH = names_();
-  const map = [
-    [SH.cfg, styleSettings_], [SH.habits, styleHabits_], [SH.tasks, styleTasks_],
-    [SH.shop, styleShop_], [SH.dash, styleDashboard_],
-  ];
+  const map = [[SH.cfg, styleSettings_]]
+    .concat(trackers_().map(t => [t.sheet, sh => styleTracker_(sh, t)]),
+      [[SH.tasks, styleTasks_], [SH.shop, styleShop_], [SH.dash, styleDashboard_]]);
   SpreadsheetApp.flush();
   map.forEach(([name, fn]) => { const sh = sheet_(name); if (sh) fn(sh); });
-  const tabs = { [SH.dash]: '#8ea2ff', [SH.habits]: '#4ade80', [SH.tasks]: '#60a5fa', [SH.shop]: '#facc15', [SH.cfg]: '#6b7280' };
+  const tabs = {
+    [SH.dash]: '#8ea2ff', [SH.habits]: '#4ade80', [SH.rules]: TH.purple, [SH.tasks]: '#60a5fa',
+    [SH.shop]: '#facc15', [SH.cfg]: '#6b7280',
+  };
   Object.keys(tabs).forEach(n => { const sh = sheet_(n); if (sh) sh.setTabColor(tabs[n]); });
 }
 
@@ -65,17 +67,28 @@ function styleSettings_(sh) {
   gridLines_(sh.getRange('E2:F4'));
   sh.getRange('H1').setFontWeight('bold').setFontColor(TH.accent).setFontSize(11);
   if (helpRows > 1) sh.getRange(2, 8, helpRows - 1, 1).setFontColor(TH.muted).setWrap(true);
+  const m = cfg_().rules.length;
+  const R = SETTINGS_COL.rules;
+  headerStyle_(sh.getRange(1, R, 1, 4));
+  if (m) {
+    sh.getRange(2, R, m, 4).setBackground(TH.surface);
+    sh.getRange(2, R + 1, m, 1).setFontColor(TH.purple).setFontWeight('bold').setHorizontalAlignment('center');
+    sh.getRange(2, R + 2, m, 2).setFontColor(TH.muted).setHorizontalAlignment('center');
+    gridLines_(sh.getRange(2, R, m, 4));
+  }
   fitColumn_(sh, 1, 200, 340);
   sh.setColumnWidth(2, 70); sh.setColumnWidth(3, 110); sh.setColumnWidth(4, 24);
   fitColumn_(sh, 5, 150, 240);
-  sh.setColumnWidth(6, 90); sh.setColumnWidth(7, 24); sh.setColumnWidth(8, 460);
+  sh.setColumnWidth(6, 90); sh.setColumnWidth(7, 24); sh.setColumnWidth(8, 460); sh.setColumnWidth(9, 24);
+  fitColumn_(sh, R, 200, 340);
+  sh.setColumnWidth(R + 1, 70); sh.setColumnWidth(R + 2, 110); sh.setColumnWidth(R + 3, 110);
   sh.setRowHeights(1, sh.getMaxRows(), 26);
   sh.setFrozenRows(1);
 }
 
-// ---------- Habits ----------
-function styleHabits_(sh) {
-  const c = habitCols_();
+// ---------- Habits and rules ----------
+function styleTracker_(sh, t) {
+  const c = trackCols_(t);
   const FR = LAYOUT.FIRST_ROW;
   baseStyle_(sh);
   const rows = Math.max(sh.getMaxRows() - FR + 1, 1);
@@ -93,13 +106,17 @@ function styleHabits_(sh) {
   sh.getRange(FR, c.first, rows, c.n).setFontColor(TH.faint);          // empty checkbox color
   sh.getRange(FR, c.xp, rows, 1).setFontWeight('bold').setNumberFormat('0;-0;""');
   sh.getRange(FR, c.pct, rows, 1).setNumberFormat('0%');
-  sh.getRange(FR, c.streak, rows, 1).setFontColor(TH.orange).setFontWeight('bold').setNumberFormat('"🔥 "0;-0;""');
+  if (c.streak) sh.getRange(FR, c.streak, rows, 1).setFontColor(TH.orange).setFontWeight('bold').setNumberFormat('"🔥 "0;-0;""');
+  t.items.forEach((item, j) => {
+    if (item.kind === 'avoid') sh.getRange(1, c.first + j).setFontColor(TH.purple);
+  });
   sh.getRange(1, c.xp, rows + FR - 1, 1)
     .setBorder(null, true, null, null, null, null, TH.border, SpreadsheetApp.BorderStyle.SOLID_MEDIUM);
 
   sh.setColumnWidth(1, 76); sh.setColumnWidth(2, 40);
-  cfg_().habits.forEach((h, j) => sh.setColumnWidth(c.first + j, headerWidth_(h.name)));
-  sh.setColumnWidth(c.xp, 58); sh.setColumnWidth(c.pct, 92); sh.setColumnWidth(c.streak, 80);
+  t.items.forEach((h, j) => sh.setColumnWidth(c.first + j, headerWidth_(h.name)));
+  sh.setColumnWidth(c.xp, 58); sh.setColumnWidth(c.pct, 92);
+  if (c.streak) sh.setColumnWidth(c.streak, 80);
   SpreadsheetApp.flush();
   sh.autoResizeRows(1, 1);
   if (sh.getRowHeight(1) < 52) sh.setRowHeight(1, 52);
@@ -203,6 +220,8 @@ function styleShop_(sh) {
 function styleDashboard_(sh) {
   const cfg = cfg_();
   const n = cfg.habits.length;
+  const m = cfg.rules.length;
+  const rH = rulesHeaderRow_();
   baseStyle_(sh);
 
   // Grid: gutters A, C, E, G; cards B, D, F; charts on the right (H…)
@@ -216,6 +235,10 @@ function styleDashboard_(sh) {
   heights[D.TASKS_H] = 30; heights[D.HAB_H] = 30;
   Object.keys(heights).forEach(r => sh.setRowHeight(Number(r), heights[r]));
   for (let r = D.HAB; r < D.HAB + n; r++) sh.setRowHeight(r, 26);
+  if (m) {
+    sh.setRowHeight(rH, 30);
+    for (let r = rH + 1; r <= rH + m; r++) sh.setRowHeight(r, 26);
+  }
 
   sh.getRange('B2:F2').merge().setFontSize(22).setFontWeight('bold').setFontColor(TH.text);
   sh.getRange('B3:F3').merge().setFontColor(TH.muted).setFontSize(10);
@@ -250,19 +273,27 @@ function styleDashboard_(sh) {
   sh.getRange(D.HAB, 2, n, 1).setFontColor(TH.text);
   sh.getRange(D.HAB, 6, n, 1).setHorizontalAlignment('center').setFontWeight('bold');
   gridLines_(sh.getRange(D.HAB, 2, n, 5));
+  if (m) {
+    section(rH);
+    sh.getRange(rH + 1, 2, m, 1).setFontColor(TH.text);
+    sh.getRange(rH + 1, 4, m, 1).setHorizontalAlignment('center').setFontColor(TH.orange).setFontWeight('bold');
+    sh.getRange(rH + 1, 6, m, 1).setHorizontalAlignment('center').setFontWeight('bold');
+    gridLines_(sh.getRange(rH + 1, 2, m, 5));
+  }
   SpreadsheetApp.flush();
   sh.autoResizeRows(D.TASKS, LAYOUT.TASK_LIST);
 
   // Hidden chart data: text color = background color
   sh.getRange(1, 24, sh.getMaxRows(), 3).setFontColor(TH.bg);
 
+  const pctRanges = [sh.getRange(D.HAB, 6, n, 1)].concat(m ? [sh.getRange(rH + 1, 6, m, 1)] : []);
   sh.setConditionalFormatRules([
     cf_().whenNumberLessThan(0).setFontColor(TH.red).setBold(true).setRanges([sh.getRange('F' + D.TASKS + ':F' + tEnd)]).build(),
     cf_().whenNumberLessThanOrEqualTo(3).setFontColor(TH.yellow).setRanges([sh.getRange('F' + D.TASKS + ':F' + tEnd)]).build(),
     cf_().whenNumberGreaterThan(3).setFontColor(TH.green).setRanges([sh.getRange('F' + D.TASKS + ':F' + tEnd)]).build(),
-    cf_().whenNumberGreaterThanOrEqualTo(0.8).setFontColor(TH.green).setRanges([sh.getRange(D.HAB, 6, n, 1)]).build(),
-    cf_().whenNumberGreaterThanOrEqualTo(0.5).setFontColor(TH.yellow).setRanges([sh.getRange(D.HAB, 6, n, 1)]).build(),
-    cf_().whenNumberLessThan(0.5).setFontColor(TH.red).setRanges([sh.getRange(D.HAB, 6, n, 1)]).build(),
+    cf_().whenNumberGreaterThanOrEqualTo(0.8).setFontColor(TH.green).setRanges(pctRanges).build(),
+    cf_().whenNumberGreaterThanOrEqualTo(0.5).setFontColor(TH.yellow).setRanges(pctRanges).build(),
+    cf_().whenNumberLessThan(0.5).setFontColor(TH.red).setRanges(pctRanges).build(),
     cf_().whenNumberGreaterThan(0).setFontColor(TH.red).setRanges([sh.getRange('B16')]).build(),
     cf_().whenNumberEqualTo(0).setFontColor(TH.green).setRanges([sh.getRange('B16')]).build(),
   ]);
@@ -317,14 +348,17 @@ function styleDashboard_(sh) {
 function protectAll_() {
   const SH = names_();
   const warn = (range, desc) => range.protect().setDescription('DQ: ' + desc).setWarningOnly(true);
-  const c = habitCols_();
-  const h = sheet_(SH.habits), t = sheet_(SH.tasks), d = sheet_(SH.dash), s = sheet_(SH.shop);
+  const t = sheet_(SH.tasks), d = sheet_(SH.dash), s = sheet_(SH.shop);
   if (d) d.protect().setDescription('DQ: ' + t_('protect.dashboard')).setWarningOnly(true);
-  if (h) {
-    warn(h.getRange(1, 1, 2, c.width), t_('protect.habitHeader'));
-    warn(h.getRange(LAYOUT.FIRST_ROW, 1, h.getMaxRows() - LAYOUT.FIRST_ROW + 1, 2), t_('protect.dates'));
-    warn(h.getRange(LAYOUT.FIRST_ROW, c.xp, h.getMaxRows() - LAYOUT.FIRST_ROW + 1, 3), t_('protect.formulas'));
-  }
+  trackers_().forEach(tr => {
+    const h = sheet_(tr.sheet);
+    if (!h) return;
+    const c = trackCols_(tr);
+    const body = h.getMaxRows() - LAYOUT.FIRST_ROW + 1;
+    warn(h.getRange(1, 1, 2, c.width), t_(tr.key === 'rules' ? 'protect.ruleHeader' : 'protect.habitHeader'));
+    warn(h.getRange(LAYOUT.FIRST_ROW, 1, body, 2), t_('protect.dates'));
+    warn(h.getRange(LAYOUT.FIRST_ROW, c.xp, body, c.width - c.xp + 1), t_('protect.formulas'));
+  });
   if (t) warn(t.getRange(1, 9, t.getMaxRows(), 1), t_('protect.taskLeft'));
   if (s) warn(s.getRange('F1:G3'), t_('protect.balance'));
 }

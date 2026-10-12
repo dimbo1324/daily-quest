@@ -30,6 +30,12 @@ const DEFAULT_CFG = {
     { name: '🗣️ Language practice 30 min', xp: 15, days: 'all' },
     { name: '🗓️ Plan the week', xp: 20, days: 'sun' },
   ],
+  rules: [
+    { name: '📵 No phone in bed', xp: 10, kind: 'avoid', days: 'all' },
+    { name: '🚬 No smoking', xp: 15, kind: 'avoid', days: 'all' },
+    { name: '🛏️ Make the bed', xp: 5, kind: 'keep', days: 'all' },
+    { name: '🌳 Fresh air 20 min', xp: 10, kind: 'keep', days: 'all' },
+  ],
   tasks: [
     { title: 'My first task', category: 'Personal', deadline: '', priority: 'medium', xp: 10 },
   ],
@@ -51,6 +57,7 @@ const DAYSETS = {
   sun:    [0, 0, 0, 0, 0, 0, 1],
 };
 const PRIORITY_KEYS = ['high', 'medium', 'low'];
+const RULE_KINDS = ['keep', 'avoid'];
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 const MAX_CALENDAR_DAYS = 1100;
 
@@ -130,6 +137,7 @@ function normalizeCfg_(user, base) {
 
   const strings = isPlainObject_(cfg.strings) ? cfg.strings : {};
   cfg.habits = asArray_(cfg.habits).map(h => Array.isArray(h) ? { name: h[0], xp: h[1], days: h[2] } : h);
+  cfg.rules = asArray_(cfg.rules);
   cfg.tasks = asArray_(cfg.tasks).map(t => {
     const o = Array.isArray(t) ? { title: t[0], category: t[1], deadline: t[2], priority: t[3], xp: t[4] } : t;
     if (o && typeof o === 'object') o.priority = priorityKey_(o.priority, strings);
@@ -186,16 +194,13 @@ function validateCfg_(cfg) {
 
   if (!cfg.habits.length) errs.push('The habit list is empty.');
   if (cfg.habits.length > 40) errs.push('Too many habits (40 at most).');
-  const names = new Set();
-  cfg.habits.forEach((h, i) => {
-    const id = 'Habit #' + (i + 1);
-    if (!isPlainObject_(h)) { errs.push(id + ': must be an object'); return; }
-    unknownFields_(h, ['name', 'xp', 'days']).forEach(f => errs.push(id + ': unknown field «' + f + '»'));
-    if (!h.name || typeof h.name !== 'string') errs.push(id + ': empty name');
-    else if (names.has(h.name)) errs.push('Duplicate habit: ' + h.name);
-    names.add(h.name);
-    if (!(Number.isFinite(h.xp) && h.xp > 0 && h.xp <= 1000)) errs.push((h.name || id) + ': xp must be 1–1000');
-    if (!DAYSETS[h.days]) errs.push((h.name || id) + ': unknown days «' + h.days + '»');
+  validateTrackItems_(cfg.habits, 'Habit', ['name', 'xp', 'days'], errs);
+  if (cfg.rules.length > 30) errs.push('Too many rules (30 at most).');
+  validateTrackItems_(cfg.rules, 'Rule', ['name', 'xp', 'kind', 'days'], errs);
+  cfg.rules.forEach((r, i) => {
+    if (isPlainObject_(r) && RULE_KINDS.indexOf(r.kind) < 0) {
+      errs.push((r.name || 'Rule #' + (i + 1)) + ': kind must be one of ' + RULE_KINDS.join(', '));
+    }
   });
 
   cfg.tasks.forEach((t, i) => {
@@ -221,6 +226,21 @@ function validateCfg_(cfg) {
   return errs;
 }
 
+/** Shared checks for day-tracked items (habits, rules): name, XP, days, no unknown fields. */
+function validateTrackItems_(items, label, fields, errs) {
+  const names = new Set();
+  items.forEach((h, i) => {
+    const id = label + ' #' + (i + 1);
+    if (!isPlainObject_(h)) { errs.push(id + ': must be an object'); return; }
+    unknownFields_(h, fields).forEach(f => errs.push(id + ': unknown field «' + f + '»'));
+    if (!h.name || typeof h.name !== 'string') errs.push(id + ': empty name');
+    else if (names.has(h.name)) errs.push('Duplicate ' + label.toLowerCase() + ': ' + h.name);
+    names.add(h.name);
+    if (!(Number.isFinite(h.xp) && h.xp > 0 && h.xp <= 1000)) errs.push((h.name || id) + ': xp must be 1–1000');
+    if (!DAYSETS[h.days]) errs.push((h.name || id) + ': unknown days «' + h.days + '»');
+  });
+}
+
 function unknownFields_(obj, allowed) {
   return Object.keys(obj).filter(k => allowed.indexOf(k) < 0);
 }
@@ -240,7 +260,7 @@ function validateStrings_(strings) {
       errs.push('strings.' + k + ' must be a non-empty text');
     }
   });
-  const sheetKeys = ['sheet.dashboard', 'sheet.habits', 'sheet.tasks', 'sheet.shop', 'sheet.settings'];
+  const sheetKeys = ['sheet.dashboard', 'sheet.habits', 'sheet.rules', 'sheet.tasks', 'sheet.shop', 'sheet.settings'];
   const sheetNames = sheetKeys.map(k => strings[k] || STRINGS_EN[k]);
   if (new Set(sheetNames).size !== sheetNames.length || sheetNames.indexOf('_backup') >= 0) {
     errs.push('strings: sheet names must be unique and must not be «_backup»');
@@ -269,26 +289,44 @@ function calendarPeriod_(cfg, todayP, firstDateIso) {
 
 // ═════════════════════════ Settings sheet, JSON import and export ═════════════════════════
 
-/** Reads habits from the Settings sheet (when present) into the stored config. */
-function applyHabitsFromSheet_() {
+/** Reads the habit and rule tables of the Settings sheet (when present) into the stored config. */
+function applySettingsSheet_() {
   const SH = names_();
   const sh = sheet_(SH.cfg);
   if (!sh || sh.getLastRow() < 2) return;
-  const byLabel = {};
-  Object.keys(DAYSETS).forEach(k => { byLabel[dayLabel_(k)] = k; });
-  const vals = sh.getRange(2, 1, sh.getLastRow() - 1, 3).getValues();
-  const habits = [];
-  for (let i = 0; i < vals.length; i++) {
-    const name = String(vals[i][0] || '').trim();
-    if (!name) continue;
-    const days = byLabel[String(vals[i][2]).trim()];
-    if (!days) throw new Error(t_('err.settingsDays', SH.cfg, i + 2, vals[i][2]));
-    const xp = Number(vals[i][1]);
-    if (!Number.isFinite(xp)) throw new Error(t_('err.settingsXp', SH.cfg, i + 2));
-    habits.push({ name, xp, days });
+  const byDays = {};
+  Object.keys(DAYSETS).forEach(k => { byDays[dayLabel_(k)] = k; });
+  const byKind = {};
+  RULE_KINDS.forEach(k => { byKind[kindLabel_(k)] = k; });
+  const rows = sh.getLastRow() - 1;
+
+  const readTable = (col, withKind) => {
+    const width = withKind ? 4 : 3;
+    const vals = sh.getRange(2, col, rows, width).getValues();
+    const items = [];
+    for (let i = 0; i < vals.length; i++) {
+      const name = String(vals[i][0] || '').trim();
+      if (!name) continue;
+      const xp = Number(vals[i][1]);
+      if (!Number.isFinite(xp)) throw new Error(t_('err.settingsXp', SH.cfg, i + 2));
+      const daysCell = String(vals[i][width - 1]).trim();
+      const days = byDays[daysCell];
+      if (!days) throw new Error(t_('err.settingsDays', SH.cfg, i + 2, daysCell));
+      if (!withKind) { items.push({ name, xp, days }); continue; }
+      const kind = byKind[String(vals[i][2]).trim()];
+      if (!kind) throw new Error(t_('err.settingsKind', SH.cfg, i + 2, vals[i][2]));
+      items.push({ name, xp, kind, days });
+    }
+    return items;
+  };
+
+  const cfg = cfg_();
+  const habits = readTable(SETTINGS_COL.habits, false);
+  if (habits.length) cfg.habits = habits;
+  if (sh.getMaxColumns() >= SETTINGS_COL.rules + 3) {
+    const rules = readTable(SETTINGS_COL.rules, true);
+    if (rules.length) cfg.rules = rules;
   }
-  if (!habits.length) return;
-  cfg_().habits = habits;
   saveCfg_();
 }
 
@@ -309,7 +347,7 @@ function escapeHtml_(s) {
 }
 
 function menuExportConfig() {
-  try { applyHabitsFromSheet_(); } catch (e) { alert_(e.message); return; }
+  try { applySettingsSheet_(); } catch (e) { alert_(e.message); return; }
   const json = escapeHtml_(JSON.stringify(exportableCfg_(), null, 2));
   showTextDialog_(t_('dialog.exportTitle'),
     '<style>body{font:13px Roboto,Arial;margin:12px}textarea{width:100%;height:320px;font:12px monospace;box-sizing:border-box}</style>' +
