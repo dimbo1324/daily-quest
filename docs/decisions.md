@@ -5,6 +5,14 @@ standing instruction in chat records it here in the same task.
 
 ## Decisions
 
+### 2026-10-12 — Full audit log in a visible Logs sheet
+
+Every action of the owner is logged with its date and time: each cell edit with old and new
+value, and every operation (build, rebuild, reset, restore, import with the imported JSON,
+export, …). The sheet is named `Logs` (fixed, not localized), stays visible for now and
+survives rebuilds. Event names are stable English identifiers. The log is append-only and
+unbounded; trimming or archiving is an open question.
+
 ### 2026-10-12 — Rules to keep and to avoid
 
 A separate `rules` list and sheet, next to habits. A tick means "kept the rule that day" for
@@ -44,6 +52,8 @@ The script touches only its own spreadsheet. A new OAuth scope or external call 
 decision here.
 
 ## Open questions
+
+- Logs: rotation or archiving once the sheet grows large; hiding the sheet later.
 
 - How exactly the personal config should be set up and delivered to the sheet (the owner
   will specify in a following task).

@@ -6,6 +6,16 @@ History of changes to the AI assistant rule system (`.ai/`, `CLAUDE.md`, `AGENTS
 
 Format: date, what changed, why, who decided. Newest first.
 
+## 2026-10-12 — The audit log in the project modules
+
+**What changed.** `project/10-project-map.md` lists the `Logs` sheet and `src/logs.js`;
+`project/12-domain-rules.md` requires every new user-facing operation to call `logEvent_`.
+
+**Why.** The owner asked for every action to be logged; without the rule, the next feature
+would silently skip the log. A constraint the owner stated, allowed without approval.
+
+**Decided by.** Owner instruction of 2026-10-12, recorded by the agent.
+
 ## 2026-10-12 — Supported chart-area options
 
 **What changed.** `project/12-domain-rules.md` records that `chartArea` accepts only `left`,

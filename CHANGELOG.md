@@ -2,6 +2,15 @@
 
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versioning: [SemVer](https://semver.org/).
 
+## [2.5.0] - 2026-10-12
+### Added
+- Logs sheet: an append-only audit log with time (seconds and zone), event, sheet, cell,
+  old value, new value and details. Every cell edit is logged (tracker ticks name the item and
+  the date; pasted ranges keep their new values), and so are build, rebuild, reset, restore,
+  config import (with the full imported JSON) and failed imports, export (with the JSON),
+  config reset, restyle, added days, backups, purchases and refusals, level-ups, errors and
+  each opening of the spreadsheet. The sheet survives rebuilds.
+
 ## [2.4.1] - 2026-10-12
 ### Fixed
 - Rebuild failed with "chart option no longer supported: chartArea.bottom": charts now set

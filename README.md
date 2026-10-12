@@ -44,6 +44,8 @@ Highlights:
   Dashboard.
 - The **Stats** sheet shows KPI tiles, a 26-week completion heatmap and six charts of your
   progress; it updates live.
+- The **Logs** sheet records every edit and every operation (with time, old and new value,
+  imported JSON) so anything can be reconstructed; it survives rebuilds.
 - Habits and rules can also be edited on the `Settings` sheet → menu **♻️ Rebuild**.
 - **⚙️ Settings → 📤 Export to JSON** writes the effective config back for `my-config.json`.
 

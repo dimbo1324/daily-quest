@@ -336,8 +336,8 @@ live in their own top-level directories.
 ## Sheets the script builds
 
 `Dashboard`, `Stats` (charts, heatmap, KPI tiles), `Habits` (rows = days, columns = habits), `Rules` (same layout, things to keep
-or avoid; only when rules are configured), `Tasks`, `Shop`, `Settings`, and the hidden
-`_backup`. Sheet names and all UI text are English by default and can be localized
+or avoid; only when rules are configured), `Tasks`, `Shop`, `Settings`, the audit log `Logs` (fixed name, kept by rebuilds) and the
+hidden `_backup`. Sheet names and all UI text are English by default and can be localized
 through the config's `strings` object.
 
 ## Repository map
@@ -352,6 +352,7 @@ through the config's `strings` object.
   - `state.js` — snapshot (`exportState_`), backup and restore of user data.
   - `build.js` — building every sheet and its formulas.
   - `stats.js` — the Stats sheet: KPI tiles, heatmap, charts.
+  - `logs.js` — the `Logs` audit sheet: `logEvent_`, `logEdit_`.
   - `style.js` — styling, conditional formatting, charts, soft protection.
   - `game.js` — `onEdit` reactions: XP toasts, level-ups, purchase checks.
   - `appsscript.json` — manifest: V8, minimal OAuth scopes.
@@ -457,6 +458,8 @@ These sharpen the universal rules for this codebase. Stricter wins.
 - Mutating menu actions run inside `run_()` (document lock, readable errors). Destructive ones
   ask through `confirm_()` first and write a backup before touching data.
 - Triggers are simple triggers (`onOpen`, `onEdit`); they must never throw and must stay fast.
+- Every new user-facing operation calls `logEvent_(event, info)` with a stable kebab-case
+  English event name; logging never throws and never replaces error handling.
 
 ## Formulas and the sheet
 

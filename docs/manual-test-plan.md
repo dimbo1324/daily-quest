@@ -59,7 +59,18 @@ Use a **fresh test spreadsheet** first; touch the real one only after the test c
 - [ ] Six charts (five without rules): total XP, weekly XP by source, XP by source,
       habits 30 days, rules 30 days, weekday averages. Tick something → charts update.
 
-## 6. Look and feel
+## 6. Logs sheet
+
+- [ ] A `Logs` sheet exists at the end, with headers Time | Event | Sheet | Cell | Old value |
+      New value | Details.
+- [ ] Tick a habit → a row `edit` with the sheet, cell, `FALSE` → `TRUE` and «habit · date».
+- [ ] Type a task title → a row with the old and new text.
+- [ ] Rebuild → rows `backup` and `rebuild`; the Logs sheet and its rows are still there.
+- [ ] Import the personal config → `config-import` with the pasted JSON in Details.
+- [ ] Export → `config-export`; a purchase without enough coins → `purchase-refused`.
+- [ ] Reload the spreadsheet → an `open` row.
+
+## 7. Look and feel
 
 - [ ] Dark, calm styling on every sheet; no white cells in used areas.
 - [ ] Today's row is highlighted; missed past days are dim red; Sundays are purple.

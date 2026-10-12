@@ -15,6 +15,8 @@ These sharpen the universal rules for this codebase. Stricter wins.
 - Mutating menu actions run inside `run_()` (document lock, readable errors). Destructive ones
   ask through `confirm_()` first and write a backup before touching data.
 - Triggers are simple triggers (`onOpen`, `onEdit`); they must never throw and must stay fast.
+- Every new user-facing operation calls `logEvent_(event, info)` with a stable kebab-case
+  English event name; logging never throws and never replaces error handling.
 
 ## Formulas and the sheet
 

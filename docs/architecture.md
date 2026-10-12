@@ -1,6 +1,6 @@
 # Architecture
 
-How Daily Quest is built right now (v2.4.0). The code is the fact; update this file when the
+How Daily Quest is built right now (v2.5.0). The code is the fact; update this file when the
 shape changes.
 
 ## Runtime
@@ -20,6 +20,7 @@ another file.
 | `state.js` | `exportState_` snapshot, `_backup` write / read, tick restore |
 | `build.js` | `buildAll_` and one builder per sheet; en_US formulas |
 | `stats.js` | Stats sheet: data block (columns BC+), KPI tiles, heatmap, six charts on a 24 px grid |
+| `logs.js` | Logs sheet: `logEvent_` (append one row, never throws), `logEdit_` (onEdit capture), value sanitizing |
 | `style.js` | styling, conditional formats, charts, soft protection |
 | `game.js` | `onEdit`: XP toasts, level-ups, task completion dates, purchase checks |
 
@@ -34,6 +35,7 @@ another file.
 | Tasks | done, title, category, deadline, priority, XP, notes, completed date, days left |
 | Shop | reward, price, bought, date; balance block in F1:G3 |
 | Settings | habits A:C (name, XP, days), game parameters F2:F4 (XP per level, coins per XP, streak threshold), help in H, rules J:M (name, XP, type, days) |
+| Logs | append-only audit log: time, event, sheet, cell, old value, new value, details; fixed name; kept by rebuilds; visible |
 | `_backup` | hidden, JSON snapshot of user data; fixed name |
 
 ## Configuration flow
@@ -51,7 +53,7 @@ limit.
 ## Rebuild and data safety
 
 `setup` / «Rebuild»: `exportState_` → `writeBackup_` → `applySettingsSheet_` →
-`buildAll_(state)` (deletes all sheets except `_backup`, rebuilds, restores habit and rule
+`buildAll_(state)` (deletes all sheets except `_backup` and `Logs`, rebuilds, restores habit and rule
 ticks by date and name, restores tasks and shop rows, re-applies styling and protection). The calendar
 period comes from `calendarPeriod_`; kept data that starts earlier extends it backwards.
 
