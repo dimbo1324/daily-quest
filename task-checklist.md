@@ -11,27 +11,28 @@ Marks: `[ ]` open, `+` done, `-` not done or partially done (with a note).
 
 ## 1. Preparation
 
-[ ] Study the reference repositories and the personal data
-[ ] Owner decision on UI language recorded
++ Study the reference repositories and the personal data
++ Owner decision on UI language recorded
 
 ## 2. Implementation
 
-[ ] Split `src/Code.js` into modules under ~1000 lines, all code and comments in English
-[ ] i18n layer: English strings by default, overrides from config
-[ ] Config format v2: objects instead of tuples (legacy tuples still accepted), `startDate`,
++ Split `src/Code.js` into modules under ~1000 lines, all code and comments in English
++ i18n layer: English strings by default, overrides from config
++ Config format v2: objects instead of tuples (legacy tuples still accepted), `startDate`,
     `endDate`, JSON Schema, neutral `config.example.json`
-[ ] Personal `my-config.json` migrated (ignored by git): dates, Russian UI strings
-[ ] Node tests: config normalization/validation, period, i18n completeness, defaults == example
-[ ] Language guard: no Cyrillic in tracked files, part of `npm run check` and CI
-[ ] `.ai/` rule modules, `CLAUDE.md`, generated `AGENTS.md`, `.claude/`, `.codex/`, sync script
-[ ] State documents: `docs/ROADMAP.md`, `docs/architecture.md`, `docs/decisions.md`
++ Personal `my-config.json` migrated (ignored by git): dates, Russian UI strings
++ Node tests: config normalization/validation, period, i18n completeness, defaults == example
++ Language guard: no Cyrillic in tracked files, part of `npm run check` and CI
++ `.ai/` rule modules, `CLAUDE.md`, generated `AGENTS.md`, `.claude/`, `.codex/`, sync script
++ State documents: `docs/ROADMAP.md`, `docs/architecture.md`, `docs/decisions.md`
 
 ## 3. Verification
 
-[ ] `npm run check` green
-[ ] Self-review of the diff
++ `npm run check` green
++ Self-review of the diff
+- Real-spreadsheet verification of v2.2: not possible from here; it is roadmap item 3
 
 ## 4. Completion
 
-[ ] Merge into `main`, push
-[ ] Final report
++ Merge into `main`, push
++ Final report
