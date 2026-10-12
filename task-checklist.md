@@ -1,38 +1,34 @@
-# Task: English codebase, two-tier configuration, AI-agent infrastructure
+# Task: rules to keep and to avoid (v2.3.0)
 
-Owner instruction of 2026-10-12: study the owner's `learning`, `codepack` and `CogniBoiler`
-repositories and the personal data export; set up the same multi-assistant infrastructure here;
-everything in the repository is English; a neutral demo config plus a git-ignored personal
-config; personal calendar from 2026-10-13 to 2027-10-12; prepare for "avoid" habits (next task).
-Owner decision: the sheet UI is English by default, a personal config may override every UI
-string (the owner's Russian UI lives only in the ignored `my-config.json`).
+Owner instruction of 2026-10-12: add daily-tracked items to avoid (and healthy rules to keep),
+configurable like habits; the owner's personal list goes into the git-ignored
+`my-config.json`, the demo config uses different, neutral examples; then give the owner
+instructions for deploying and manually testing in Google Sheets.
+
+Design: a new `rules` config list (`{ name, xp, kind: keep|avoid, days }`) and a new `Rules`
+sheet with the same day-by-day layout as `Habits`; a tick means "kept the rule that day".
+Rule XP counts toward levels and coins; each rule shows its current clean streak and its
+30-day share on the dashboard. Rules are optional (no rules → no sheet).
 
 Marks: `[ ]` open, `+` done, `-` not done or partially done (with a note).
 
-## 1. Preparation
+## 1. Implementation
 
-+ Study the reference repositories and the personal data
-+ Owner decision on UI language recorded
+[ ] Shared tracker layer for Habits and Rules (build, append, style, protect, restore)
+[ ] Config: `rules` in defaults, normalization, validation, example, schema
+[ ] Settings sheet: rules table (name, XP, type, days), read back on rebuild
+[ ] Dashboard: rule XP in totals and charts, rules section with streak and 30-day share
+[ ] Snapshot and restore of rule ticks and rule XP
+[ ] UI strings (English) for everything new
+[ ] Personal `my-config.json`: the owner's rules and Russian strings
 
-## 2. Implementation
+## 2. Verification
 
-+ Split `src/Code.js` into modules under ~1000 lines, all code and comments in English
-+ i18n layer: English strings by default, overrides from config
-+ Config format v2: objects instead of tuples (legacy tuples still accepted), `startDate`,
-    `endDate`, JSON Schema, neutral `config.example.json`
-+ Personal `my-config.json` migrated (ignored by git): dates, Russian UI strings
-+ Node tests: config normalization/validation, period, i18n completeness, defaults == example
-+ Language guard: no Cyrillic in tracked files, part of `npm run check` and CI
-+ `.ai/` rule modules, `CLAUDE.md`, generated `AGENTS.md`, `.claude/`, `.codex/`, sync script
-+ State documents: `docs/ROADMAP.md`, `docs/architecture.md`, `docs/decisions.md`
+[ ] Tests for rules config and validation
+[ ] `npm run check` green
+[ ] Manual test plan for a real spreadsheet (`docs/manual-test-plan.md`)
 
-## 3. Verification
+## 3. Completion
 
-+ `npm run check` green
-+ Self-review of the diff
-- Real-spreadsheet verification of v2.2: not possible from here; it is roadmap item 3
-
-## 4. Completion
-
-+ Merge into `main`, push
-+ Final report
+[ ] Docs, changelog, version 2.3.0, rule modules synced
+[ ] Merge into `main`, push
