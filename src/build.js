@@ -19,7 +19,7 @@ function buildAll_(state) {
   });
   const trackers = trackers_();
   const sheets = {};
-  [['dash', SH.dash]].concat(trackers.map(t => [t.key, t.sheet]), [['tasks', SH.tasks], ['shop', SH.shop], ['cfg', SH.cfg]])
+  [['dash', SH.dash], ['stats', SH.stats]].concat(trackers.map(t => [t.key, t.sheet]), [['tasks', SH.tasks], ['shop', SH.shop], ['cfg', SH.cfg]])
     .forEach(([k, n], i) => { sheets[k] = ss.insertSheet(n, i); });
   ss.deleteSheet(tmp);
 
@@ -30,6 +30,7 @@ function buildAll_(state) {
   buildTasks_(sheets.tasks, state);
   buildShop_(sheets.shop, state);
   buildDashboard_(sheets.dash);
+  buildStats_(sheets.stats);
   SpreadsheetApp.flush();
 
   if (state) trackers.forEach(t => restoreTicks_(sheets[t.key], t, state));
@@ -286,7 +287,7 @@ function buildDashboard_(sh) {
   cells.X2 = t_('dash.chartDate'); cells.Y2 = t_('dash.chartXp'); cells.Z2 = t_('dash.chartDone');
   cells.X3 = '=SEQUENCE(30,1,TODAY()-29,1)';
   cells.Y3 = '=ARRAYFORMULA(IFERROR(VLOOKUP(X3:X32,' + hS + '!A' + FR + ':' + pctL + ',' + c.xp + ',FALSE),0)' +
-    plusRules('IFERROR(VLOOKUP(X3:X32,' + rS + '!A' + FR + ':' + rPctL + ',' + rc.xp + ',FALSE),0)') + ')';
+    plusRules('IFERROR(VLOOKUP(X3:X32,' + rS + '!A' + FR + ':' + rPctL + ',' + (rc ? rc.xp : 0) + ',FALSE),0)') + ')';
   cells.Z3 = '=ARRAYFORMULA(IFERROR(VLOOKUP(X3:X32,' + hS + '!A' + FR + ':' + pctL + ',' + c.pct + ',FALSE),0))';
   cells['X' + D.CAT_H] = t_('dash.category');
   cells['Y' + D.CAT_H] = t_('dash.open');
@@ -296,11 +297,7 @@ function buildDashboard_(sh) {
     cells['Y' + r] = '=COUNTIFS(' + tS + '!C2:C,X' + r + ',' + tS + '!A2:A,FALSE,' + tS + '!B2:B,"<>")';
   });
 
-  Object.keys(cells).forEach(a1 => {
-    const v = cells[a1];
-    const rg = sh.getRange(a1);
-    if (typeof v === 'string' && v.charAt(0) === '=') rg.setFormula(v); else rg.setValue(v);
-  });
+  writeCells_(sh, cells);
 
   sh.getRange('D6').setNumberFormat('#,##0');
   sh.getRange('F6').setNumberFormat('#,##0');
