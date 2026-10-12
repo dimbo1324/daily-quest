@@ -16,17 +16,17 @@ Marks: `[ ]` open, `+` done, `-` not done or partially done (with a note).
 
 ## 1. Implementation
 
-[ ] `src/logs.js`: sheet creation, styling, `logEvent_`, `logEdit_`, value sanitizing
-[ ] Rebuilds keep the Logs sheet
-[ ] Hooks: onEdit, menu actions, import / export / reset config, backups, errors, game events
-[ ] English UI strings; Russian headers in the personal config
++ `src/logs.js`: sheet creation, styling, `logEvent_`, `logEdit_`, value sanitizing
++ Rebuilds keep the Logs sheet
++ Hooks: onEdit, menu actions, import / export / reset config, backups, errors, game events
++ English UI strings; Russian headers in the personal config
 
 ## 2. Verification
 
-[ ] Tests for logging (sanitizing, edit capture, rebuild exemption), `npm run check` green
-[ ] Manual test plan updated
++ Tests for logging (sanitizing, edit capture, rebuild exemption), `npm run check` green
++ Manual test plan updated
 
 ## 3. Completion
 
-[ ] Docs, changelog, version 2.5.0, rule modules synced
-[ ] Merge into `main`
++ Docs, changelog, version 2.5.0, rule modules synced
++ Merge into `main`
