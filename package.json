@@ -1,0 +1,25 @@
+{
+  "name": "daily-quest",
+  "version": "2.1.0",
+  "private": true,
+  "description": "Gamified habit & task tracker for Google Sheets (Apps Script)",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "check": "npm run lint && node scripts/validate-json.mjs",
+    "login": "clasp login",
+    "push": "clasp push",
+    "pull": "clasp pull",
+    "open": "clasp open-script",
+    "deploy": "npm run check && clasp push"
+  },
+  "devDependencies": {
+    "@google/clasp": "^3.0.0",
+    "@eslint/js": "^9.0.0",
+    "eslint": "^9.0.0"
+  }
+}

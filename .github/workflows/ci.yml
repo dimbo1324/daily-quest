@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+
+  secrets-guard:
+    name: Forbidden files guard
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fail if personal config or credentials are tracked
+        run: |
+          bad=$(git ls-files | grep -E '(^|/)(my-config\.json|\.clasp\.json|\.clasprc\.json|\.env)$|\.local\.json$|credentials.*\.json$|client_secret.*\.json$' || true)
+          if [ -n "$bad" ]; then echo "::error::Forbidden files tracked:"; echo "$bad"; exit 1; fi
+          echo "No forbidden files tracked."
