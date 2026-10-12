@@ -1,32 +1,32 @@
-# Task: Stats sheet with charts and infographics, faster builds (v2.4.0)
+# Task: Logs sheet — a full audit log of the owner's actions (v2.5.0)
 
-Owner instruction of 2026-10-12: more charts, diagrams and infographics to see progress
-visually (at least two kinds), and further build optimization.
+Owner instruction of 2026-10-12: a visible sheet named `Logs` that records every action
+with its date and time — every edit of any cell (ticks included) and every operation:
+build, rebuild, reset, restore, import (with what was imported), export, and so on — so
+that anything can be reconstructed if needed.
 
-Design: a new `Stats` sheet (live formulas, no user data):
-- KPI tiles: best streak, perfect days, ticks, 30-day average with a sparkline;
-- a 26-week calendar heatmap of habit completion with a legend;
-- charts: total XP over time (area), XP per week by source (stacked columns), XP by source
-  (donut), habit completion and rules kept over 30 days (bars), completion by weekday
-  (columns).
-Optimization: dashboard and stats cells written in one batch call instead of one call per
-cell.
+Design: `src/logs.js`; columns Time (with seconds and zone) | Event | Sheet | Cell | Old value
+| New value | Details. User edits come from `onEdit` (single cells with old and new value,
+multi-cell edits with their new values); tracker ticks carry the item name and date. Menu
+operations, imports (full JSON), exports, backups, errors and game outcomes are logged by
+the code. The sheet name is fixed (`Logs`) and the sheet survives every rebuild, like
+`_backup`. Logging never throws.
 
 Marks: `[ ]` open, `+` done, `-` not done or partially done (with a note).
 
 ## 1. Implementation
 
-+ `src/stats.js`: data block, tiles, heatmap, charts, styling
-+ Batch cell writing for Dashboard and Stats
-+ Sheet wiring: names, build order, styling, protection, tab color
-+ English UI strings; Russian strings in the personal config
+[ ] `src/logs.js`: sheet creation, styling, `logEvent_`, `logEdit_`, value sanitizing
+[ ] Rebuilds keep the Logs sheet
+[ ] Hooks: onEdit, menu actions, import / export / reset config, backups, errors, game events
+[ ] English UI strings; Russian headers in the personal config
 
 ## 2. Verification
 
-+ Tests (chart anchor math, sheet names), `npm run check` green
-+ Manual test plan updated
+[ ] Tests for logging (sanitizing, edit capture, rebuild exemption), `npm run check` green
+[ ] Manual test plan updated
 
 ## 3. Completion
 
-+ Docs, changelog, version 2.4.0, rule modules synced
-+ Merge into `main`
+[ ] Docs, changelog, version 2.5.0, rule modules synced
+[ ] Merge into `main`
