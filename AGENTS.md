@@ -335,8 +335,9 @@ live in their own top-level directories.
 
 ## Sheets the script builds
 
-`Dashboard`, `Habits` (rows = days, columns = habits), `Tasks`, `Shop`, `Settings`, and the
-hidden `_backup`. Sheet names and all UI text are English by default and can be localized
+`Dashboard`, `Habits` (rows = days, columns = habits), `Rules` (same layout, things to keep
+or avoid; only when rules are configured), `Tasks`, `Shop`, `Settings`, and the hidden
+`_backup`. Sheet names and all UI text are English by default and can be localized
 through the config's `strings` object.
 
 ## Repository map
@@ -347,6 +348,7 @@ through the config's `strings` object.
     chunked persistence in document properties, calendar period, JSON import and export.
   - `i18n.js` — `STRINGS_EN` (every UI string), `t_()`, `tq_()`, `names_()`.
   - `core.js` — layout constants, theme `TH`, utilities `U`, toasts, dialogs, `run_()` lock.
+  - `trackers.js` — shared layer for the day-tracked sheets (habits, rules).
   - `state.js` — snapshot (`exportState_`), backup and restore of user data.
   - `build.js` — building every sheet and its formulas.
   - `style.js` — styling, conditional formatting, charts, soft protection.
@@ -429,8 +431,9 @@ Without clasp, the owner can paste each `src/*.js` file into the Apps Script edi
 ## Real-sheet verification
 
 Tests cover pure logic only; sheet building runs against Google. After a change to
-`build.js`, `style.js`, `state.js` or `game.js`, say in the final report that it was not
-verified in a real spreadsheet, or describe how it was.
+`build.js`, `style.js`, `state.js`, `trackers.js` or `game.js`, keep
+`docs/manual-test-plan.md` current and say in the final report which of its sections were
+run in a real spreadsheet, or that none were.
 
 ---
 

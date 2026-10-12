@@ -6,6 +6,18 @@ History of changes to the AI assistant rule system (`.ai/`, `CLAUDE.md`, `AGENTS
 
 Format: date, what changed, why, who decided. Newest first.
 
+## 2026-10-12 — Rules in the project modules
+
+**What changed.** `project/10-project-map.md` lists the Rules sheet and `src/trackers.js`;
+`project/11-commands.md` points real-sheet verification at `docs/manual-test-plan.md`;
+`project/14-config-reference.md` (extended tier) documents `rules` and the tracker layer.
+
+**Why.** The owner-requested rules feature changed the sheet set, the module list and the
+config format; the manual test plan is the new place for real-sheet checks. Factual
+additions, which `universal/08-rules-evolution.md` allows without approval.
+
+**Decided by.** Agent, as part of the owner-requested rules feature of 2026-10-12.
+
 ## 2026-10-12 — The rule system arrives, adapted from CogniBoiler and codepack
 
 **What changed.** Daily Quest gains the assistant rule system the owner runs in `codepack`,

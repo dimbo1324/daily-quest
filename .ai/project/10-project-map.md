@@ -9,8 +9,9 @@ live in their own top-level directories.
 
 ## Sheets the script builds
 
-`Dashboard`, `Habits` (rows = days, columns = habits), `Tasks`, `Shop`, `Settings`, and the
-hidden `_backup`. Sheet names and all UI text are English by default and can be localized
+`Dashboard`, `Habits` (rows = days, columns = habits), `Rules` (same layout, things to keep
+or avoid; only when rules are configured), `Tasks`, `Shop`, `Settings`, and the hidden
+`_backup`. Sheet names and all UI text are English by default and can be localized
 through the config's `strings` object.
 
 ## Repository map
@@ -21,6 +22,7 @@ through the config's `strings` object.
     chunked persistence in document properties, calendar period, JSON import and export.
   - `i18n.js` — `STRINGS_EN` (every UI string), `t_()`, `tq_()`, `names_()`.
   - `core.js` — layout constants, theme `TH`, utilities `U`, toasts, dialogs, `run_()` lock.
+  - `trackers.js` — shared layer for the day-tracked sheets (habits, rules).
   - `state.js` — snapshot (`exportState_`), backup and restore of user data.
   - `build.js` — building every sheet and its formulas.
   - `style.js` — styling, conditional formatting, charts, soft protection.

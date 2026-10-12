@@ -1,6 +1,6 @@
 # Architecture
 
-How Daily Quest is built right now (v2.2.0). The code is the fact; update this file when the
+How Daily Quest is built right now (v2.3.0). The code is the fact; update this file when the
 shape changes.
 
 ## Runtime
@@ -16,6 +16,7 @@ another file.
 | `config.js` | `DEFAULT_CFG`, `cfg_()` cache, normalization (v1 tuples → v2 objects), validation, chunked storage, `calendarPeriod_`, JSON import / export |
 | `i18n.js` | `STRINGS_EN`, `t_()`, `tq_()` (formula literal), `names_()` (sheet names) |
 | `core.js` | layout constants, theme `TH`, date and formula utilities `U`, toasts, dialogs, `run_()` lock |
+| `trackers.js` | shared layer for day-tracked sheets (habits, rules): tracker list, column layout, building and appending days |
 | `state.js` | `exportState_` snapshot, `_backup` write / read, tick restore |
 | `build.js` | `buildAll_` and one builder per sheet; en_US formulas |
 | `style.js` | styling, conditional formats, charts, soft protection |
@@ -25,11 +26,12 @@ another file.
 
 | Sheet | Content |
 |---|---|
-| Dashboard | level, rank, XP, coins, today, streak, 7-day average, overdue and upcoming tasks, 30-day habit stats, two charts (hidden data in X:Z) |
+| Dashboard | level, rank, XP, coins, today, streak, 7-day average, overdue and upcoming tasks, 30-day habit stats, rules section (clean streak and 30-day share per rule, below the habits), two charts (hidden data in X:Z) |
 | Habits | row 1 headers, row 2 XP per habit (linked to Settings), from row 3 one row per day: date, weekday, checkbox or «—» per habit, XP, completion %, streak |
+| Rules | same layout as Habits without the streak column: one checkbox per rule per day (tick = kept), XP, kept share; XP per rule in row 2 linked to Settings column K; built only when `rules` is not empty |
 | Tasks | done, title, category, deadline, priority, XP, notes, completed date, days left |
 | Shop | reward, price, bought, date; balance block in F1:G3 |
-| Settings | habits (name, XP, days) and game parameters F2:F4 (XP per level, coins per XP, streak threshold) |
+| Settings | habits A:C (name, XP, days), game parameters F2:F4 (XP per level, coins per XP, streak threshold), help in H, rules J:M (name, XP, type, days) |
 | `_backup` | hidden, JSON snapshot of user data; fixed name |
 
 ## Configuration flow
@@ -42,9 +44,9 @@ Habits edited on the Settings sheet are read back on rebuild. Format details:
 
 ## Rebuild and data safety
 
-`setup` / «Rebuild»: `exportState_` → `writeBackup_` → `applyHabitsFromSheet_` →
-`buildAll_(state)` (deletes all sheets except `_backup`, rebuilds, restores ticks by date and
-habit name, restores tasks and shop rows, re-applies styling and protection). The calendar
+`setup` / «Rebuild»: `exportState_` → `writeBackup_` → `applySettingsSheet_` →
+`buildAll_(state)` (deletes all sheets except `_backup`, rebuilds, restores habit and rule
+ticks by date and name, restores tasks and shop rows, re-applies styling and protection). The calendar
 period comes from `calendarPeriod_`; kept data that starts earlier extends it backwards.
 
 ## Tooling

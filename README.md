@@ -2,8 +2,9 @@
 
 [![CI](https://github.com/dimbo1324/daily-quest/actions/workflows/ci.yml/badge.svg)](https://github.com/dimbo1324/daily-quest/actions/workflows/ci.yml)
 
-Gamified habit & task tracker for Google Sheets (Apps Script): dark UI, XP, levels, streaks,
-coins and a reward shop, dashboard with charts, auto-backup and state-preserving upgrades.
+Gamified habit & task tracker for Google Sheets (Apps Script): daily habits, rules to keep
+or avoid, tasks, XP, levels, streaks, coins and a reward shop, dashboard with charts, dark UI,
+auto-backup and state-preserving upgrades.
 English UI out of the box, fully localizable through the config.
 
 ## Install
@@ -38,7 +39,10 @@ Highlights:
   first build and runs `daysToCreate` days, extending itself by 30 days as it nears the end.
 - `strings` overrides any UI text, sheet names included — this is how you translate the
   sheet. The keys and English defaults are listed in `config.schema.json`.
-- Habits can also be edited on the `Settings` sheet → menu **♻️ Rebuild**.
+- `rules` lists things to keep or to avoid (`kind: "keep" | "avoid"`), tracked day by day on
+  the Rules sheet: tick a rule when you kept it. Each rule shows its clean streak on the
+  Dashboard.
+- Habits and rules can also be edited on the `Settings` sheet → menu **♻️ Rebuild**.
 - **⚙️ Settings → 📤 Export to JSON** writes the effective config back for `my-config.json`.
 
 ## Upgrade
@@ -64,7 +68,7 @@ npm run push                        # upload src/ to your Apps Script project
 | `src/` | Apps Script sources pushed by clasp (one shared global scope) |
 | `tests/`, `scripts/` | Node test suite and repository tooling |
 | `config.example.json`, `config.schema.json` | demo config, generated schema |
-| `docs/` | roadmap, architecture, decisions |
+| `docs/` | roadmap, architecture, decisions, manual test plan |
 | `.ai/`, `CLAUDE.md`, `AGENTS.md`, `.claude/`, `.codex/` | rules shared by every AI assistant |
 
 Everything in this repository is written in English (`npm run check:language` enforces it).

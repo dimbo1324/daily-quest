@@ -5,6 +5,13 @@ standing instruction in chat records it here in the same task.
 
 ## Decisions
 
+### 2026-10-12 — Rules to keep and to avoid
+
+A separate `rules` list and sheet, next to habits. A tick means "kept the rule that day" for
+both kinds (`keep`, `avoid`), so a missed past day is a slip. Kept rules earn XP like habits;
+no penalties for now. Each rule shows its clean streak (days since the last missed day) and
+its 30-day share on the dashboard.
+
 ### 2026-10-12 — Everything in the repository is English
 
 Code, comments, UI defaults, documentation, rule modules, commit messages. Enforced by
@@ -40,5 +47,5 @@ decision here.
 
 - How exactly the personal config should be set up and delivered to the sheet (the owner
   will specify in a following task).
-- "Habits to avoid": scoring model (penalty, bonus for a clean day, streaks), sheet layout,
-  categories.
+- Rules: penalties for a slip, a bonus for long clean streaks, rule categories — not
+  decided; the current model only rewards kept days.
