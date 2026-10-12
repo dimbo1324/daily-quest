@@ -1,34 +1,32 @@
-# Task: rules to keep and to avoid (v2.3.0)
+# Task: Stats sheet with charts and infographics, faster builds (v2.4.0)
 
-Owner instruction of 2026-10-12: add daily-tracked items to avoid (and healthy rules to keep),
-configurable like habits; the owner's personal list goes into the git-ignored
-`my-config.json`, the demo config uses different, neutral examples; then give the owner
-instructions for deploying and manually testing in Google Sheets.
+Owner instruction of 2026-10-12: more charts, diagrams and infographics to see progress
+visually (at least two kinds), and further build optimization.
 
-Design: a new `rules` config list (`{ name, xp, kind: keep|avoid, days }`) and a new `Rules`
-sheet with the same day-by-day layout as `Habits`; a tick means "kept the rule that day".
-Rule XP counts toward levels and coins; each rule shows its current clean streak and its
-30-day share on the dashboard. Rules are optional (no rules → no sheet).
+Design: a new `Stats` sheet (live formulas, no user data):
+- KPI tiles: best streak, perfect days, ticks, 30-day average with a sparkline;
+- a 26-week calendar heatmap of habit completion with a legend;
+- charts: total XP over time (area), XP per week by source (stacked columns), XP by source
+  (donut), habit completion and rules kept over 30 days (bars), completion by weekday
+  (columns).
+Optimization: dashboard and stats cells written in one batch call instead of one call per
+cell.
 
 Marks: `[ ]` open, `+` done, `-` not done or partially done (with a note).
 
 ## 1. Implementation
 
-+ Shared tracker layer for Habits and Rules (build, append, style, protect, restore)
-+ Config: `rules` in defaults, normalization, validation, example, schema
-+ Settings sheet: rules table (name, XP, type, days), read back on rebuild
-+ Dashboard: rule XP in totals and charts, rules section with streak and 30-day share
-+ Snapshot and restore of rule ticks and rule XP
-+ UI strings (English) for everything new
-+ Personal `my-config.json`: the owner's rules and Russian strings
+[ ] `src/stats.js`: data block, tiles, heatmap, charts, styling
+[ ] Batch cell writing for Dashboard and Stats
+[ ] Sheet wiring: names, build order, styling, protection, tab color
+[ ] English UI strings; Russian strings in the personal config
 
 ## 2. Verification
 
-+ Tests for rules config and validation
-+ `npm run check` green
-+ Manual test plan for a real spreadsheet (`docs/manual-test-plan.md`)
+[ ] Tests (chart anchor math, sheet names), `npm run check` green
+[ ] Manual test plan updated
 
 ## 3. Completion
 
-+ Docs, changelog, version 2.3.0, rule modules synced
-+ Merge into `main`, push
+[ ] Docs, changelog, version 2.4.0, rule modules synced
+[ ] Merge into `main`
