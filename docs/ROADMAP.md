@@ -22,18 +22,23 @@ storage); tests; language guard; `.ai/` rules, `CLAUDE.md`, generated `AGENTS.md
 in all totals; dashboard section with the clean streak and the 30-day share per rule. The
 owner's personal rules live in `my-config.json`.
 
-## 4. Verify v2.3 in a real spreadsheet
+## 4. Stats sheet with charts and infographics (v2.4.0)
+
+**Done 2026-10-12 (code).** Stats sheet with KPI tiles, a 26-week heatmap and six charts;
+batch cell writes for faster builds.
+
+## 5. Verify v2.4 in a real spreadsheet
 
 Walk through `docs/manual-test-plan.md` in a fresh test spreadsheet, then in the real one
-with the personal config. Fix what breaks. Nothing after this item should ship before it is
+with the personal config. The year-long build fix of v2.3.1 is confirmed by the owner. Fix what breaks. Nothing after this item should ship before it is
 done.
 
-## 5. Content Tracker (second spreadsheet)
+## 6. Content Tracker (second spreadsheet)
 
 A LinkedIn and X posting calendar (every other day, Sunday off), an idea bank, metrics and
 contacts. Likely a separate Apps Script project in its own directory.
 
-## 6. Maybe: a web app over exported data
+## 7. Maybe: a web app over exported data
 
 An export of the spreadsheet data feeding a separate application (Python or Go). Not
 started; needs an owner decision on scope.

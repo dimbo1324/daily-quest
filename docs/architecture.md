@@ -1,6 +1,6 @@
 # Architecture
 
-How Daily Quest is built right now (v2.3.0). The code is the fact; update this file when the
+How Daily Quest is built right now (v2.4.0). The code is the fact; update this file when the
 shape changes.
 
 ## Runtime
@@ -19,6 +19,7 @@ another file.
 | `trackers.js` | shared layer for day-tracked sheets (habits, rules): tracker list, column layout, building and appending days |
 | `state.js` | `exportState_` snapshot, `_backup` write / read, tick restore |
 | `build.js` | `buildAll_` and one builder per sheet; en_US formulas |
+| `stats.js` | Stats sheet: data block (columns BC+), KPI tiles, heatmap, six charts on a 24 px grid |
 | `style.js` | styling, conditional formats, charts, soft protection |
 | `game.js` | `onEdit`: XP toasts, level-ups, task completion dates, purchase checks |
 
@@ -27,6 +28,7 @@ another file.
 | Sheet | Content |
 |---|---|
 | Dashboard | level, rank, XP, coins, today, streak, 7-day average, overdue and upcoming tasks, 30-day habit stats, rules section (clean streak and 30-day share per rule, below the habits), two charts (hidden data in X:Z) |
+| Stats | KPI tiles (rows 5–7), 26-week habit completion heatmap (rows 10–19), six charts from row 21; hidden chart data from column BC; live formulas only |
 | Habits | row 1 headers, row 2 XP per habit (linked to Settings), from row 3 one row per day: date, weekday, checkbox or «—» per habit, XP, completion %, streak |
 | Rules | same layout as Habits without the streak column: one checkbox per rule per day (tick = kept), XP, kept share; XP per rule in row 2 linked to Settings column K; built only when `rules` is not empty |
 | Tasks | done, title, category, deadline, priority, XP, notes, completed date, days left |
@@ -42,6 +44,10 @@ validates it, snapshots the current data with the current sheet names, saves and
 Habits edited on the Settings sheet are read back on rebuild. Format details:
 `.ai/project/14-config-reference.md`; schema: `config.schema.json` (generated).
 
+Large sheets are written with `writeCells_` (one `setValues` over the bounding box) and batch
+range calls; per-cell API calls over calendar-sized ranges exceed the 6-minute execution
+limit.
+
 ## Rebuild and data safety
 
 `setup` / «Rebuild»: `exportState_` → `writeBackup_` → `applySettingsSheet_` →
@@ -52,5 +58,6 @@ period comes from `calendarPeriod_`; kept data that starts earlier extends it ba
 ## Tooling
 
 `npm run check` = ESLint + `node:test` (`tests/harness.mjs` runs `src/` in a V8 context with
-stubbed `PropertiesService` and `Utilities`) + config validation + schema sync + assistant
+stubbed `PropertiesService` and `Utilities`; `build-smoke.test.mjs` runs the dashboard and
+stats builders against a fake Spreadsheet API) + config validation + schema sync + assistant
 sync + language guard. CI runs it on every push and pull request.

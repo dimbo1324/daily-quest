@@ -23,8 +23,10 @@ These sharpen the universal rules for this codebase. Stricter wins.
   `setFormulasR1C1`.
 - Text inside a formula goes through `tq_()` (quotes doubled). Never splice raw user text
   into a formula.
-- Batch reads and writes (`getValues` / `setValues` over ranges); no per-cell loops over
-  calendar-sized ranges.
+- Batch reads and writes (`getValues` / `setValues` over ranges, `writeCells_` for sparse
+  layouts); no per-cell calls or range lists over calendar-sized ranges — a year-long build
+  must stay well inside the 6-minute execution limit (v2.3.1 hit it).
+- Only `SUMIF` / `COUNTIF` expand inside `ARRAYFORMULA`; `SUMIFS` / `COUNTIFS` do not.
 - User data is matched by date and habit name. Renaming a habit loses its old ticks — say so
   whenever a task touches habit identity.
 

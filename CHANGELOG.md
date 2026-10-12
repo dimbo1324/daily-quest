@@ -2,6 +2,18 @@
 
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versioning: [SemVer](https://semver.org/).
 
+## [2.4.0] - 2026-10-12
+### Added
+- Stats sheet: KPI tiles (best streak, perfect days, ticks, 30-day average with a sparkline),
+  a 26-week habit completion heatmap with a legend, and six charts — total XP over time,
+  XP per week by source, XP by source, habit completion and rules kept over 30 days,
+  completion by weekday.
+- Builder smoke test against a fake Apps Script API.
+### Changed
+- Dashboard and Stats cells are written in one batch call instead of one call per cell.
+### Fixed
+- The dashboard failed to build when the `rules` list was empty.
+
 ## [2.3.1] - 2026-10-12
 ### Fixed
 - Building a year-long calendar stopped half way (Apps Script time limit): inactive days

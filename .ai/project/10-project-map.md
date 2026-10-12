@@ -9,7 +9,7 @@ live in their own top-level directories.
 
 ## Sheets the script builds
 
-`Dashboard`, `Habits` (rows = days, columns = habits), `Rules` (same layout, things to keep
+`Dashboard`, `Stats` (charts, heatmap, KPI tiles), `Habits` (rows = days, columns = habits), `Rules` (same layout, things to keep
 or avoid; only when rules are configured), `Tasks`, `Shop`, `Settings`, and the hidden
 `_backup`. Sheet names and all UI text are English by default and can be localized
 through the config's `strings` object.
@@ -25,6 +25,7 @@ through the config's `strings` object.
   - `trackers.js` — shared layer for the day-tracked sheets (habits, rules).
   - `state.js` — snapshot (`exportState_`), backup and restore of user data.
   - `build.js` — building every sheet and its formulas.
+  - `stats.js` — the Stats sheet: KPI tiles, heatmap, charts.
   - `style.js` — styling, conditional formatting, charts, soft protection.
   - `game.js` — `onEdit` reactions: XP toasts, level-ups, purchase checks.
   - `appsscript.json` — manifest: V8, minimal OAuth scopes.

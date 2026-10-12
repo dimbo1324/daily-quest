@@ -51,7 +51,15 @@ Use a **fresh test spreadsheet** first; touch the real one only after the test c
 - [ ] «Export to JSON» shows the effective config including `rules`.
 - [ ] «Reset everything and rebuild» asks first, then starts clean; restore brings data back.
 
-## 5. Look and feel
+## 5. Stats sheet
+
+- [ ] Stats sheet follows the Dashboard; no `#ERROR!`, `#REF!` or `#N/A` in the tiles.
+- [ ] Tiles: best streak, perfect days, ticks and the 30-day average with a sparkline.
+- [ ] Heatmap shows 26 weeks × 7 days; ticked days turn green, future days stay dark.
+- [ ] Six charts (five without rules): total XP, weekly XP by source, XP by source,
+      habits 30 days, rules 30 days, weekday averages. Tick something → charts update.
+
+## 6. Look and feel
 
 - [ ] Dark, calm styling on every sheet; no white cells in used areas.
 - [ ] Today's row is highlighted; missed past days are dim red; Sundays are purple.

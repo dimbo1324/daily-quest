@@ -6,6 +6,20 @@ History of changes to the AI assistant rule system (`.ai/`, `CLAUDE.md`, `AGENTS
 
 Format: date, what changed, why, who decided. Newest first.
 
+## 2026-10-12 — Stats sheet and the execution-time rule
+
+**What changed.** `project/10-project-map.md` lists the Stats sheet and `src/stats.js`.
+`project/12-domain-rules.md` forbids per-cell calls and range lists over calendar-sized
+ranges (naming the 6-minute limit) and records that only `SUMIF` / `COUNTIF` expand inside
+`ARRAYFORMULA`.
+
+**Why.** The owner's year-long calendar hit the execution limit in v2.3.1 — the same
+defect class must not return; the Stats sheet changed the sheet set. A new constraint
+learned from a real failure and factual additions, allowed by
+`universal/08-rules-evolution.md` without approval.
+
+**Decided by.** Agent, as part of the owner-requested Stats work of 2026-10-12.
+
 ## 2026-10-12 — Rules in the project modules
 
 **What changed.** `project/10-project-map.md` lists the Rules sheet and `src/trackers.js`;

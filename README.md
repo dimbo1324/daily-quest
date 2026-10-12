@@ -42,6 +42,8 @@ Highlights:
 - `rules` lists things to keep or to avoid (`kind: "keep" | "avoid"`), tracked day by day on
   the Rules sheet: tick a rule when you kept it. Each rule shows its clean streak on the
   Dashboard.
+- The **Stats** sheet shows KPI tiles, a 26-week completion heatmap and six charts of your
+  progress; it updates live.
 - Habits and rules can also be edited on the `Settings` sheet → menu **♻️ Rebuild**.
 - **⚙️ Settings → 📤 Export to JSON** writes the effective config back for `my-config.json`.
 
