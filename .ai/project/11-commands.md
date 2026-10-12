@@ -42,7 +42,8 @@ Without clasp, the owner can paste each `src/*.js` file into the Apps Script edi
 
 ## Real-sheet verification
 
-Tests cover pure logic only; sheet building runs against Google. After a change to
-`build.js`, `style.js`, `state.js`, `trackers.js` or `game.js`, keep
+Tests cover pure logic and a smoke run of the builders against a fake API; how sheets
+actually look and behave is only visible in Google Sheets. After a change to
+`build.js`, `style.js`, `state.js`, `trackers.js`, `stats.js`, `logs.js` or `game.js`, keep
 `docs/manual-test-plan.md` current and say in the final report which of its sections were
 run in a real spreadsheet, or that none were.

@@ -49,4 +49,6 @@ effective config back, with `$schema` for editor completion.
 
 `t_(key, ...args)` returns the override from `strings` or the English default; `{0}` style
 placeholders. Arrays: `weekdays` (exactly 7), `ranks`, `settings.help`. Changing sheet names
-renames the sheets on the next rebuild; state is exported with the old names first.
+renames the sheets on the next rebuild; state is exported with the old names first. The
+`_backup` and `Logs` sheet names are fixed and reserved; the `Logs` column headers are
+localizable (`logs.*`).

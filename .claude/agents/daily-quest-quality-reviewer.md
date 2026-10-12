@@ -14,7 +14,8 @@ Check against this list:
 1. **Scope.** Changes the task did not require: incidental refactoring, renames,
    reformatting, redesign, removed functionality.
 2. **User data.** Can a rebuild, import or upgrade lose ticks, tasks or purchases? Do
-   `exportState_`, the builders and `restoreHabits_` still agree on the layout?
+   `exportState_`, the builders and `restoreTicks_` still agree on the layout? Does the
+   `Logs` sheet survive and does every new operation call `logEvent_`?
 3. **Config compatibility.** Old configs still load; new keys are in the defaults, the
    validator, the example, the regenerated schema and a test.
 4. **Language and i18n.** No Cyrillic in tracked files; no inline UI text — every string

@@ -6,6 +6,20 @@ History of changes to the AI assistant rule system (`.ai/`, `CLAUDE.md`, `AGENTS
 
 Format: date, what changed, why, who decided. Newest first.
 
+## 2026-10-12 — Project state refresh
+
+**What changed.** `project/10-project-map.md` lists the test files and the manual test plan;
+`project/11-commands.md` adds `stats.js` and `logs.js` to the files that need real-sheet
+checks and describes the builder smoke test; `project/14-config-reference.md` names the
+reserved `_backup` and `Logs` sheet names. The `daily-quest-apps-script` and
+`daily-quest-quality-reviewer` agents name `restoreTicks_` (was the removed
+`restoreHabits_`) and the logging duty.
+
+**Why.** Owner-requested refresh; stale names and missing files are factual corrections
+allowed without approval.
+
+**Decided by.** Owner instruction of 2026-10-12, carried out by the agent.
+
 ## 2026-10-12 — The audit log in the project modules
 
 **What changed.** `project/10-project-map.md` lists the `Logs` sheet and `src/logs.js`;

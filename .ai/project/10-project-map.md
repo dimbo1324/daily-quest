@@ -33,9 +33,12 @@ through the config's `strings` object.
 - `config.example.json` — neutral demo config, identical to `DEFAULT_CFG` (tested).
 - `config.schema.json` — GENERATED from `src/` by `npm run schema`; never edit by hand.
 - `my-config.json` — the owner's personal config. **Git-ignored**; may contain any language.
-- `tests/` — `node:test` suite; `harness.mjs` loads `src/` into a V8 context with stubs.
+- `tests/` — `node:test` suite; `harness.mjs` loads `src/` into a V8 context with stubs;
+  `config.test.mjs` (config, i18n, trackers, stats layout), `build-smoke.test.mjs` (builders
+  against a fake Spreadsheet API), `logs.test.mjs` (audit log).
 - `scripts/` — repo tooling: `check-config`, `check-language`, `build-schema`, `sync-agents`.
-- `docs/` — `ROADMAP.md`, `architecture.md`, `decisions.md` (state documents).
+- `docs/` — `ROADMAP.md`, `architecture.md`, `decisions.md` (state documents) and
+  `manual-test-plan.md` (checks in a real spreadsheet).
 - `.ai/`, `.claude/`, `.codex/`, `CLAUDE.md`, `AGENTS.md`, `GEMINI.md` — assistant rules.
 - `.github/` — CI (`npm run check` + forbidden-files guard), Dependabot, issue templates.
 

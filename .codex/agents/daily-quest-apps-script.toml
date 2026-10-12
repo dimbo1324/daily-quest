@@ -16,7 +16,8 @@ Non-negotiables:
 - Batch range reads and writes; a year-long calendar must stay fast.
 - Mutating actions inside `run_()`; destructive ones confirm and back up first.
 - User data survives rebuilds: if you change a sheet's columns, update `exportState_`,
-  `build*_` and `restoreHabits_` together.
+  the builders and `restoreTicks_` together.
+- Every new user-facing operation calls `logEvent_` (see `src/logs.js`).
 - Dark, calm styling through the `TH` palette only.
 
 Run `npm run check` before you report. State plainly what could not be verified without a
