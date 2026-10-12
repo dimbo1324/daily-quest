@@ -16,17 +16,17 @@ Marks: `[ ]` open, `+` done, `-` not done or partially done (with a note).
 
 ## 1. Implementation
 
-[ ] `src/stats.js`: data block, tiles, heatmap, charts, styling
-[ ] Batch cell writing for Dashboard and Stats
-[ ] Sheet wiring: names, build order, styling, protection, tab color
-[ ] English UI strings; Russian strings in the personal config
++ `src/stats.js`: data block, tiles, heatmap, charts, styling
++ Batch cell writing for Dashboard and Stats
++ Sheet wiring: names, build order, styling, protection, tab color
++ English UI strings; Russian strings in the personal config
 
 ## 2. Verification
 
-[ ] Tests (chart anchor math, sheet names), `npm run check` green
-[ ] Manual test plan updated
++ Tests (chart anchor math, sheet names), `npm run check` green
++ Manual test plan updated
 
 ## 3. Completion
 
-[ ] Docs, changelog, version 2.4.0, rule modules synced
-[ ] Merge into `main`
++ Docs, changelog, version 2.4.0, rule modules synced
++ Merge into `main`
