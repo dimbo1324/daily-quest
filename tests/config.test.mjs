@@ -1,0 +1,141 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { loadApp, topLevelDeclarations } from './harness.mjs';
+
+const example = JSON.parse(readFileSync(new URL('../config.example.json', import.meta.url), 'utf8'));
+const plain = (v) => JSON.parse(JSON.stringify(v));
+
+function app(personal) {
+  const a = loadApp();
+  if (personal) a.docProps.setProperty('dq_config', JSON.stringify(personal));
+  return a;
+}
+
+test('no top-level name is declared in two src files', () => {
+  const seen = new Map();
+  for (const { file, name } of topLevelDeclarations()) {
+    assert.ok(!seen.has(name), `${name} is declared in ${seen.get(name)} and ${file}`);
+    seen.set(name, file);
+  }
+});
+
+test('DEFAULT_CFG equals config.example.json', () => {
+  const { run } = app();
+  const defaults = plain(run('DEFAULT_CFG'));
+  const { $schema, ...rest } = example;
+  assert.equal($schema, './config.schema.json');
+  assert.deepEqual({ ...rest, strings: {} }, defaults);
+});
+
+test('the example config is valid', () => {
+  const { run, context } = app();
+  context.input = example;
+  assert.deepEqual(plain(run('validateCfg_(normalizeCfg_(input, DEFAULT_CFG))')), []);
+});
+
+test('legacy tuple configs are normalized into objects', () => {
+  const { run } = app({
+    habits: [['Walk', 10, 'all']],
+    tasks: [['Call', 'Work', '2026-10-20', 'high', 15]],
+    rewards: [['Tea', 5]],
+  });
+  const cfg = plain(run('cfg_()'));
+  assert.deepEqual(cfg.habits, [{ name: 'Walk', xp: 10, days: 'all' }]);
+  assert.deepEqual(cfg.tasks, [{ title: 'Call', category: 'Work', deadline: '2026-10-20', priority: 'high', xp: 15 }]);
+  assert.deepEqual(cfg.rewards, [{ name: 'Tea', price: 5 }]);
+  assert.deepEqual(plain(run('validateCfg_(cfg_())')), []);
+});
+
+test('a priority given by its label (English or overridden) maps to its key', () => {
+  const { run } = app({
+    strings: { 'priority.low': 'Later' },
+    tasks: [
+      { title: 'A', category: 'Work', deadline: '', priority: '🔥 High', xp: 1 },
+      { title: 'B', category: 'Work', deadline: '', priority: 'Later', xp: 1 },
+    ],
+  });
+  assert.deepEqual(plain(run('cfg_().tasks.map(t => t.priority)')), ['high', 'low']);
+});
+
+test('validation reports precise problems', () => {
+  const { run, context } = app();
+  const check = (user) => {
+    context.input = user;
+    return plain(run('validateCfg_(normalizeCfg_(input, DEFAULT_CFG))'));
+  };
+  assert.match(check({ startDate: '2026-02-30' }).join(), /startDate must be YYYY-MM-DD/);
+  assert.match(check({ endDate: '2027-01-01' }).join(), /endDate needs startDate/);
+  assert.match(check({ startDate: '2027-01-02', endDate: '2027-01-01' }).join(), /endDate must not be before startDate/);
+  assert.match(check({ startDate: '2026-01-01', endDate: '2030-01-01' }).join(), /at most 1100 days/);
+  assert.match(check({ colour: 'red' }).join(), /Unknown settings: colour/);
+  assert.match(check({ habits: [{ name: 'X', xp: 1, days: 'often' }] }).join(), /unknown days/);
+  assert.match(check({ habits: [{ name: 'X', xp: 1, days: 'all', kind: 'avoid' }] }).join(), /unknown field «kind»/);
+  assert.match(check({ habits: [{ name: 'X', xp: 1, days: 'all' }, { name: 'X', xp: 2, days: 'all' }] }).join(), /Duplicate habit/);
+  assert.match(check({ tasks: [{ title: 'T', category: 'Nope', deadline: '', priority: 'high', xp: 1 }] }).join(), /unknown category/);
+  assert.match(check({ strings: { 'no.such.key': 'x' } }).join(), /unknown key/);
+  assert.match(check({ strings: { weekdays: ['a', 'b'] } }).join(), /7 names/);
+  assert.match(check({ strings: { 'sheet.tasks': 'Habits' } }).join(), /sheet names must be unique/);
+});
+
+test('calendar period: explicit start and end dates span a full year', () => {
+  const { run } = app({ startDate: '2026-10-13', endDate: '2027-10-12' });
+  const [start, days] = plain(run('calendarPeriod_(cfg_(), [2026, 10, 12], "")'));
+  assert.deepEqual(start, [2026, 10, 13]);
+  assert.equal(days, 365);
+});
+
+test('calendar period: without dates it starts today and lasts daysToCreate days', () => {
+  const { run } = app();
+  const [start, days] = plain(run('calendarPeriod_(cfg_(), [2026, 10, 12], "")'));
+  assert.deepEqual(start, [2026, 10, 12]);
+  assert.equal(days, 60);
+});
+
+test('calendar period: earlier kept data extends the start backwards', () => {
+  const { run } = app({ startDate: '2026-10-13', endDate: '2027-10-12' });
+  const [start, days] = plain(run('calendarPeriod_(cfg_(), [2026, 11, 1], "2026-10-01")'));
+  assert.deepEqual(start, [2026, 10, 1]);
+  assert.equal(days, 377);
+});
+
+test('calendar period: a future start without an end runs daysToCreate days from the start', () => {
+  const { run } = app({ startDate: '2026-12-01' });
+  const [start, days] = plain(run('calendarPeriod_(cfg_(), [2026, 10, 12], "")'));
+  assert.deepEqual(start, [2026, 12, 1]);
+  assert.equal(days, 60);
+});
+
+test('UI strings: English by default, overrides and placeholders apply', () => {
+  const { run } = app({ strings: { 'sheet.habits': 'Gewohnheiten', 'msg.bought': 'Gekauft: {0} ({1})' } });
+  assert.equal(run('t_("sheet.tasks")'), 'Tasks');
+  assert.equal(run('names_().habits'), 'Gewohnheiten');
+  assert.equal(run('names_().backup'), '_backup');
+  assert.equal(run('t_("msg.bought", "Tea", 3)'), 'Gekauft: Tea (3)');
+  assert.equal(run('tq_("tasks.left")'), '"⏳ Left"');
+  assert.throws(() => run('t_("missing.key")'), /Unknown UI string/);
+});
+
+test('every string key used in src exists in STRINGS_EN', () => {
+  const { run } = app();
+  const keys = new Set(Object.keys(run('STRINGS_EN')));
+  const src = ['build.js', 'config.js', 'core.js', 'game.js', 'main.js', 'state.js', 'style.js']
+    .map((f) => readFileSync(new URL(`../src/${f}`, import.meta.url), 'utf8')).join('\n');
+  const used = [...src.matchAll(/\bt[q]?_\('([\w.]+)'/g)].map((m) => m[1]);
+  assert.ok(used.length > 50);
+  for (const k of used) assert.ok(keys.has(k), `missing UI string ${k}`);
+});
+
+test('a large config survives the chunked document-property storage', () => {
+  const { run, docProps, context } = app();
+  const habits = Array.from({ length: 40 }, (_, i) => ({ name: `Habit ${i} ` + 'é🎯—'.repeat(60), xp: 10, days: 'all' }));
+  context.input = { habits };
+  run('setCfg_(normalizeCfg_(input, DEFAULT_CFG)); saveCfg_()');
+  const chunks = Number(docProps.getProperty('dq_config_chunks'));
+  assert.ok(chunks > 1);
+  for (const k of docProps.getKeys()) {
+    assert.ok(Buffer.byteLength(docProps.getProperty(k), 'utf8') <= 9 * 1024, `${k} exceeds 9 kB`);
+  }
+  run('setCfg_(null)');
+  assert.deepEqual(plain(run('cfg_().habits')), habits);
+});
