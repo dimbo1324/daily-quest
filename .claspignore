@@ -1,0 +1,6 @@
+# Only Apps Script sources are pushed (rootDir = src)
+**/**
+!*.js
+!*.gs
+!*.html
+!appsscript.json
