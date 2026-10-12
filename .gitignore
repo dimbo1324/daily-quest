@@ -72,3 +72,4 @@ desktop.ini
 tmp/
 .tmp/
 .claude/settings.local.json
+.codex/config.local.toml

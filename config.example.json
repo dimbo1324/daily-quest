@@ -1,74 +1,77 @@
 {
-  "timezone": "America/Montevideo",
+  "$schema": "./config.schema.json",
+  "timezone": "Etc/GMT",
+  "startDate": "",
+  "endDate": "",
   "daysToCreate": 60,
   "xpPerLevel": 500,
   "coinsPerXp": 0.1,
   "streakThreshold": 0.8,
   "categories": [
-    "Работа",
-    "Здоровье",
-    "Учёба",
-    "Спорт",
-    "Быт",
-    "Личное"
+    "Work",
+    "Health",
+    "Learning",
+    "Sport",
+    "Home",
+    "Personal"
   ],
   "habits": [
-    [
-      "🧘 Медитация",
-      10,
-      "all"
-    ],
-    [
-      "💪 Тренировка",
-      20,
-      "monsat"
-    ],
-    [
-      "🎾 Теннис или футбол",
-      20,
-      "sat"
-    ],
-    [
-      "📖 Чтение 30 мин",
-      10,
-      "all"
-    ],
-    [
-      "🗣️ Язык 30 мин",
-      15,
-      "all"
-    ],
-    [
-      "🗓️ План на неделю",
-      20,
-      "sun"
-    ]
+    {
+      "name": "🧘 Meditation",
+      "xp": 10,
+      "days": "all"
+    },
+    {
+      "name": "💪 Workout",
+      "xp": 20,
+      "days": "monsat"
+    },
+    {
+      "name": "🚶 10,000 steps",
+      "xp": 10,
+      "days": "all"
+    },
+    {
+      "name": "📖 Read 30 min",
+      "xp": 10,
+      "days": "all"
+    },
+    {
+      "name": "🗣️ Language practice 30 min",
+      "xp": 15,
+      "days": "all"
+    },
+    {
+      "name": "🗓️ Plan the week",
+      "xp": 20,
+      "days": "sun"
+    }
   ],
   "tasks": [
-    [
-      "Моя первая задача",
-      "Личное",
-      "",
-      "Средний",
-      10
-    ]
+    {
+      "title": "My first task",
+      "category": "Personal",
+      "deadline": "",
+      "priority": "medium",
+      "xp": 10
+    }
   ],
   "rewards": [
-    [
-      "☕ Кофе",
-      30
-    ],
-    [
-      "🎬 Вечер кино",
-      40
-    ],
-    [
-      "🍕 Вкусный ужин",
-      50
-    ],
-    [
-      "🏖️ Выходной от плана",
-      200
-    ]
+    {
+      "name": "☕ Coffee out",
+      "price": 30
+    },
+    {
+      "name": "🎬 Movie night",
+      "price": 40
+    },
+    {
+      "name": "🍕 Favorite dinner",
+      "price": 50
+    },
+    {
+      "name": "🏖️ Day off from the plan",
+      "price": 200
+    }
   ]
 }

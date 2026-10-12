@@ -1,11 +1,11 @@
 ---
-name: ✨ Идея / фича
-about: Новая игровая механика или улучшение
+name: ✨ Idea / feature
+about: A new game mechanic or an improvement
 labels: enhancement
 ---
 
-**Идея**
+**Idea**
 
-**Зачем это нужно**
+**Why it is needed**
 
-**Как может выглядеть**
+**What it could look like**
