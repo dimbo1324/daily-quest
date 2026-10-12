@@ -16,7 +16,7 @@
  * Personal settings never live in code: see config.js and README.md.
  */
 
-const VERSION = '2.4.1';
+const VERSION = '2.5.0';
 
 // ═════════════════════════ Menu and entry points ═════════════════════════
 
@@ -39,6 +39,7 @@ function onOpen() {
       .addItem(t_('menu.about'), 'menuAbout')
       .addToUi();
   } catch (e) { console.error('menu', e); }
+  logEvent_('open');
   try { autoExtend_(); } catch (e) { console.error('autoExtend', e); }
 }
 
@@ -50,9 +51,11 @@ function setup() {
       writeBackup_(state);
       applySettingsSheet_();
       buildAll_(state);
+      logEvent_('rebuild', { details: 'version ' + VERSION + ', backup written' });
       notify_(t_('msg.rebuilt'), 8);
     } else {
       buildAll_(null);
+      logEvent_('build', { details: 'version ' + VERSION });
       notify_(t_('msg.built'), 8);
     }
   });
@@ -68,6 +71,7 @@ function menuHardReset() {
   run_(t_('op.reset'), () => {
     if (trackerExists_()) writeBackup_(exportState_());
     buildAll_(null);
+    logEvent_('reset', { details: 'all data cleared, backup written' });
     notify_(t_('msg.hardResetDone'), 8);
   });
 }
@@ -79,12 +83,13 @@ function menuRestore() {
   if (confirm_(t_('msg.confirmRestore', when)) !== true) return;
   run_(t_('op.restore'), () => {
     buildAll_(st);
+    logEvent_('restore', { details: 'backup of ' + (st.exportedAt || '?') });
     notify_(t_('msg.restored', when), 8);
   });
 }
 
 function menuRestyle() {
-  run_(t_('op.restyle'), () => { styleAll_(); notify_(t_('msg.restyled')); });
+  run_(t_('op.restyle'), () => { styleAll_(); logEvent_('restyle'); notify_(t_('msg.restyled')); });
 }
 
 function menuAbout() {
@@ -105,6 +110,7 @@ function goToday() {
     if (!row) { alert_(t_('msg.todayMissing')); return; }
     ss_().setActiveSheet(sh);
     sh.setActiveRange(sh.getRange(row, habitCols_().first));
+    logEvent_('go-today', { sheet: sh.getName(), cell: 'A' + row });
   });
 }
 
@@ -112,6 +118,7 @@ function add30Days() {
   run_(t_('op.addDays'), () => {
     if (!requireTracker_()) return;
     extendTrackers_(30);
+    logEvent_('days-added', { details: '30 days' });
     notify_(t_('msg.added30'));
   });
 }
@@ -140,6 +147,9 @@ function autoExtend_() {
   const lock = LockService.getDocumentLock();
   if (!lock.tryLock(5000)) return;
   try {
-    if (extendTrackers_(30)) notify_(t_('msg.autoAdded30'));
+    if (extendTrackers_(30)) {
+      logEvent_('days-added', { details: '30 days, automatically' });
+      notify_(t_('msg.autoAdded30'));
+    }
   } finally { lock.releaseLock(); }
 }

@@ -97,6 +97,7 @@ function run_(label, fn) {
     return fn();
   } catch (e) {
     console.error(label, e && e.stack ? e.stack : e);
+    logEvent_('error', { details: label + ': ' + e.message });
     notify_('❌ ' + label + ': ' + e.message, 15);
     alert_(t_('op.error', label, e.message));
   } finally {

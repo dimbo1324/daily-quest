@@ -15,7 +15,8 @@ function buildAll_(state) {
   // Delete everything except the backup.
   const tmp = ss.insertSheet('__tmp_' + Date.now());
   ss.getSheets().forEach(s => {
-    if (s.getSheetId() !== tmp.getSheetId() && s.getName() !== SH.backup) ss.deleteSheet(s);
+    const keep = s.getSheetId() === tmp.getSheetId() || s.getName() === SH.backup || s.getName() === LOG_SHEET;
+    if (!keep) ss.deleteSheet(s);
   });
   const trackers = trackers_();
   const sheets = {};

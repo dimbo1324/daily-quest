@@ -262,8 +262,9 @@ function validateStrings_(strings) {
   });
   const sheetKeys = ['sheet.dashboard', 'sheet.stats', 'sheet.habits', 'sheet.rules', 'sheet.tasks', 'sheet.shop', 'sheet.settings'];
   const sheetNames = sheetKeys.map(k => strings[k] || STRINGS_EN[k]);
-  if (new Set(sheetNames).size !== sheetNames.length || sheetNames.indexOf('_backup') >= 0) {
-    errs.push('strings: sheet names must be unique and must not be «_backup»');
+  const reserved = ['_backup', 'Logs'];
+  if (new Set(sheetNames).size !== sheetNames.length || sheetNames.some(n => reserved.indexOf(n) >= 0)) {
+    errs.push('strings: sheet names must be unique and must not be «_backup» or «Logs»');
   }
   return errs;
 }
@@ -348,7 +349,9 @@ function escapeHtml_(s) {
 
 function menuExportConfig() {
   try { applySettingsSheet_(); } catch (e) { alert_(e.message); return; }
-  const json = escapeHtml_(JSON.stringify(exportableCfg_(), null, 2));
+  const exported = JSON.stringify(exportableCfg_(), null, 2);
+  logEvent_('config-export', { details: exported });
+  const json = escapeHtml_(exported);
   showTextDialog_(t_('dialog.exportTitle'),
     '<style>body{font:13px Roboto,Arial;margin:12px}textarea{width:100%;height:320px;font:12px monospace;box-sizing:border-box}</style>' +
     '<p>' + t_('dialog.exportHint') + '</p>' +
@@ -372,13 +375,14 @@ function menuImportConfig() {
 
 /** Called from the import dialog. Keys present in the JSON replace the current ones. */
 function applyConfigJson(text) {
+  const fail = msg => { logEvent_('config-import-failed', { details: msg + '\n\n' + text }); throw new Error(msg); };
   let user;
-  try { user = JSON.parse(text); } catch (e) { throw new Error(t_('err.notJson', e.message)); }
-  if (!isPlainObject_(user)) throw new Error(t_('err.notObject'));
+  try { user = JSON.parse(text); } catch (e) { fail(t_('err.notJson', e.message)); }
+  if (!isPlainObject_(user)) fail(t_('err.notObject'));
   const prev = cfg_();
   const next = normalizeCfg_(user, prev);
   const errs = validateCfg_(next);
-  if (errs.length) throw new Error(t_('err.config', errs.join('\n• ')));
+  if (errs.length) fail(t_('err.config', errs.join('\n• ')));
 
   // State is read with the sheet names of the current config, before the new one applies.
   const state = trackerExists_() ? exportState_() : null;
@@ -389,8 +393,10 @@ function applyConfigJson(text) {
     setCfg_(next);
     saveCfg_();
     buildAll_(state);
+    logEvent_('config-import', { details: 'keys: ' + Object.keys(user).join(', ') + '\n\n' + text });
   } catch (e) {
     setCfg_(prev);
+    logEvent_('config-import-failed', { details: e.message + '\n\n' + text });
     throw e;
   } finally {
     lock.releaseLock();
@@ -406,6 +412,7 @@ function menuResetConfig() {
     clearStoredCfg_();
     setCfg_(loadCfg_());
     buildAll_(state);
+    logEvent_('config-reset', { details: 'defaults restored' });
     notify_(t_('msg.configReset'), 8);
   });
 }

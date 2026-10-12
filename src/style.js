@@ -9,6 +9,7 @@ function styleAll_() {
       [[SH.tasks, styleTasks_], [SH.shop, styleShop_], [SH.dash, styleDashboard_], [SH.stats, styleStats_]]);
   SpreadsheetApp.flush();
   map.forEach(([name, fn]) => { const sh = sheet_(name); if (sh) fn(sh); });
+  styleLogs_(logSheet_());
   const tabs = {
     [SH.dash]: '#8ea2ff', [SH.stats]: '#7dd3fc', [SH.habits]: '#4ade80', [SH.rules]: TH.purple, [SH.tasks]: '#60a5fa',
     [SH.shop]: '#facc15', [SH.cfg]: '#6b7280',

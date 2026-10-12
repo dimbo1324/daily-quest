@@ -235,6 +235,15 @@ const STRINGS_EN = {
   'stats.chartRules': 'Rules: kept, last 30 days',
   'stats.chartWeekday': 'Average completion by weekday',
 
+  'logs.time': 'Time',
+  'logs.event': 'Event',
+  'logs.sheet': 'Sheet',
+  'logs.cell': 'Cell',
+  'logs.old': 'Old value',
+  'logs.new': 'New value',
+  'logs.details': 'Details',
+
+  'protect.logs': 'the log is written automatically; editing it breaks the audit trail',
   'protect.stats': 'statistics are calculated automatically',
   'protect.dashboard': 'the dashboard is calculated automatically',
   'protect.habitHeader': 'habit headers and XP',

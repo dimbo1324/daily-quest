@@ -21,6 +21,7 @@ function memoryProperties() {
 }
 
 function formatDate(date, timeZone, pattern) {
+  if (pattern === 'yyyy-MM-dd HH:mm:ss Z') return date.toISOString();
   if (pattern !== 'yyyy-MM-dd') throw new Error(`stub formatDate: unsupported pattern ${pattern}`);
   return new Intl.DateTimeFormat('en-CA', { timeZone, year: 'numeric', month: '2-digit', day: '2-digit' }).format(date);
 }

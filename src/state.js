@@ -103,6 +103,7 @@ function writeBackup_(state) {
   }
   if (ss.getSheets().filter(x => !x.isSheetHidden()).length > 1) sh.hideSheet();
   PropertiesService.getDocumentProperties().setProperty('dq_last_backup', new Date().toISOString());
+  logEvent_('backup', { details: json.length + ' characters' });
 }
 
 function readBackup_() {

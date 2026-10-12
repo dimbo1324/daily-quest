@@ -1221,6 +1221,46 @@
           "minLength": 1,
           "default": "Average completion by weekday"
         },
+        "logs.time": {
+          "type": "string",
+          "minLength": 1,
+          "default": "Time"
+        },
+        "logs.event": {
+          "type": "string",
+          "minLength": 1,
+          "default": "Event"
+        },
+        "logs.sheet": {
+          "type": "string",
+          "minLength": 1,
+          "default": "Sheet"
+        },
+        "logs.cell": {
+          "type": "string",
+          "minLength": 1,
+          "default": "Cell"
+        },
+        "logs.old": {
+          "type": "string",
+          "minLength": 1,
+          "default": "Old value"
+        },
+        "logs.new": {
+          "type": "string",
+          "minLength": 1,
+          "default": "New value"
+        },
+        "logs.details": {
+          "type": "string",
+          "minLength": 1,
+          "default": "Details"
+        },
+        "protect.logs": {
+          "type": "string",
+          "minLength": 1,
+          "default": "the log is written automatically; editing it breaks the audit trail"
+        },
         "protect.stats": {
           "type": "string",
           "minLength": 1,
