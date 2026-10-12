@@ -1,0 +1,23 @@
+# Normalize line endings: LF in the repo and working tree (Apps Script & CI are Unix).
+* text=auto eol=lf
+
+*.js   text eol=lf
+*.json text eol=lf
+*.md   text eol=lf
+*.yml  text eol=lf
+*.yaml text eol=lf
+*.py   text eol=lf
+*.go   text eol=lf
+*.sh   text eol=lf
+*.ps1  text eol=crlf
+*.bat  text eol=crlf
+*.cmd  text eol=crlf
+
+*.png binary
+*.jpg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.xlsx binary
+
+package-lock.json linguist-generated=true -diff

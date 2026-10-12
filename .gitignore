@@ -1,0 +1,74 @@
+# ═════════════════════════ Secrets & personal config ═════════════════════════
+# Never commit personal data, credentials or tokens.
+my-config.json
+*.local.json
+*.local.*
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+secrets/
+credentials*.json
+client_secret*.json
+token*.json
+service-account*.json
+
+# ═════════════════════════ Google Apps Script / clasp ═════════════════════════
+# .clasp.json holds your scriptId (binds the repo to YOUR spreadsheet) — keep local.
+.clasp.json
+.clasprc.json
+# Commit .clasp.json.example instead.
+
+# ═════════════════════════ Node.js ═════════════════════════
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.npm/
+.eslintcache
+coverage/
+dist/
+build/
+
+# ═════════════════════════ Python (future) ═════════════════════════
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+
+# ═════════════════════════ Go (future) ═════════════════════════
+/bin/
+*.exe
+*.test
+*.out
+vendor/
+
+# ═════════════════════════ Exports / backups ═════════════════════════
+*.xlsx
+*.csv
+backup/
+backups/
+
+# ═════════════════════════ OS & editors ═════════════════════════
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+*.swp
+*~
+
+# ═════════════════════════ Logs & temp ═════════════════════════
+*.log
+tmp/
+.tmp/
+.claude/settings.local.json
