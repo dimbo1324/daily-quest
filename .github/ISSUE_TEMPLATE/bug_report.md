@@ -1,14 +1,14 @@
 ---
-name: 🐞 Баг
-about: Что-то работает не так
+name: 🐞 Bug
+about: Something does not work as expected
 labels: bug
 ---
 
-**Что произошло**
+**What happened**
 
-**Шаги для воспроизведения**
+**Steps to reproduce**
 1.
 
-**Ожидаемое поведение**
+**Expected behavior**
 
-**Версия** (меню «ℹ️ О программе»):
+**Version** (menu «ℹ️ About»):

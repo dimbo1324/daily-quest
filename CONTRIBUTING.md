@@ -1,26 +1,40 @@
-# Как вести разработку
+# Contributing
 
-## Ветки
-- `main` — всегда рабочая версия, которую можно вставить в таблицу.
-- Работа — в отдельных ветках: `feat/<кратко>`, `fix/<кратко>`, `chore/<кратко>`, затем PR/merge в `main`.
+## Workflow
 
-## Коммиты — [Conventional Commits](https://www.conventionalcommits.org/ru/)
-`feat:` новая механика · `fix:` исправление · `refactor:` · `docs:` · `chore:` · `ci:` · `build:`
+- `main` is always a working version that can be pushed to a spreadsheet.
+- No pull requests: work on a short branch (`feat/…`, `fix/…`, `chore/…`, `docs/…`), merge it
+  into `main` locally, push. A trivial one-commit fix may go straight to `main`.
+- `npm run check` must be green before a merge (CI runs the same command).
 
-## Цикл работы
+## Commits — [Conventional Commits](https://www.conventionalcommits.org/)
+
+`feat:` new mechanic · `fix:` bug fix · `refactor:` · `docs:` · `test:` · `chore:` · `ci:` · `build:`
+
+## Loop
+
 1. `git switch -c feat/my-feature`
-2. Правишь `src/Code.js` (можно разбивать на несколько `.js` файлов в `src/` — Apps Script видит их как один глобальный scope).
-3. `npm run check` — линтер и проверка JSON.
-4. `npm run push` — отправка в свою таблицу, проверка вручную.
-5. Коммит, push, PR → CI должен быть зелёным → merge.
+2. Edit `src/`. All files share one global scope; UI text goes into `STRINGS_EN`
+   (`src/i18n.js`), settings into `DEFAULT_CFG` (`src/config.js`).
+3. `npm run check`
+4. `npm run push`, try it in your spreadsheet.
+5. Commit, merge into `main`, push.
 
-## Релиз
-1. Поднять `VERSION` в `src/Code.js` и `version` в `package.json` (SemVer).
-2. Добавить запись в `CHANGELOG.md`.
+## Releases
+
+1. Bump `VERSION` in `src/main.js` and `version` in `package.json` (SemVer).
+2. Add an entry to `CHANGELOG.md`.
 3. `git tag vX.Y.Z && git push --tags`.
 
-## Никогда не коммить
-`my-config.json`, `.clasp.json`, `.clasprc.json`, `.env`, любые ключи/токены. Они в `.gitignore`, а CI дополнительно падает, если такой файл попал в репозиторий.
+## Rules
 
-## Будущие части на Python / Go
-Отдельная папка верхнего уровня (`apps/<name>/` или `server/`) со своим тулингом; `.gitignore` и `.editorconfig` уже содержат секции для Python и Go.
+- English only in everything tracked by git.
+- Never commit `my-config.json`, `.clasp.json`, `.clasprc.json`, `.env` or any key or token.
+  They are git-ignored, and CI fails if one gets tracked.
+- Generated files (`AGENTS.md`, `.codex/agents`, `.codex/skills`, `config.schema.json`) are
+  regenerated, never edited: `npm run sync-agents`, `npm run schema`.
+
+## Future parts in Python or Go
+
+A separate top-level directory (`apps/<name>/` or `server/`) with its own tooling;
+`.gitignore` and `.editorconfig` already cover Python and Go.
