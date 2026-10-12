@@ -69,21 +69,18 @@ function appendDays_(sh, t, n, start, forceFresh) {
   }
   sh.getRange(startRow, 1, n, 2).setFormulasR1C1(ab);
 
-  // Ticks: active days get checkboxes, inactive days get «—»
-  const block = sh.getRange(startRow, c.first, n, c.n);
-  block.setValues(U.fill(n, c.n, false));
-  block.insertCheckboxes();
-  const inactive = [];
+  // Ticks: active days get checkboxes, inactive days get «—». Two batch calls: per-cell
+  // range lists over a year-long calendar exceed the Apps Script execution time limit.
+  const checkbox = SpreadsheetApp.newDataValidation().requireCheckbox().build();
+  const values = [], rules = [];
   for (let i = 0; i < n; i++) {
     const wd = U.weekday(U.addDays(base, i));
-    t.items.forEach((h, j) => {
-      if (!DAYSETS[h.days][wd]) inactive.push(U.col(c.first + j) + (startRow + i));
-    });
+    values.push(t.items.map(h => DAYSETS[h.days][wd] ? false : '—'));
+    rules.push(t.items.map(h => DAYSETS[h.days][wd] ? checkbox : null));
   }
-  if (inactive.length) {
-    sh.getRangeList(inactive).removeCheckboxes();
-    sh.getRangeList(inactive).setValue('—');
-  }
+  const block = sh.getRange(startRow, c.first, n, c.n);
+  block.setDataValidations(rules);
+  block.setValues(values);
 
   // XP, completion share and, for habits, the streak
   const r = 'RC' + c.first + ':RC' + c.last;

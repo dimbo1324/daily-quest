@@ -1,6 +1,6 @@
 {
   "name": "daily-quest",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "private": true,
   "description": "Gamified habit & task tracker for Google Sheets (Apps Script)",
   "license": "MIT",

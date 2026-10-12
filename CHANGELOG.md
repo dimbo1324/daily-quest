@@ -2,6 +2,12 @@
 
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versioning: [SemVer](https://semver.org/).
 
+## [2.3.1] - 2026-10-12
+### Fixed
+- Building a year-long calendar stopped half way (Apps Script time limit): inactive days
+  were set cell by cell through range lists. Checkboxes and «—» are now written in two
+  batch calls per tracker sheet.
+
 ## [2.3.0] - 2026-10-12
 ### Added
 - Rules: a new `rules` config list (`{ name, xp, kind: keep | avoid, days }`) and a Rules
