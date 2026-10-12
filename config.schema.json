@@ -209,6 +209,11 @@
           "minLength": 1,
           "default": "Dashboard"
         },
+        "sheet.stats": {
+          "type": "string",
+          "minLength": 1,
+          "default": "Stats"
+        },
         "sheet.habits": {
           "type": "string",
           "minLength": 1,
@@ -1075,6 +1080,151 @@
           "type": "string",
           "minLength": 1,
           "default": "Open tasks by category"
+        },
+        "stats.title": {
+          "type": "string",
+          "minLength": 1,
+          "default": "📈 STATS"
+        },
+        "stats.subtitle": {
+          "type": "string",
+          "minLength": 1,
+          "default": "Your progress at a glance · updates live"
+        },
+        "stats.bestStreak": {
+          "type": "string",
+          "minLength": 1,
+          "default": "🏆 BEST STREAK"
+        },
+        "stats.current": {
+          "type": "string",
+          "minLength": 1,
+          "default": "current: "
+        },
+        "stats.perfectDays": {
+          "type": "string",
+          "minLength": 1,
+          "default": "💯 PERFECT DAYS"
+        },
+        "stats.perfectHint": {
+          "type": "string",
+          "minLength": 1,
+          "default": "days with 100 % of habits done"
+        },
+        "stats.ticks": {
+          "type": "string",
+          "minLength": 1,
+          "default": "✅ TICKS"
+        },
+        "stats.ticksHint": {
+          "type": "string",
+          "minLength": 1,
+          "default": "habits done and rules kept, all time"
+        },
+        "stats.avg30": {
+          "type": "string",
+          "minLength": 1,
+          "default": "📅 30-DAY AVERAGE"
+        },
+        "stats.heatmap": {
+          "type": "string",
+          "minLength": 1,
+          "default": "🗓️ HABIT COMPLETION, LAST 26 WEEKS"
+        },
+        "stats.less": {
+          "type": "string",
+          "minLength": 1,
+          "default": "less"
+        },
+        "stats.more": {
+          "type": "string",
+          "minLength": 1,
+          "default": "more"
+        },
+        "stats.date": {
+          "type": "string",
+          "minLength": 1,
+          "default": "Date"
+        },
+        "stats.totalXp": {
+          "type": "string",
+          "minLength": 1,
+          "default": "Total XP"
+        },
+        "stats.week": {
+          "type": "string",
+          "minLength": 1,
+          "default": "Week"
+        },
+        "stats.habits": {
+          "type": "string",
+          "minLength": 1,
+          "default": "Habits"
+        },
+        "stats.rules": {
+          "type": "string",
+          "minLength": 1,
+          "default": "Rules"
+        },
+        "stats.tasks": {
+          "type": "string",
+          "minLength": 1,
+          "default": "Tasks"
+        },
+        "stats.share": {
+          "type": "string",
+          "minLength": 1,
+          "default": "Share"
+        },
+        "stats.weekday": {
+          "type": "string",
+          "minLength": 1,
+          "default": "Weekday"
+        },
+        "stats.source": {
+          "type": "string",
+          "minLength": 1,
+          "default": "Source"
+        },
+        "stats.xp": {
+          "type": "string",
+          "minLength": 1,
+          "default": "XP"
+        },
+        "stats.chartTotal": {
+          "type": "string",
+          "minLength": 1,
+          "default": "Total XP over time"
+        },
+        "stats.chartWeekly": {
+          "type": "string",
+          "minLength": 1,
+          "default": "XP per week by source, last 12 weeks"
+        },
+        "stats.chartSource": {
+          "type": "string",
+          "minLength": 1,
+          "default": "Where your XP comes from"
+        },
+        "stats.chartHabits": {
+          "type": "string",
+          "minLength": 1,
+          "default": "Habits: completion, last 30 days"
+        },
+        "stats.chartRules": {
+          "type": "string",
+          "minLength": 1,
+          "default": "Rules: kept, last 30 days"
+        },
+        "stats.chartWeekday": {
+          "type": "string",
+          "minLength": 1,
+          "default": "Average completion by weekday"
+        },
+        "protect.stats": {
+          "type": "string",
+          "minLength": 1,
+          "default": "statistics are calculated automatically"
         },
         "protect.dashboard": {
           "type": "string",

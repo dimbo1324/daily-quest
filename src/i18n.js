@@ -10,6 +10,7 @@ const STRINGS_EN = {
   'app.title': '🎮 Daily Quest',
 
   'sheet.dashboard': 'Dashboard',
+  'sheet.stats': 'Stats',
   'sheet.habits': 'Habits',
   'sheet.rules': 'Rules',
   'sheet.tasks': 'Tasks',
@@ -205,6 +206,36 @@ const STRINGS_EN = {
   'dash.chartXpTitle': 'XP and completion, last 30 days',
   'dash.chartCatTitle': 'Open tasks by category',
 
+  'stats.title': '📈 STATS',
+  'stats.subtitle': 'Your progress at a glance · updates live',
+  'stats.bestStreak': '🏆 BEST STREAK',
+  'stats.current': 'current: ',
+  'stats.perfectDays': '💯 PERFECT DAYS',
+  'stats.perfectHint': 'days with 100 % of habits done',
+  'stats.ticks': '✅ TICKS',
+  'stats.ticksHint': 'habits done and rules kept, all time',
+  'stats.avg30': '📅 30-DAY AVERAGE',
+  'stats.heatmap': '🗓️ HABIT COMPLETION, LAST 26 WEEKS',
+  'stats.less': 'less',
+  'stats.more': 'more',
+  'stats.date': 'Date',
+  'stats.totalXp': 'Total XP',
+  'stats.week': 'Week',
+  'stats.habits': 'Habits',
+  'stats.rules': 'Rules',
+  'stats.tasks': 'Tasks',
+  'stats.share': 'Share',
+  'stats.weekday': 'Weekday',
+  'stats.source': 'Source',
+  'stats.xp': 'XP',
+  'stats.chartTotal': 'Total XP over time',
+  'stats.chartWeekly': 'XP per week by source, last 12 weeks',
+  'stats.chartSource': 'Where your XP comes from',
+  'stats.chartHabits': 'Habits: completion, last 30 days',
+  'stats.chartRules': 'Rules: kept, last 30 days',
+  'stats.chartWeekday': 'Average completion by weekday',
+
+  'protect.stats': 'statistics are calculated automatically',
   'protect.dashboard': 'the dashboard is calculated automatically',
   'protect.habitHeader': 'habit headers and XP',
   'protect.ruleHeader': 'rule headers and XP',
@@ -234,7 +265,7 @@ function tq_(key) {
 /** Sheet names. The backup sheet name is fixed so a backup survives a language change. */
 function names_() {
   return {
-    dash: t_('sheet.dashboard'), habits: t_('sheet.habits'), tasks: t_('sheet.tasks'),
+    dash: t_('sheet.dashboard'), stats: t_('sheet.stats'), habits: t_('sheet.habits'), tasks: t_('sheet.tasks'),
     rules: t_('sheet.rules'), shop: t_('sheet.shop'), cfg: t_('sheet.settings'), backup: '_backup',
   };
 }

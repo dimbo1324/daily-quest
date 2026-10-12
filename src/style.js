@@ -6,11 +6,11 @@ function styleAll_() {
   const SH = names_();
   const map = [[SH.cfg, styleSettings_]]
     .concat(trackers_().map(t => [t.sheet, sh => styleTracker_(sh, t)]),
-      [[SH.tasks, styleTasks_], [SH.shop, styleShop_], [SH.dash, styleDashboard_]]);
+      [[SH.tasks, styleTasks_], [SH.shop, styleShop_], [SH.dash, styleDashboard_], [SH.stats, styleStats_]]);
   SpreadsheetApp.flush();
   map.forEach(([name, fn]) => { const sh = sheet_(name); if (sh) fn(sh); });
   const tabs = {
-    [SH.dash]: '#8ea2ff', [SH.habits]: '#4ade80', [SH.rules]: TH.purple, [SH.tasks]: '#60a5fa',
+    [SH.dash]: '#8ea2ff', [SH.stats]: '#7dd3fc', [SH.habits]: '#4ade80', [SH.rules]: TH.purple, [SH.tasks]: '#60a5fa',
     [SH.shop]: '#facc15', [SH.cfg]: '#6b7280',
   };
   Object.keys(tabs).forEach(n => { const sh = sheet_(n); if (sh) sh.setTabColor(tabs[n]); });
@@ -350,6 +350,8 @@ function protectAll_() {
   const warn = (range, desc) => range.protect().setDescription('DQ: ' + desc).setWarningOnly(true);
   const t = sheet_(SH.tasks), d = sheet_(SH.dash), s = sheet_(SH.shop);
   if (d) d.protect().setDescription('DQ: ' + t_('protect.dashboard')).setWarningOnly(true);
+  const st = sheet_(SH.stats);
+  if (st) st.protect().setDescription('DQ: ' + t_('protect.stats')).setWarningOnly(true);
   trackers_().forEach(tr => {
     const h = sheet_(tr.sheet);
     if (!h) return;

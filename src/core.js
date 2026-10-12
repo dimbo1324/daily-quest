@@ -103,3 +103,30 @@ function run_(label, fn) {
     lock.releaseLock();
   }
 }
+
+/** 'AB12' → [12, 28]. */
+function a1ToRowCol_(a1) {
+  const m = /^([A-Z]+)(\d+)$/.exec(a1);
+  if (!m) throw new Error('Bad cell address: ' + a1);
+  let col = 0;
+  for (let i = 0; i < m[1].length; i++) col = col * 26 + m[1].charCodeAt(i) - 64;
+  return [Number(m[2]), col];
+}
+
+/**
+ * Writes a sparse { A1: value or formula } map in ONE setValues call over its bounding box
+ * (strings starting with "=" become formulas). One call instead of one per cell keeps big
+ * builds inside the Apps Script time limit. Cells of the box missing from the map are cleared,
+ * so use it on freshly built sheets only.
+ */
+function writeCells_(sh, cells) {
+  const keys = Object.keys(cells);
+  if (!keys.length) return;
+  const pos = keys.map(a1ToRowCol_);
+  const rows = Math.max.apply(null, pos.map(p => p[0]));
+  const cols = Math.max.apply(null, pos.map(p => p[1]));
+  const grid = U.fill(rows, cols, '');
+  keys.forEach((k, i) => { grid[pos[i][0] - 1][pos[i][1] - 1] = cells[k]; });
+  sh.getRange(1, 1, rows, cols).setValues(grid);
+}
+

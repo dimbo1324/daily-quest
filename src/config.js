@@ -260,7 +260,7 @@ function validateStrings_(strings) {
       errs.push('strings.' + k + ' must be a non-empty text');
     }
   });
-  const sheetKeys = ['sheet.dashboard', 'sheet.habits', 'sheet.rules', 'sheet.tasks', 'sheet.shop', 'sheet.settings'];
+  const sheetKeys = ['sheet.dashboard', 'sheet.stats', 'sheet.habits', 'sheet.rules', 'sheet.tasks', 'sheet.shop', 'sheet.settings'];
   const sheetNames = sheetKeys.map(k => strings[k] || STRINGS_EN[k]);
   if (new Set(sheetNames).size !== sheetNames.length || sheetNames.indexOf('_backup') >= 0) {
     errs.push('strings: sheet names must be unique and must not be «_backup»');

@@ -177,3 +177,31 @@ test('trackers: rules have no streak column, habits do', () => {
   assert.equal(rules.streak, 0);
   assert.equal(rules.width, rules.last + 2);
 });
+
+test('stats: chart anchors map pixels onto the 24 px grid starting at column B', () => {
+  const { run } = app();
+  assert.deepEqual(plain(run('statsAnchor_(0)')), [2, 0]);
+  assert.deepEqual(plain(run('statsAnchor_(624)')), [28, 0]);
+  assert.deepEqual(plain(run('statsAnchor_(50)')), [4, 2]);
+});
+
+test('stats: tiles fit the grid and the data block starts after it', () => {
+  const { run } = app();
+  const tiles = plain(run('statsTiles_()'));
+  assert.equal(tiles.length, 4);
+  assert.ok(tiles[3] + 11 <= run('ST.GRID_FIRST + ST.GRID_COLS - 1'));
+  assert.ok(run('statsCols_().date') > run('ST.GRID_FIRST + ST.GRID_COLS'));
+});
+
+test('writeCells_ helpers: A1 addresses convert to row and column', () => {
+  const { run } = app();
+  assert.deepEqual(plain(run('a1ToRowCol_("A1")')), [1, 1]);
+  assert.deepEqual(plain(run('a1ToRowCol_("BC12")')), [12, 55]);
+  assert.throws(() => run('a1ToRowCol_("12A")'), /Bad cell address/);
+});
+
+test('sheet names stay unique when Stats is renamed onto another sheet', () => {
+  const { run, context } = app();
+  context.input = { strings: { 'sheet.stats': 'Dashboard' } };
+  assert.match(plain(run('validateCfg_(normalizeCfg_(input, DEFAULT_CFG))')).join(), /sheet names must be unique/);
+});
