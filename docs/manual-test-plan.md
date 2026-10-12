@@ -1,8 +1,8 @@
 # Manual Test Plan (real Google Sheets)
 
-The Node tests cover pure logic only. This plan covers everything that needs a real
-spreadsheet. Run it after any change to `build.js`, `style.js`, `state.js`, `trackers.js` or
-`game.js`, and record the result (date, version, what failed) in the final report.
+The Node tests cover pure logic and a smoke run of the builders against a fake API. This plan
+covers everything that needs a real spreadsheet. Run it after any change to `build.js`,
+`style.js`, `state.js`, `trackers.js`, `stats.js`, `logs.js` or `game.js`, and record the result (date, version, what failed) in the final report.
 
 Use a **fresh test spreadsheet** first; touch the real one only after the test copy passes.
 
@@ -16,7 +16,9 @@ Use a **fresh test spreadsheet** first; touch the real one only after the test c
 
 ## 1. Demo build (English, demo config)
 
-- [ ] Sheets in order: Dashboard, Habits, Rules, Tasks, Shop, Settings; `_backup` hidden.
+- [ ] Sheets in order: Dashboard, Stats, Habits, Rules, Tasks, Shop, Settings, Logs;
+      `_backup` hidden.
+- [ ] The build finishes without an error dialog (a year-long calendar takes 1–3 minutes).
 - [ ] Habits and Rules start today and run 60 days; inactive days show «—».
 - [ ] Rules header: avoid rules have a purple title; row 2 shows «+N XP».
 - [ ] Settings: habits table A:C, parameters E:F, help in H, rules table J:M with drop-downs

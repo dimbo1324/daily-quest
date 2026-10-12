@@ -25,13 +25,13 @@ Two configs:
 | File | In git | Purpose |
 |---|---|---|
 | `config.example.json` | yes | neutral demo config, identical to the built-in defaults |
-| `my-config.json` | **no** (ignored) | your personal config: habits, tasks, rewards, dates, UI language |
+| `my-config.json` | **no** (ignored) | your personal config: habits, rules, tasks, rewards, dates, UI language |
 
 1. Copy `config.example.json` to `my-config.json` and edit it. Editors with JSON Schema
    support (VS Code) autocomplete and validate it through `config.schema.json`.
 2. `npm run check:config` validates it with the script's own validator.
 3. In the sheet: menu **⚙️ Settings → 📥 Import from JSON**, paste the file. The tracker is
-   rebuilt and your data is kept.
+   rebuilt and your data is kept (a year-long calendar takes 1–3 minutes).
 
 Highlights:
 

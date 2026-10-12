@@ -35,8 +35,12 @@ survives rebuilds.
 ## 6. Verify v2.5 in a real spreadsheet
 
 Walk through `docs/manual-test-plan.md` in a fresh test spreadsheet, then in the real one
-with the personal config. The year-long build fix of v2.3.1 is confirmed by the owner. Fix what breaks. Nothing after this item should ship before it is
+with the personal config. Fix what breaks. Nothing after this item should ship before it is
 done.
+
+Confirmed by the owner so far (2026-10-12): the personal config imports, the Rules sheet
+appears, and the year-long calendar builds since v2.3.1. Not yet confirmed: the chart fix of
+v2.4.1, the Stats sheet and the Logs sheet.
 
 ## 7. Content Tracker (second spreadsheet)
 

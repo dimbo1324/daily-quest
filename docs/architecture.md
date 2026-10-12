@@ -43,7 +43,7 @@ another file.
 `cfg_()` = `DEFAULT_CFG` overlaid with the personal config from document properties
 (`dq_config_0..N`, `dq_config_chunks`). Menu «Import from JSON» merges a pasted config,
 validates it, snapshots the current data with the current sheet names, saves and rebuilds.
-Habits edited on the Settings sheet are read back on rebuild. Format details:
+Habits and rules edited on the Settings sheet are read back on rebuild. Format details:
 `.ai/project/14-config-reference.md`; schema: `config.schema.json` (generated).
 
 Large sheets are written with `writeCells_` (one `setValues` over the bounding box) and batch
@@ -54,12 +54,14 @@ limit.
 
 `setup` / «Rebuild»: `exportState_` → `writeBackup_` → `applySettingsSheet_` →
 `buildAll_(state)` (deletes all sheets except `_backup` and `Logs`, rebuilds, restores habit and rule
-ticks by date and name, restores tasks and shop rows, re-applies styling and protection). The calendar
-period comes from `calendarPeriod_`; kept data that starts earlier extends it backwards.
+ticks by date and name, restores tasks and shop rows, re-applies styling and protection). The
+calendar period comes from `calendarPeriod_`; kept data that starts earlier extends it
+backwards. Every operation and every user edit is appended to `Logs` (`logEvent_`,
+`logEdit_`).
 
 ## Tooling
 
 `npm run check` = ESLint + `node:test` (`tests/harness.mjs` runs `src/` in a V8 context with
 stubbed `PropertiesService` and `Utilities`; `build-smoke.test.mjs` runs the dashboard and
-stats builders against a fake Spreadsheet API) + config validation + schema sync + assistant
+stats builders against a fake Spreadsheet API; `logs.test.mjs` covers the audit log) + config validation + schema sync + assistant
 sync + language guard. CI runs it on every push and pull request.
