@@ -1,38 +1,46 @@
-# Task: schedule by weekday, today's plan, routine in the game, time infographics, one-off days (v2.7.0)
+# Task: audit by an agent network, fixes, tests, the owner's routine for 2026-10-16 (v2.8.0)
 
-Owner instruction of 2026-10-15: implement all four agreed steps at once.
+Owner instruction of 2026-10-15: push; let a network of agents audit the project for
+collisions, inconsistencies and awkward spots; fix what they found; test; add the owner's real
+plan for 2026-10-16 as an example; test again; commit and push when everything is green.
 
-1. Days per block (every day, Mon–Fri, Mon–Sat, Sat–Sun, single weekdays) and a «Today» block
-   on the Schedule sheet; existing blocks become «every day».
-2. Optional XP per block; blocks with XP become columns of a «Routine» tracker sheet (tick =
-   done on time, «—» on days the block is not planned); XP feeds levels and coins; «Today»
-   shows ✅ / ⬜ and «done X of Y · +XP»; a streak of days on schedule and a perfect-day bonus.
-   No penalties.
-3. Infographics: «Where your time goes» (planned hours per week by activity), routine
-   adherence over 30 days on the Stats sheet, a «Now / Next» line on the Dashboard.
-4. One-off days: a date in the Days cell makes a block for that date only; it is added to that
-   day and hides template blocks it overlaps.
-
-Data safety: the v2.6 Schedule sheet (Start | End | Activity | Duration | Notes) is read and
-migrated on the next rebuild; nothing the owner typed is lost.
+Audit: four parallel reviewers (schedule and routine; config, i18n and state; dashboard,
+stats, logs and game; tooling, docs and rules). Findings and their outcome are listed in the
+final report; deferred items are marked `-` below.
 
 Marks: `[ ]` open, `+` done, `-` not done or partially done (with a note).
 
-## 1. Implementation
+## 1. Data safety
 
-+ Config: extended day sets, block `days` / `xp`, `schedulePerfectBonus`, legacy blocks
-+ Schedule sheet v2: Days | Start | End | Activity | XP | Duration | Notes, helpers, Today,
-    summary, Now / Next; migration of the v2.6 layout
-+ Routine tracker (items from XP blocks), bonus, streak, toasts
-+ Dashboard and Stats include routine XP; Now / Next line; time and adherence charts
-+ UI strings; personal config (days, XP, Russian strings)
+[ ] Interrupted builds never overwrite the backup; the next rebuild restores from it
+[ ] Failed import restores the previous stored config
+[ ] «Restore from backup» swaps: the current state goes into the backup (undo by restoring again)
+[ ] Rebuild deletes only the script's own sheets (owner's extra sheets survive)
+[ ] Logs sheet survives a rename (tracked by id)
 
-## 2. Verification
+## 2. Correctness
 
-+ Tests: config, migration of both layouts, routine items, builders smoke
-+ `npm run check` green, `npm run format`
+[ ] Schedule: raw times, unknown day text kept, rows with only days/XP kept, backup before
+    sort, overlap compare with a tolerance, «Now» for blocks after midnight, helpers hidden
+    and protected, routine names that survive twins and language changes
+[ ] Trackers: days with nothing planned are neutral (no 0 %, streak carried over)
+[ ] Tasks: untitled rows never earn XP; bulk ticks get dates; task XP in today, week and the
+    30-day chart; XP 0 stays 0; same-day completions in the cumulative series
+[ ] Shop: bulk purchase ticks are undone; level-up toast includes the perfect-day bonus
+[ ] Config: XP 0 allowed for habits and rules; Settings parameters read back and exported;
+    export is read-only; imported keys win over the sheet snapshot; schedule-import notice;
+    sheet names unique ignoring case; names with + - = @ kept as text; formats quoted
+[ ] Log timestamps with seconds and zone
 
-## 3. Completion
+## 3. Tooling and docs
 
-+ Docs, manual test plan, changelog, version 2.7.0, rule modules synced
-+ Merge into `main`
+[ ] CI secrets guard matches .gitignore; permission file: home clasp token denied, no blanket
+    npm install
+[ ] Docs: install and by-hand upgrade steps, stale paths, chart and test counts, rule
+    precedence, roadmap
+
+## 4. Owner's routine for 2026-10-16 and verification
+
+[ ] One-off blocks for 2026-10-16 in `my-config.json`
+[ ] Tests for the fixes, `npm run check` green
+[ ] Merge into `main`, push
