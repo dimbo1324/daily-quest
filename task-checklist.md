@@ -20,19 +20,19 @@ Marks: `[ ]` open, `+` done, `-` not done or partially done (with a note).
 
 ## 1. Implementation
 
-[ ] Config: extended day sets, block `days` / `xp`, `schedulePerfectBonus`, legacy blocks
-[ ] Schedule sheet v2: Days | Start | End | Activity | XP | Duration | Notes, helpers, Today,
++ Config: extended day sets, block `days` / `xp`, `schedulePerfectBonus`, legacy blocks
++ Schedule sheet v2: Days | Start | End | Activity | XP | Duration | Notes, helpers, Today,
     summary, Now / Next; migration of the v2.6 layout
-[ ] Routine tracker (items from XP blocks), bonus, streak, toasts
-[ ] Dashboard and Stats include routine XP; Now / Next line; time and adherence charts
-[ ] UI strings; personal config (days, XP, Russian strings)
++ Routine tracker (items from XP blocks), bonus, streak, toasts
++ Dashboard and Stats include routine XP; Now / Next line; time and adherence charts
++ UI strings; personal config (days, XP, Russian strings)
 
 ## 2. Verification
 
-[ ] Tests: config, migration of both layouts, routine items, builders smoke
-[ ] `npm run check` green, `npm run format`
++ Tests: config, migration of both layouts, routine items, builders smoke
++ `npm run check` green, `npm run format`
 
 ## 3. Completion
 
-[ ] Docs, manual test plan, changelog, version 2.7.0, rule modules synced
-[ ] Merge into `main`
++ Docs, manual test plan, changelog, version 2.7.0, rule modules synced
++ Merge into `main`
