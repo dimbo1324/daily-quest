@@ -8,6 +8,7 @@ function buildAll_(state) {
   assertValidCfg_(cfg);
   const SH = names_();
   const ss = ss_();
+  setBuildIncomplete_(true);
   // Once the Schedule sheet exists it is the source: its blocks decide the Routine tracker.
   if (state && Array.isArray(state.schedule)) {
     cfg.schedule = validScheduleBlocks_(state.schedule);
@@ -19,14 +20,11 @@ function buildAll_(state) {
   ss.setRecalculationInterval(SpreadsheetApp.RecalculationInterval.HOUR);
   SpreadsheetApp.flush();
 
-  // Delete everything except the backup.
+  // Delete the script's own sheets; the backup, the log and the owner's other sheets stay.
   const tmp = ss.insertSheet("__tmp_" + Date.now());
   ss.getSheets().forEach((s) => {
-    const keep =
-      s.getSheetId() === tmp.getSheetId() ||
-      s.getName() === SH.backup ||
-      s.getName() === LOG_SHEET;
-    if (!keep) ss.deleteSheet(s);
+    if (s.getSheetId() !== tmp.getSheetId() && isOwnSheet_(s))
+      ss.deleteSheet(s);
   });
   const trackers = trackers_();
   const sheets = {};
@@ -45,6 +43,7 @@ function buildAll_(state) {
     )
     .forEach(([k, n], i) => {
       sheets[k] = ss.insertSheet(n, i);
+      sheets[k].addDeveloperMetadata(OWN_SHEET_KEY);
     });
   ss.deleteSheet(tmp);
 
@@ -74,6 +73,36 @@ function buildAll_(state) {
   props.setProperty("dq_version", VERSION);
   props.setProperty("dq_built_at", new Date().toISOString());
   ss.setActiveSheet(sheets.dash);
+  setBuildIncomplete_(false);
+}
+
+const OWN_SHEET_KEY = "dq_sheet";
+
+/**
+ * Sheets a rebuild may delete: those it built (tagged), those named like its sheets in the
+ * current language or in English (untagged sheets from older versions), leftovers of an
+ * interrupted build, and empty sheets such as a new spreadsheet's «Sheet1».
+ */
+function isOwnSheet_(s) {
+  const name = s.getName();
+  if (name === names_().backup || isLogSheet_(s)) return false;
+  const SH = names_();
+  const ours = Object.keys(SH).map((k) => SH[k]);
+  const english = Object.keys(STRINGS_EN)
+    .filter((k) => k.indexOf("sheet.") === 0)
+    .map((k) => STRINGS_EN[k]);
+  if (
+    ours.indexOf(name) >= 0 ||
+    english.indexOf(name) >= 0 ||
+    name.indexOf("__tmp_") === 0
+  ) {
+    return true;
+  }
+  if (s.getDeveloperMetadata().some((m) => m.getKey() === OWN_SHEET_KEY))
+    return true;
+  return (
+    s.getLastRow() === 0 && s.getLastColumn() === 0 && !s.getCharts().length
+  );
 }
 
 function trimSheet_(sh, rows, cols) {
@@ -98,13 +127,13 @@ function quoteList_(items) {
 function buildSettings_(sh, state) {
   const cfg = cfg_();
   const rows = cfg.habits.map((h) => [
-    h.name,
+    asText_(h.name),
     state && state.xp && state.xp[h.name] != null ? state.xp[h.name] : h.xp,
     dayLabel_(h.days),
   ]);
   const ruleXp = (state && state.ruleXp) || {};
   const ruleRows = cfg.rules.map((r) => [
-    r.name,
+    asText_(r.name),
     ruleXp[r.name] != null ? ruleXp[r.name] : r.xp,
     kindLabel_(r.kind),
     dayLabel_(r.days),
@@ -232,12 +261,12 @@ function buildTasks_(sh, state) {
 
   const rows = src.map((r) => [
     r[0] === true,
-    r[1],
-    r[2],
+    asText_(r[1]),
+    asText_(r[2]),
     U.dateF(r[3]),
     r[4],
-    r[5] || 20,
-    r[6] || "",
+    r[5] === "" || r[5] === null || r[5] === undefined ? 20 : r[5],
+    asText_(r[6]),
     U.dateF(r[7]),
   ]);
   if (rows.length) sh.getRange(2, 1, rows.length, 8).setValues(rows);
@@ -291,7 +320,12 @@ function buildShop_(sh, state) {
   sh.getRange(1, 1, 1, 4).setValues([
     [t_("shop.reward"), t_("shop.price"), t_("shop.bought"), t_("shop.date")],
   ]);
-  const rows = src.map((r) => [r[0], r[1], r[2] === true, U.dateF(r[3])]);
+  const rows = src.map((r) => [
+    asText_(r[0]),
+    r[1],
+    r[2] === true,
+    U.dateF(r[3]),
+  ]);
   if (rows.length) sh.getRange(2, 1, rows.length, 4).setValues(rows);
   const empty = total - rows.length;
   if (empty > 0)

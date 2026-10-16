@@ -49,11 +49,16 @@ function exportState_() {
     };
     readXp(SETTINGS_COL.habits, state.xp);
     readXp(SETTINGS_COL.rules, state.ruleXp);
-    const p = c
-      .getRange("F2:F4")
-      .getValues()
-      .map((r) => Number(r[0]));
-    if (p.every((v) => Number.isFinite(v) && v > 0)) state.params = p;
+    const p = paramsFromCells_(
+      c
+        .getRange("F2:F4")
+        .getValues()
+        .map((r) => r[0]),
+    );
+    const cfg = cfg_();
+    state.params = ["xpPerLevel", "coinsPerXp", "streakThreshold"].map((k) =>
+      k in p ? p[k] : cfg[k],
+    );
   }
 
   // Only a spreadsheet that has the sheet carries a schedule; others get the config's.
@@ -75,7 +80,7 @@ function exportState_() {
         String(r[2] || ""),
         dl,
         String(r[4] || ""),
-        Number(r[5]) || 0,
+        r[5] === "" ? "" : Number(r[5]) || 0,
         String(r[6] || ""),
         dn,
       ]);
@@ -177,22 +182,42 @@ function readBackup_() {
   }
 }
 
+/**
+ * Column of a kept tick: the item with the same name, else — for names «base · days» that
+ * changed because a twin block was added or removed or the language changed — the item with
+ * the same base that is planned on that date. -1 when nothing matches.
+ */
+function itemIndexFor_(name, items, iso) {
+  const exact = items.map((h) => h.name).indexOf(name);
+  if (exact >= 0) return exact;
+  const base = (n) => String(n).split(" · ")[0];
+  const wd = U.weekday(U.parts(iso));
+  const same = items
+    .map((h, i) => ({ h, i }))
+    .filter((x) => base(x.h.name) === base(name));
+  const planned = same.filter(
+    (x) => DAYSETS[x.h.days] && DAYSETS[x.h.days][wd],
+  );
+  if (planned.length === 1) return planned[0].i;
+  return same.length === 1 ? same[0].i : -1;
+}
+
 function restoreTicks_(sh, t, state) {
   const ticks = state[t.key] || {};
   const c = trackCols_(t);
   const rows = sh.getLastRow() - LAYOUT.FIRST_ROW + 1;
   if (rows < 1) return;
-  const names = t.items.map((h) => h.name);
   const dates = sh.getRange(LAYOUT.FIRST_ROW, 1, rows, 1).getValues();
   const block = sh.getRange(LAYOUT.FIRST_ROW, c.first, rows, c.n);
   const vals = block.getValues();
   let changed = 0,
     lost = 0;
   dates.forEach((d, i) => {
-    const list = ticks[U.isoOrEmpty(d[0])];
+    const iso = U.isoOrEmpty(d[0]);
+    const list = ticks[iso];
     if (!list) return;
     list.forEach((nm) => {
-      const j = names.indexOf(nm);
+      const j = itemIndexFor_(nm, t.items, iso);
       if (j >= 0 && vals[i][j] === false) {
         vals[i][j] = true;
         changed++;
@@ -221,4 +246,42 @@ function findDateRow_(sh, iso) {
   for (let i = 0; i < vals.length; i++)
     if (U.isoOrEmpty(vals[i][0]) === iso) return LAYOUT.FIRST_ROW + i;
   return 0;
+}
+
+const BUILD_FLAG = "dq_build_incomplete";
+
+/** True while a build runs, and after a build that was interrupted (error or time limit). */
+function buildIncomplete_() {
+  return (
+    PropertiesService.getDocumentProperties().getProperty(BUILD_FLAG) === "1"
+  );
+}
+
+function setBuildIncomplete_(on) {
+  const props = PropertiesService.getDocumentProperties();
+  if (on) props.setProperty(BUILD_FLAG, "1");
+  else props.deleteProperty(BUILD_FLAG);
+}
+
+/**
+ * The state to rebuild from: { state, recovered }. Normally a fresh snapshot, which is also
+ * written to `_backup`. After an interrupted build the sheets are incomplete, so the backup is
+ * the truth: it is returned as is and never overwritten by the broken sheets.
+ */
+function captureState_() {
+  if (buildIncomplete_()) {
+    const kept = readBackup_();
+    if (kept) {
+      logEvent_("rebuild-recovery", {
+        details:
+          "previous build was interrupted; using the backup of " +
+          kept.exportedAt,
+      });
+      return { state: kept, recovered: true };
+    }
+  }
+  if (!trackerExists_()) return { state: null, recovered: false };
+  const state = exportState_();
+  writeBackup_(state);
+  return { state, recovered: false };
 }

@@ -4,10 +4,14 @@
  */
 
 /** Reads the habit and rule tables of the Settings sheet (when present) into the stored config. */
-function applySettingsSheet_() {
+/**
+ * Habits, rules, activities and game parameters as typed on the Settings sheet, without
+ * changing anything; null when there is no sheet. Throws a precise error for a bad row.
+ */
+function settingsFromSheet_() {
   const SH = names_();
   const sh = sheet_(SH.cfg);
-  if (!sh || sh.getLastRow() < 2) return;
+  if (!sh || sh.getLastRow() < 2) return null;
   const byDays = {};
   Object.keys(DAYSETS).forEach((k) => {
     byDays[dayLabel_(k)] = k;
@@ -44,22 +48,62 @@ function applySettingsSheet_() {
     return items;
   };
 
-  const cfg = cfg_();
-  const habits = readTable(SETTINGS_COL.habits, false);
-  if (habits.length) cfg.habits = habits;
-  if (sh.getMaxColumns() >= SETTINGS_COL.rules + 3) {
-    const rules = readTable(SETTINGS_COL.rules, true);
-    if (rules.length) cfg.rules = rules;
-  }
+  const out = {
+    habits: readTable(SETTINGS_COL.habits, false),
+    rules: [],
+    activities: [],
+  };
+  if (sh.getMaxColumns() >= SETTINGS_COL.rules + 3)
+    out.rules = readTable(SETTINGS_COL.rules, true);
   if (sh.getMaxColumns() >= SETTINGS_COL.activities) {
     const seen = new Set();
-    const acts = sh
+    out.activities = sh
       .getRange(2, SETTINGS_COL.activities, rows, 1)
       .getValues()
       .map((r) => String(r[0]).trim())
       .filter((a) => a && !seen.has(a) && seen.add(a));
-    if (acts.length) cfg.activities = acts;
   }
+  out.params = paramsFromCells_(
+    sh
+      .getRange("F2:F4")
+      .getValues()
+      .map((r) => r[0]),
+  );
+  return out;
+}
+
+/** Game parameters from cells F2:F4, each kept only when it is in its allowed range. */
+function paramsFromCells_(cells) {
+  const limits = [
+    ["xpPerLevel", 1, 1e6],
+    ["coinsPerXp", 0, 100],
+    ["streakThreshold", 0.01, 1],
+  ];
+  const out = {};
+  limits.forEach(([k, lo, hi], i) => {
+    const v = cells[i] === "" || cells[i] === null ? NaN : Number(cells[i]);
+    if (Number.isFinite(v) && v >= lo && v <= hi) out[k] = v;
+  });
+  return out;
+}
+
+/** Copies the Settings sheet into a config object (non-empty tables only). */
+function mergeSettings_(cfg, s) {
+  if (!s) return cfg;
+  if (s.habits.length) cfg.habits = s.habits;
+  if (s.rules.length) cfg.rules = s.rules;
+  if (s.activities.length) cfg.activities = s.activities;
+  Object.keys(s.params).forEach((k) => {
+    cfg[k] = s.params[k];
+  });
+  return cfg;
+}
+
+/** Rebuild: what the owner typed on the Settings sheet becomes the stored config. */
+function applySettingsSheet_() {
+  const s = settingsFromSheet_();
+  if (!s) return;
+  mergeSettings_(cfg_(), s);
   saveCfg_();
 }
 
@@ -91,13 +135,19 @@ function escapeHtml_(s) {
 }
 
 function menuExportConfig() {
+  // Read-only: the Settings sheet is merged into the exported copy, never into the stored
+  // config (a habit added but not yet rebuilt would misalign «Add 30 days»).
+  let exported;
   try {
-    applySettingsSheet_();
+    exported = JSON.stringify(
+      mergeSettings_(exportableCfg_(), settingsFromSheet_()),
+      null,
+      2,
+    );
   } catch (e) {
     alert_(e.message);
     return;
   }
-  const exported = JSON.stringify(exportableCfg_(), null, 2);
   logEvent_("config-export", { details: exported });
   const json = escapeHtml_(exported);
   showTextDialog_(
@@ -155,33 +205,60 @@ function applyConfigJson(text) {
   const errs = validateCfg_(next);
   if (errs.length) fail(t_("err.config", errs.join("\n• ")));
 
-  // State is read with the sheet names of the current config, before the new one applies.
-  const state = trackerExists_() ? exportState_() : null;
   const lock = LockService.getDocumentLock();
   if (!lock.tryLock(30000)) throw new Error(t_("op.busy"));
+  let scheduleKept = false;
   try {
-    if (state) writeBackup_(state);
+    // State is read with the sheet names of the current config, before the new one applies.
+    const { state } = captureState_();
+    if (state) scheduleKept = preferImported_(state, user, next);
     setCfg_(next);
-    saveCfg_();
     buildAll_(state);
+    saveCfg_();
     logEvent_("config-import", {
       details: "keys: " + Object.keys(user).join(", ") + "\n\n" + text,
     });
   } catch (e) {
+    // The stored config goes back to the previous one; the next rebuild recovers the data.
     setCfg_(prev);
+    saveCfg_();
     logEvent_("config-import-failed", { details: e.message + "\n\n" + text });
     throw e;
   } finally {
     lock.releaseLock();
   }
-  return t_("msg.configApplied");
+  return t_(
+    scheduleKept ? "msg.configAppliedScheduleKept" : "msg.configApplied",
+  );
+}
+
+/**
+ * Imported keys win over values kept from the sheets (habit and rule XP, game parameters).
+ * The Schedule sheet stays the source of the schedule; returns true when an imported schedule
+ * was therefore not applied.
+ */
+function preferImported_(state, user, next) {
+  if ("habits" in user) state.xp = {};
+  if ("rules" in user) state.ruleXp = {};
+  const keys = ["xpPerLevel", "coinsPerXp", "streakThreshold"];
+  if (keys.some((k) => k in user)) {
+    const kept = state.params || [];
+    state.params = keys.map((k, i) =>
+      k in user || kept[i] === undefined ? next[k] : kept[i],
+    );
+  }
+  return "schedule" in user && Array.isArray(state.schedule);
 }
 
 function menuResetConfig() {
   if (confirm_(t_("msg.confirmResetConfig")) !== true) return;
   run_(t_("op.resetConfig"), () => {
-    const state = trackerExists_() ? exportState_() : null;
-    if (state) writeBackup_(state);
+    const { state } = captureState_();
+    if (state) {
+      state.xp = {};
+      state.ruleXp = {};
+      state.params = null;
+    }
     clearStoredCfg_();
     setCfg_(loadCfg_());
     buildAll_(state);

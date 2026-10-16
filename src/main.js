@@ -17,7 +17,7 @@
  * Personal settings never live in code: see config.js and README.md.
  */
 
-const VERSION = "2.7.0";
+const VERSION = "2.8.0";
 
 // ═════════════════════════ Menu and entry points ═════════════════════════
 
@@ -57,15 +57,17 @@ function onOpen() {
 /** Main entry point: first build, or a rebuild that keeps all data. */
 function setup() {
   run_(t_("op.build"), () => {
-    if (trackerExists_()) {
-      const state = exportState_();
-      writeBackup_(state);
-      applySettingsSheet_();
+    const { state, recovered } = captureState_();
+    if (state) {
+      if (!recovered) applySettingsSheet_();
       buildAll_(state);
       logEvent_("rebuild", {
-        details: "version " + VERSION + ", backup written",
+        details:
+          "version " +
+          VERSION +
+          (recovered ? ", recovered from the backup" : ", backup written"),
       });
-      notify_(t_("msg.rebuilt"), 8);
+      notify_(t_(recovered ? "msg.recovered" : "msg.rebuilt"), 8);
     } else {
       buildAll_(null);
       logEvent_("build", { details: "version " + VERSION });
@@ -82,7 +84,7 @@ function menuRebuildKeep() {
 function menuHardReset() {
   if (confirm_(t_("msg.confirmHardReset")) !== true) return;
   run_(t_("op.reset"), () => {
-    if (trackerExists_()) writeBackup_(exportState_());
+    if (!buildIncomplete_() && trackerExists_()) writeBackup_(exportState_());
     buildAll_(null);
     logEvent_("reset", { details: "all data cleared, backup written" });
     notify_(t_("msg.hardResetDone"), 8);
@@ -104,8 +106,17 @@ function menuRestore() {
     : "—";
   if (confirm_(t_("msg.confirmRestore", when)) !== true) return;
   run_(t_("op.restore"), () => {
+    // Restore swaps: the current state becomes the backup, so restoring again is an undo.
+    const current =
+      !buildIncomplete_() && trackerExists_() ? exportState_() : null;
     buildAll_(st);
-    logEvent_("restore", { details: "backup of " + (st.exportedAt || "?") });
+    if (current) writeBackup_(current);
+    logEvent_("restore", {
+      details:
+        "backup of " +
+        (st.exportedAt || "?") +
+        (current ? "; previous state saved as the backup" : ""),
+    });
     notify_(t_("msg.restored", when), 8);
   });
 }

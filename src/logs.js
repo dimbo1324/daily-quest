@@ -14,11 +14,47 @@ const LOG_SHEET = "Logs";
 const LOG_COLS = 7;
 const LOG_MAX_TEXT = 45000; // a cell holds at most 50,000 characters
 
+const LOG_ID_PROP = "dq_logs_id";
+let logIdCache_ = null;
+
+/** Id of the log sheet, remembered so a renamed log is still found and kept by rebuilds. */
+function logSheetId_() {
+  if (logIdCache_ === null) {
+    logIdCache_ =
+      PropertiesService.getDocumentProperties().getProperty(LOG_ID_PROP) || "";
+  }
+  return logIdCache_;
+}
+
+function rememberLogSheet_(sh) {
+  logIdCache_ = String(sh.getSheetId());
+  PropertiesService.getDocumentProperties().setProperty(
+    LOG_ID_PROP,
+    logIdCache_,
+  );
+}
+
+function isLogSheet_(sh) {
+  return (
+    sh.getName() === LOG_SHEET || String(sh.getSheetId()) === logSheetId_()
+  );
+}
+
 function logSheet_() {
   const ss = ss_();
   let sh = ss.getSheetByName(LOG_SHEET);
-  if (sh) return sh;
+  if (!sh && logSheetId_()) {
+    sh =
+      ss
+        .getSheets()
+        .filter((s) => String(s.getSheetId()) === logSheetId_())[0] || null;
+  }
+  if (sh) {
+    if (String(sh.getSheetId()) !== logSheetId_()) rememberLogSheet_(sh);
+    return sh;
+  }
   sh = ss.insertSheet(LOG_SHEET, ss.getNumSheets());
+  rememberLogSheet_(sh);
   sh.getRange(1, 1, 1, LOG_COLS).setValues([
     [
       t_("logs.time"),
@@ -43,7 +79,7 @@ function logText_(v) {
   if (v === undefined || v === null) return "";
   let s =
     v instanceof Date
-      ? U.iso(v)
+      ? Utilities.formatDate(v, cfg_().timezone, "yyyy-MM-dd HH:mm:ss Z")
       : typeof v === "object"
         ? JSON.stringify(v)
         : String(v);
@@ -86,7 +122,7 @@ function logEdit_(e) {
     const r = e.range;
     const sh = r.getSheet();
     const name = sh.getName();
-    if (name === LOG_SHEET || name === names_().backup) return;
+    if (name === names_().backup || isLogSheet_(sh)) return;
     const single = r.getNumRows() === 1 && r.getNumColumns() === 1;
     const info = { sheet: name, cell: r.getA1Notation() };
     if (single) {
