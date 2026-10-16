@@ -112,7 +112,7 @@ function saveCfg_() {
   const props = PropertiesService.getDocumentProperties();
   const json = JSON.stringify(cfg_());
   const chunks = [];
-  for (let i = 0; i < json.length; ) {
+  for (let i = 0; i < json.length;) {
     let end = Math.min(i + CFG_CHUNK, json.length);
     const code = json.charCodeAt(end - 1);
     if (end < json.length && code >= 0xd800 && code <= 0xdbff) end--;

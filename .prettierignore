@@ -1,0 +1,9 @@
+# Generated files: their generators own the layout (npm run schema / npm run sync-agents).
+config.schema.json
+AGENTS.md
+.codex/
+package-lock.json
+
+node_modules/
+coverage/
+dist/

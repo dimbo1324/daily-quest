@@ -22,11 +22,14 @@
     "push": "clasp push",
     "pull": "clasp pull",
     "open": "clasp open-script",
-    "deploy": "npm run check && clasp push"
+    "deploy": "npm run check && clasp push",
+    "format": "prettier --write \"**/*.{js,mjs,json}\"",
+    "format:check": "prettier --check \"**/*.{js,mjs,json}\""
   },
   "devDependencies": {
-    "@google/clasp": "^3.0.0",
     "@eslint/js": "^9.0.0",
-    "eslint": "^9.0.0"
+    "@google/clasp": "^3.0.0",
+    "eslint": "^9.0.0",
+    "prettier": "^3.9.10"
   }
 }

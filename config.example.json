@@ -7,14 +7,7 @@
   "xpPerLevel": 500,
   "coinsPerXp": 0.1,
   "streakThreshold": 0.8,
-  "categories": [
-    "Work",
-    "Health",
-    "Learning",
-    "Sport",
-    "Home",
-    "Personal"
-  ],
+  "categories": ["Work", "Health", "Learning", "Sport", "Home", "Personal"],
   "habits": [
     {
       "name": "🧘 Meditation",

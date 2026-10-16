@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { loadApp, topLevelDeclarations } from "./harness.mjs";
 
 const example = JSON.parse(
@@ -198,18 +198,14 @@ test("UI strings: English by default, overrides and placeholders apply", () => {
 test("every string key used in src exists in STRINGS_EN", () => {
   const { run } = app();
   const keys = new Set(Object.keys(run("STRINGS_EN")));
-  const src = [
-    "build.js",
-    "config.js",
-    "core.js",
-    "game.js",
-    "main.js",
-    "state.js",
-    "style.js",
-  ]
-    .map((f) => readFileSync(new URL(`../src/${f}`, import.meta.url), "utf8"))
+  const dir = new URL("../src/", import.meta.url);
+  const src = readdirSync(dir)
+    .filter((f) => f.endsWith(".js") && f !== "i18n.js")
+    .map((f) => readFileSync(new URL(f, dir), "utf8"))
     .join("\n");
-  const used = [...src.matchAll(/\bt[q]?_\('([\w.]+)'/g)].map((m) => m[1]);
+  const used = [...src.matchAll(/\bt[q]?_\(["']([\w.]+)["']/g)].map(
+    (m) => m[1],
+  );
   assert.ok(used.length > 50);
   for (const k of used) assert.ok(keys.has(k), `missing UI string ${k}`);
 });
