@@ -88,7 +88,7 @@ const schema = {
         required: ["name", "xp", "days"],
         properties: {
           name: { type: "string", minLength: 1 },
-          xp: { type: "number", exclusiveMinimum: 0, maximum: 1000 },
+          xp: { type: "number", minimum: 0, maximum: 1000 },
           days: {
             enum: days,
             description: "Days of the week the habit is active.",
@@ -107,7 +107,7 @@ const schema = {
         required: ["name", "xp", "kind", "days"],
         properties: {
           name: { type: "string", minLength: 1 },
-          xp: { type: "number", exclusiveMinimum: 0, maximum: 1000 },
+          xp: { type: "number", minimum: 0, maximum: 1000 },
           kind: {
             enum: kinds,
             description:
@@ -130,7 +130,7 @@ const schema = {
     },
     schedule: {
       type: "array",
-      maxItems: 100,
+      maxItems: run("MAX_SCHEDULE_BLOCKS"),
       description:
         "Initial daily routine, used only when the spreadsheet has no Schedule sheet yet; afterwards the sheet is the source.",
       items: {

@@ -86,6 +86,8 @@ const STRINGS_EN = {
   "op.sortSchedule": "Sorting the schedule",
 
   "msg.rebuilt": "♻️ Tracker rebuilt, all ticks kept.",
+  "msg.recovered":
+    "🛟 The previous rebuild was interrupted; the tracker was rebuilt from the backup.",
   "msg.built": "✅ Tracker built. Have a good game!",
   "msg.confirmRebuild":
     "Rebuild structure and styling?\n\nAll ticks, tasks and purchases are kept. A backup is made first.",
@@ -96,7 +98,8 @@ const STRINGS_EN = {
   "msg.noBackup": "No backup found.",
   "msg.confirmRestore":
     "Restore data from the backup of {0}?\n\nThe current state will be replaced.",
-  "msg.restored": "🛟 Data restored from the backup of {0}",
+  "msg.restored":
+    "🛟 Data restored from the backup of {0}. The state before it is now the backup: restore again to undo.",
   "msg.restyled": "🎨 Styling refreshed.",
   "msg.about":
     "Version: {0}\nBuilt: {1}\nLast backup: {2}\nHabits: {3}\nCalendar: {4} – {5}\n\n" +
@@ -114,11 +117,15 @@ const STRINGS_EN = {
   "msg.configReset": "↩️ Default settings restored.",
   "msg.scheduleSorted": "🕒 Schedule sorted by start time.",
   "msg.configApplied": "✅ Settings applied",
+  "msg.configAppliedScheduleKept":
+    "✅ Settings applied. The schedule was kept from the Schedule sheet (delete that sheet to take the schedule from the file).",
   "msg.dayClosed": "🏆 Day closed at 100 %! Keep it up.",
   "msg.taskNeedsTitle": "Type the task into the «{0}» column first.",
   "msg.rewardNeedsName": "Type the reward name first.",
   "msg.notEnoughCoins": "🪙 {0} coins short for «{1}». A few more quests!",
   "msg.bought": "🛒 Bought: {0}. Balance left: {1} 🪙",
+  "msg.buyOneByOne":
+    "🛒 Tick «Bought» one reward at a time, so the balance can be checked.",
   "msg.levelUp": "🎉 NEW LEVEL {0}: {1}!",
   "msg.ruleKept": "🛡️ {0}",
   "msg.routineDone": "⏰ {0}",
@@ -311,6 +318,7 @@ const STRINGS_EN = {
     "Pick days from the list, or type a date for a one-off block",
   "schedule.xpHelp": "XP for doing the block on time; 0 = plan only",
   "protect.scheduleDuration": "the duration is calculated",
+  "protect.scheduleToday": "«Today» and the summary are calculated",
 
   "protect.logs":
     "the log is written automatically; editing it breaks the audit trail",

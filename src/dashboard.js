@@ -44,11 +44,31 @@ function buildDashboard_(sh) {
       return { S: U.q(t.sheet), c: tc, xpL: U.col(tc.xp), pctL: U.col(tc.pct) };
     });
   const plusExtras = (fn) => extras.map((e) => "+" + fn(e)).join("");
-  const todayPct = at(pctL, "TODAY()");
+  const todayPct = "N(" + at(pctL, "TODAY()") + ")";
   const per = cS + "!$F$2",
     coin = cS + "!$F$3",
     thr = cS + "!$F$4";
   const spent = "SUMIF(" + sS + "!C2:C,TRUE," + sS + "!B2:B)";
+  // Task XP counts only for ticked rows with a title (empty rows carry a default XP).
+  const taskXp =
+    "SUMIFS(" + tS + "!F2:F," + tS + "!A2:A,TRUE," + tS + '!B2:B,"<>")';
+  // XP of tasks completed in [from, to) by their completion date (column H).
+  const taskXpIn = (from, to) =>
+    "SUMIFS(" +
+    tS +
+    "!F2:F," +
+    tS +
+    "!A2:A,TRUE," +
+    tS +
+    '!B2:B,"<>",' +
+    tS +
+    '!H2:H,">="&' +
+    from +
+    "," +
+    tS +
+    '!H2:H,"<"&' +
+    to +
+    ")";
   const earned = "FLOOR(D6*" + coin + ")";
   const last7 = hS + '!A:A,"<="&TODAY(),' + hS + '!A:A,">"&(TODAY()-7)';
   const shopGid = sheet_(SH.shop).getSheetId();
@@ -57,7 +77,7 @@ function buildDashboard_(sh) {
   const cond = tS + "!A2:A=FALSE," + tS + '!B2:B<>"",ISNUMBER(' + tS + "!D2:D)";
   const ranks = quoteList_(t_("ranks"));
   const nRanks = t_("ranks").length;
-  const dateFmt = '"' + t_("fmt.date") + '"';
+  const dateFmt = tq_("fmt.date");
 
   const cells = {
     B2: t_("dash.title"),
@@ -99,11 +119,8 @@ function buildDashboard_(sh) {
       xpL +
       ")" +
       plusExtras((e) => "SUM(" + e.S + "!" + e.xpL + FR + ":" + e.xpL + ")") +
-      "+SUMIF(" +
-      tS +
-      "!A2:A,TRUE," +
-      tS +
-      "!F2:F)",
+      "+" +
+      taskXp,
     F6: "=" + earned + "-" + spent,
     B7: "=CHOOSE(MIN(B6," + nRanks + ")," + ranks + ")",
     D7:
@@ -138,7 +155,11 @@ function buildDashboard_(sh) {
     D10: t_("dash.streakDays"),
     F10: t_("dash.avg7"),
     B11:
-      "=" + at(xpL, "TODAY()") + plusExtras((e) => atIn(e.S, e.xpL, "TODAY()")),
+      "=" +
+      at(xpL, "TODAY()") +
+      plusExtras((e) => atIn(e.S, e.xpL, "TODAY()")) +
+      "+" +
+      taskXpIn("TODAY()", "(TODAY()+1)"),
     D11: "=MAX(N(" + at(stL, "TODAY()") + "),N(" + at(stL, "TODAY()-1") + "))",
     F11:
       "=IFERROR(AVERAGEIFS(" +
@@ -200,6 +221,8 @@ function buildDashboard_(sh) {
           e.S +
           '!A:A,">"&(TODAY()-7))',
       ) +
+      "+" +
+      taskXpIn("(TODAY()-6)", "(TODAY()+1)") +
       ")",
 
     B15: t_("dash.overdue"),
@@ -385,7 +408,15 @@ function buildDashboard_(sh) {
         e.c.xp +
         ",FALSE),0)",
     ) +
-    ")";
+    "+SUMIF(" +
+    tS +
+    '!H2:H,"<"&(X3:X32+1),' +
+    tS +
+    "!F2:F)-SUMIF(" +
+    tS +
+    '!H2:H,"<"&X3:X32,' +
+    tS +
+    "!F2:F))";
   cells.Z3 =
     "=ARRAYFORMULA(IFERROR(VLOOKUP(X3:X32," +
     hS +

@@ -31,6 +31,8 @@ const SCHEDULE = {
   LOOKUP: 27, // AA label, AB:AH Monday…Sunday flags
 };
 
+const MAX_SCHEDULE_BLOCKS = 300;
+
 const HHMM = /^([01]?\d|2[0-3]):([0-5]\d)$/;
 
 // MOD keeps blocks that cross midnight (23:00 → 07:00) positive.
@@ -45,9 +47,16 @@ function parseTime_(text) {
 
 /** Schedule rows to write: the kept sheet data, else the config (v2.6 rows are migrated). */
 function scheduleRows_(state) {
-  const src =
-    state && Array.isArray(state.schedule) ? state.schedule : cfg_().schedule;
-  return src.map(scheduleBlock_);
+  if (!state || !Array.isArray(state.schedule))
+    return cfg_().schedule.map(scheduleBlock_);
+  // Sheet rows keep their days as typed (even blank); only v2.6 rows get «all».
+  return state.schedule.map((b) =>
+    Array.isArray(b)
+      ? scheduleBlock_(b)
+      : Object.assign(scheduleBlock_(b), {
+          days: b.days === undefined ? "all" : b.days,
+        }),
+  );
 }
 
 /** Blocks from the sheet that the config accepts (partial rows stay on the sheet only). */
@@ -73,7 +82,7 @@ function validScheduleBlocks_(rows) {
       xp: b.xp,
       notes: String(b.notes || ""),
     }))
-    .slice(0, 100);
+    .slice(0, MAX_SCHEDULE_BLOCKS);
 }
 
 /** '17.10.2026', '17/10/2026' or '2026-10-17' typed as text → ISO date; '' otherwise. */
@@ -205,14 +214,21 @@ function writeScheduleFormulas_(sh, total) {
     ",MATCH(RC1," +
     labels +
     ",0),WEEKDAY(TODAY(),2)),0)";
+  // Half a minute of tolerance: time fractions compared as text lose their last digit.
   const hiddenByOneOff =
     "COUNTIFS(" +
     abs(1) +
     ",TODAY()," +
     abs(2) +
-    ',"<"&RC3,' +
+    ',"<"&(RC3-1/2880),' +
     abs(3) +
-    ',">"&RC2)';
+    ',">"&(RC2+1/2880))';
+  const yesterday =
+    "IF(ISNUMBER(RC1),IF(INT(RC1)=TODAY()-1,1,0),IFERROR(INDEX(" +
+    flags +
+    ",MATCH(RC1," +
+    labels +
+    ",0),WEEKDAY(TODAY()-1,2)),0))";
 
   const routine = tracker_("routine");
   let status = '""';
@@ -240,16 +256,19 @@ function writeScheduleFormulas_(sh, total) {
       "=1," +
       hiddenByOneOff +
       "=0),1,0)))",
-    // U: is it running now? (a block crossing midnight is "now" on both sides)
-    "=IF(RC20<>1,FALSE,IF(RC3>RC2,AND(" +
+    // U: is it running now? A block crossing midnight runs from today's start, or until its
+    // end if it started yesterday.
+    '=IF(OR(NOT(ISNUMBER(RC2)),NOT(ISNUMBER(RC3)),RC4=""),FALSE,IF(RC3>RC2,AND(RC20=1,' +
       now +
       ">=RC2," +
       now +
-      "<RC3),OR(" +
+      "<RC3),OR(AND(RC20=1," +
       now +
-      ">=RC2," +
+      ">=RC2),AND(" +
+      yesterday +
+      "=1," +
       now +
-      "<RC3)))",
+      "<RC3))))",
     // V: routine status for today
     "=" + status,
     // W: planned hours per week (one-off blocks excluded)
@@ -267,7 +286,9 @@ function writeScheduleFormulas_(sh, total) {
       abs(4) +
       ",RC4," +
       abs(5) +
-      ',">0")>1," · "&RC1,""),"")',
+      ',">0",' +
+      abs(25) +
+      ',"<100000")>1," · "&RC1,""),"")',
     // Y: sort order: day sets in drop-down order, then one-off dates
     "=IF(ISNUMBER(RC1),100000+RC1,IFERROR(MATCH(RC1," + labels + ",0),0))",
   ];
@@ -299,9 +320,9 @@ function buildScheduleToday_(sh, last) {
       tq_("schedule.today") +
       '&" · "&CHOOSE(WEEKDAY(TODAY(),2),' +
       quoteList_(t_("weekdays")) +
-      ')&" "&TEXT(TODAY(),"' +
-      t_("fmt.dayMonth") +
-      '")',
+      ')&" "&TEXT(TODAY(),' +
+      tq_("fmt.dayMonth") +
+      ")",
   );
   sh.getRange(2, S.TODAY, 1, 4).setValues([
     [
@@ -389,147 +410,51 @@ function readSchedule_(sh) {
   const width = Math.min(SCHEDULE.COLS, sh.getMaxColumns());
   const header = sh.getRange(1, 1, 1, width).getDisplayValues()[0];
   const shown = sh.getRange(2, 1, n, width).getDisplayValues();
+  const raw = sh.getRange(2, 1, n, width).getValues();
   const pick = (r) => r.map((v) => String(v).trim());
+  // A time cell holds a day fraction whatever its display format (7:30 PM, 07:30:00 …).
+  const time = (value, text) =>
+    typeof value === "number" && value >= 0 && value < 1
+      ? timeText_(value)
+      : text;
+  const used = (b, daysText) =>
+    daysText || b.start || b.end || b.activity || b.xp || b.notes;
 
   if (header[0] === t_("schedule.start")) {
     return shown
       .map(pick)
-      .map((r) => ({
+      .map((r, i) => ({
         days: "all",
-        start: r[0],
-        end: r[1],
+        start: time(raw[i][0], r[0]),
+        end: time(raw[i][1], r[1]),
         activity: r[2],
         xp: 0,
         notes: r[4] || "",
       }))
-      .filter((b) => b.start || b.end || b.activity || b.notes);
+      .filter((b) => used(b, ""));
   }
-  const raw = sh.getRange(2, 1, n, 1).getValues();
   return shown
     .map(pick)
-    .map((r, i) => ({
-      days:
+    .map((r, i) => {
+      const daysText = r[0];
+      // Unrecognised day text is kept as typed (and stays out of the config), never «all».
+      const days =
         raw[i][0] instanceof Date
           ? U.isoOrEmpty(raw[i][0])
-          : dayKeyFromLabel_(r[0]) || isoFromDateText_(r[0]) || "all",
-      start: r[1],
-      end: r[2],
-      activity: r[3],
-      xp: Number(r[4]) || 0,
-      notes: r[6] || "",
-    }))
-    .filter((b) => b.start || b.end || b.activity || b.notes);
-}
-
-function styleSchedule_(sh) {
-  const S = SCHEDULE;
-  baseStyle_(sh);
-  const rows = sh.getMaxRows() - 1;
-  const data = sh.getRange(2, 1, rows, S.COLS);
-  headerStyle_(sh.getRange(1, 1, 1, S.COLS));
-  gridLines_(data);
-  sh.getRange(2, S.DAYS, rows, 1)
-    .setHorizontalAlignment("center")
-    .setFontColor(TH.muted);
-  sh.getRange(2, S.START, rows, 2)
-    .setHorizontalAlignment("center")
-    .setFontColor(TH.accent);
-  sh.getRange(2, S.ACT, rows, 1).setFontColor(TH.text);
-  sh.getRange(2, S.XP, rows, 1)
-    .setHorizontalAlignment("center")
-    .setFontColor(TH.green)
-    .setFontWeight("bold");
-  sh.getRange(2, S.DUR, rows, 1)
-    .setHorizontalAlignment("center")
-    .setFontColor(TH.dim);
-  sh.getRange(2, S.NOTES, rows, 1).setFontColor(TH.muted).setWrap(true);
-  [96, 64, 64, 220, 48, 78, 260, 20, 64, 64, 220, 40, 20, 150, 170].forEach(
-    (w, i) => sh.setColumnWidth(i + 1, w),
-  );
-  sh.setRowHeight(1, 34);
-  sh.setRowHeights(2, rows, 24);
-  sh.setFrozenRows(1);
-
-  // Today
-  const T = S.TODAY;
-  sh.getRange(1, T, 1, 4)
-    .merge()
-    .setFontWeight("bold")
-    .setFontSize(12)
-    .setFontColor(TH.text);
-  headerStyle_(sh.getRange(2, T, 1, 4));
-  const today = sh.getRange(3, T, S.TODAY_ROWS, 4);
-  today.setBackground(TH.surface);
-  gridLines_(today);
-  sh.getRange(3, T, S.TODAY_ROWS, 2)
-    .setHorizontalAlignment("center")
-    .setFontColor(TH.accent);
-  sh.getRange(3, T + 3, S.TODAY_ROWS, 1).setHorizontalAlignment("center");
-
-  // Summary and hint
-  const sum = sh.getRange(1, S.SUM, 5, 2);
-  sum
-    .setBackground(TH.surface)
-    .setBorder(
-      true,
-      true,
-      true,
-      true,
-      false,
-      true,
-      TH.border,
-      SpreadsheetApp.BorderStyle.SOLID,
-    );
-  sh.getRange(1, S.SUM, 5, 1).setFontColor(TH.muted);
-  sh.getRange(1, S.SUM + 1, 5, 1)
-    .setFontColor(TH.accent)
-    .setFontWeight("bold");
-  sh.getRange(7, S.SUM, 14, 2)
-    .merge()
-    .setWrap(true)
-    .setFontColor(TH.dim)
-    .setFontStyle("italic")
-    .setVerticalAlignment("top");
-
-  // Helpers and lookup stay invisible.
-  sh.getRange(1, S.HELP, sh.getMaxRows(), S.LOOKUP + 8 - S.HELP).setFontColor(
-    TH.bg,
-  );
-
-  const nowInToday =
-    "=AND(ISNUMBER($I3),IF($J3>$I3,AND(MOD(NOW(),1)>=$I3,MOD(NOW(),1)<$J3),OR(MOD(NOW(),1)>=$I3,MOD(NOW(),1)<$J3)))";
-  const overlap =
-    "=AND($A3=$A2,ISNUMBER($B3),ISNUMBER($B2),ISNUMBER($C2),$C2>$B2,$B3<$C2)";
-  sh.setConditionalFormatRules([
-    cf_()
-      .whenFormulaSatisfied("=$U2=TRUE")
-      .setBackground(TH.accentBg)
-      .setBold(true)
-      .setRanges([data])
-      .build(),
-    cf_()
-      .whenFormulaSatisfied(nowInToday)
-      .setBackground(TH.accentBg)
-      .setBold(true)
-      .setRanges([today])
-      .build(),
-    cf_()
-      .whenFormulaSatisfied(overlap)
-      .setBackground(TH.redBg)
-      .setFontColor("#fecaca")
-      .setRanges([sh.getRange(3, 1, rows - 1, S.COLS)])
-      .build(),
-    cf_()
-      .whenFormulaSatisfied("=ISNUMBER($A2)")
-      .setFontColor(TH.yellow)
-      .setRanges([sh.getRange(2, S.DAYS, rows, 1)])
-      .build(),
-    cf_()
-      .whenFormulaSatisfied("=ISEVEN(ROW())")
-      .setBackground(TH.zebra)
-      .setRanges([data])
-      .build(),
-  ]);
+          : dayKeyFromLabel_(daysText) ||
+            isoFromDateText_(daysText) ||
+            daysText;
+      const b = {
+        days,
+        start: time(raw[i][1], r[1]),
+        end: time(raw[i][2], r[2]),
+        activity: r[3],
+        xp: Number(r[4]) || 0,
+        notes: r[6] || "",
+      };
+      return used(b, daysText) ? b : null;
+    })
+    .filter((b) => b);
 }
 
 /** Menu: orders blocks by day set (drop-down order, then one-off dates) and start time. */
@@ -541,12 +466,15 @@ function menuSortSchedule() {
       return;
     }
     const total = sh.getMaxRows() - 1;
+    if (!buildIncomplete_()) writeBackup_(exportState_());
     // Sorted in code and written back to A:G only: a range sort would also move the Today
-    // list and the summary that share these rows.
+    // list and the summary that share these rows. Unknown day text goes last.
     const order = (b) =>
       DAYSETS[b.days]
         ? Object.keys(DAYSETS).indexOf(b.days)
-        : 100 + Number(String(b.days).replace(/-/g, ""));
+        : isRealDate_(b.days)
+          ? 100 + Number(b.days.replace(/-/g, ""))
+          : 1e9;
     const start = (b) => {
       const f = parseTime_(b.start);
       return f === null ? 2 : f;

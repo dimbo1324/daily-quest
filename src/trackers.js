@@ -61,11 +61,14 @@ function routineItems_(cfg) {
   blocks.forEach((b) => {
     count[base(b)] = (count[base(b)] || 0) + 1;
   });
-  return blocks.map((b) => ({
-    name: count[base(b)] > 1 ? base(b) + " · " + dayLabel_(b.days) : base(b),
-    xp: b.xp,
-    days: b.days,
-  }));
+  const seen = {};
+  return blocks.map((b) => {
+    let name =
+      count[base(b)] > 1 ? base(b) + " · " + dayLabel_(b.days) : base(b);
+    seen[name] = (seen[name] || 0) + 1;
+    if (seen[name] > 1) name += " (" + seen[name] + ")";
+    return { name, xp: b.xp, days: b.days };
+  });
 }
 
 function tracker_(key) {
@@ -99,7 +102,7 @@ function buildTracker_(sh, t, start, days) {
   const tail = [t_("habits.xp"), t_(doneLabel[t.key] || "habits.done")];
   if (t.streak) tail.push(t_("habits.streak"));
   const header = [t_("habits.date"), t_("habits.day")].concat(
-    t.items.map((h) => h.name),
+    t.items.map((h) => asText_(h.name)),
     tail,
   );
   const xpRow = ["", t_("habits.xp")].concat(
@@ -175,19 +178,24 @@ function appendDays_(sh, t, n, start, forceFresh) {
       c.last +
       ")" +
       bonus,
-    "=IFERROR(COUNTIF(" +
+    // "" on a day with nothing planned, so averages, the heatmap and streaks skip it
+    "=IF(COUNTIF(" +
+      r +
+      ",TRUE)+COUNTIF(" +
+      r +
+      ',FALSE)=0,"",COUNTIF(' +
       r +
       ",TRUE)/(COUNTIF(" +
       r +
       ",TRUE)+COUNTIF(" +
       r +
-      ",FALSE)),0)",
+      ",FALSE)))",
   ];
   if (t.streak)
     row.push(
-      '=IF(RC1>TODAY(),"",IF(RC[-1]>=' +
+      '=IF(RC1>TODAY(),"",IF(RC[-1]="",N(R[-1]C),IF(RC[-1]>=' +
         U.q(names_().cfg) +
-        "!R4C6,N(R[-1]C)+1,0))",
+        "!R4C6,N(R[-1]C)+1,0)))",
     );
   sh.getRange(startRow, c.xp, n, row.length).setFormulasR1C1(
     U.fill(n, 1, null).map(() => row.slice()),

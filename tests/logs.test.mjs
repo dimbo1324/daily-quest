@@ -15,6 +15,7 @@ function fakeSpreadsheet(context) {
       },
       getRange: () => anything(),
       getMaxRows: () => 10,
+      getSheetId: () => name.length,
       getMaxColumns: () => 7,
       getProtections: () => [],
       protect: () => anything(),

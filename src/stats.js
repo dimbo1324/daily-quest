@@ -199,7 +199,7 @@ function buildStats_(sh) {
     put(
       ST.GRID_FIRST + 1 + w,
       ST.HEAT_WEEKS_ROW,
-      "=TEXT(" + heatStart + "+" + 7 * w + ',"' + t_("fmt.dayMonth") + '")',
+      "=TEXT(" + heatStart + "+" + 7 * w + "," + tq_("fmt.dayMonth") + ")",
     );
   }
   put(ST.GRID_FIRST + 1, ST.LEGEND, t_("stats.less"));
@@ -234,7 +234,13 @@ function buildStats_(sh) {
       (rules ? "+" + sumTo(rA, rXp) : "") +
       (routine ? "+" + sumTo(oA, oXp) : "") +
       "+" +
-      sumTo(tDone, tXp) +
+      "SUMIF(" +
+      tDone +
+      ',"<"&(' +
+      days +
+      "+1)," +
+      tXp +
+      ")" +
       '),"")',
   );
 
@@ -267,7 +273,7 @@ function buildStats_(sh) {
   put(
     K.weekLabel,
     3,
-    "=ARRAYFORMULA(TEXT(" + wk + ',"' + t_("fmt.dayMonth") + '"))',
+    "=ARRAYFORMULA(TEXT(" + wk + "," + tq_("fmt.dayMonth") + "))",
   );
   put(K.wHabits, 3, "=" + inWeek(hA, hXp));
   put(
@@ -407,7 +413,10 @@ function buildStats_(sh) {
   put(K.sourceXp, 2, t_("stats.xp"));
   const sources = [
     [t_("stats.habits"), "=SUM(" + hXp + ")"],
-    [t_("stats.tasks"), "=SUMIF(" + tS + "!A2:A,TRUE," + tXp + ")"],
+    [
+      t_("stats.tasks"),
+      "=SUMIFS(" + tXp + "," + tS + "!A2:A,TRUE," + tS + '!B2:B,"<>")',
+    ],
   ];
   if (routine) sources.splice(1, 0, [t_("stats.routine"), "=SUM(" + oXp + ")"]);
   if (rules) sources.splice(1, 0, [t_("stats.rules"), "=SUM(" + rXp + ")"]);

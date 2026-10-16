@@ -270,8 +270,8 @@ test("rules: validation of kind, days, duplicates and fields", () => {
     /unknown days/,
   );
   assert.match(
-    check([{ name: "No soda", xp: 0, kind: "avoid", days: "all" }]),
-    /xp must be 1–1000/,
+    check([{ name: "No soda", xp: -1, kind: "avoid", days: "all" }]),
+    /xp must be 0–1000/,
   );
   assert.match(
     check([

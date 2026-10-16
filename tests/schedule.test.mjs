@@ -208,7 +208,7 @@ test("readSchedule_ reads days as keys or one-off dates, XP as numbers", () => {
       ["monfri", "Work", 10, ""],
       ["2026-10-17", "Doctor", 0, "bring papers"],
       ["2026-10-18", "Lunch", 0, ""],
-      ["all", "Sport", 0, ""],
+      ["Weird", "Sport", 0, ""],
     ],
   );
 });
@@ -313,4 +313,95 @@ test("user text never becomes a formula", () => {
   assert.equal(run('asText_("=1+1")'), "'=1+1");
   assert.equal(run('asText_("Work")'), "Work");
   assert.equal(run("asText_(undefined)"), "");
+});
+
+test("readSchedule_ reads times from cell values whatever their display format", () => {
+  const { run, context } = loadApp();
+  const header = [
+    "Days",
+    "Start",
+    "End",
+    "Activity",
+    "XP",
+    "Duration",
+    "Notes",
+  ];
+  const shown = [
+    ["Mon", "7:30 PM", "08:00:00 PM", "Walk", "", "0:30", ""],
+    ["", "", "", "", "5", "", ""],
+  ];
+  const raw = [
+    ["Mon", 19.5 / 24, 20 / 24, "Walk", "", 0, ""],
+    ["", "", "", "", 5, "", ""],
+  ];
+  context.fake = {
+    getLastRow: () => 3,
+    getMaxColumns: () => 40,
+    getRange: (row, col, rows, cols) => ({
+      getDisplayValues: () => (row === 1 ? [header] : shown),
+      getValues: () => raw.map((r) => r.slice(0, cols)),
+    }),
+  };
+  const rows = plain(run("readSchedule_(fake)"));
+  assert.deepEqual(
+    rows.map((b) => [b.days, b.start, b.end, b.xp]),
+    [
+      ["mon", "19:30", "20:00", 0],
+      ["", "", "", 5],
+    ],
+  );
+});
+
+test("kept rows keep their days as typed; only v2.6 rows become «all»", () => {
+  const { run, context } = loadApp();
+  context.kept = {
+    schedule: [
+      { days: "", start: "", end: "", activity: "Idea", xp: 0, notes: "" },
+      {
+        days: "17.10",
+        start: "10:00",
+        end: "11:00",
+        activity: "X",
+        xp: 0,
+        notes: "",
+      },
+      ["07:00", "07:30", "Old", ""],
+    ],
+  };
+  assert.deepEqual(
+    plain(run("scheduleRows_(kept)")).map((b) => b.days),
+    ["", "17.10", "all"],
+  );
+});
+
+test("ticks follow a routine block whose name changed because of a twin or the language", () => {
+  const { run, context } = loadApp();
+  context.items = [
+    { name: "07:00 Run · Mon–Fri", days: "monfri" },
+    { name: "07:00 Run · Sat", days: "sat" },
+    { name: "09:00 Work", days: "all" },
+  ];
+  // 2026-10-16 is a Friday, 2026-10-17 a Saturday
+  assert.equal(run('itemIndexFor_("07:00 Run", items, "2026-10-16")'), 0);
+  assert.equal(run('itemIndexFor_("07:00 Run", items, "2026-10-17")'), 1);
+  assert.equal(
+    run('itemIndexFor_("07:00 Run · Mo–Fr", items, "2026-10-16")'),
+    0,
+  );
+  assert.equal(run('itemIndexFor_("09:00 Work", items, "2026-10-16")'), 2);
+  assert.equal(run('itemIndexFor_("10:00 Gone", items, "2026-10-16")'), -1);
+});
+
+test("identical routine blocks get distinct names", () => {
+  const { run } = loadApp();
+  const names = plain(
+    run(`routineItems_({ schedule: [
+      { days: "all", start: "07:00", end: "07:30", activity: "Run", xp: 5 },
+      { days: "all", start: "07:00", end: "07:30", activity: "Run", xp: 5 },
+    ] }).map((i) => i.name)`),
+  );
+  assert.deepEqual(names, [
+    "07:00 Run · Every day",
+    "07:00 Run · Every day (2)",
+  ]);
 });

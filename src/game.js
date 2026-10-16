@@ -8,10 +8,14 @@ function onEdit(e) {
     if (!e || !e.range) return;
     const r = e.range;
     logEdit_(e);
-    if (r.getNumRows() !== 1 || r.getNumColumns() !== 1) return;
     const SH = names_();
     const sh = r.getSheet();
     const name = sh.getName();
+    if (r.getNumRows() !== 1 || r.getNumColumns() !== 1) {
+      if (name === SH.tasks) onTasksBulkEdit_(sh, r);
+      else if (name === SH.shop) onShopBulkEdit_(sh, r);
+      return;
+    }
     const tracker = trackers_().filter((t) => t.sheet === name)[0];
     if (tracker) onTrackerEdit_(sh, r, tracker);
     else if (name === SH.tasks) onTaskEdit_(sh, r);
@@ -33,9 +37,14 @@ function onTrackerEdit_(sh, r, t) {
     return;
   }
   if (t.key === "routine") {
-    celebrate_(xp, t_("msg.routineDone", t.items[col - c.first].name));
+    SpreadsheetApp.flush();
     const done = Number(sh.getRange(row, c.pct).getValue());
-    if (done >= 1 && t.bonus) {
+    const perfect = done >= 1 && t.bonus > 0;
+    celebrate_(
+      xp + (perfect ? t.bonus : 0),
+      t_("msg.routineDone", t.items[col - c.first].name),
+    );
+    if (perfect) {
       logEvent_("routine-perfect-day", {
         sheet: sh.getName(),
         details: "+" + t.bonus + " XP",
@@ -71,6 +80,72 @@ function onTaskEdit_(sh, r) {
   } else {
     done.clearContent();
   }
+}
+
+/** Ticks in bulk (paste, Space on a selection): untitled rows are undone, dates follow ticks. */
+function onTasksBulkEdit_(sh, r) {
+  const first = Math.max(r.getRow(), 2);
+  const last = r.getLastRow();
+  if (r.getColumn() > 1 || last < first) return;
+  const rows = last - first + 1;
+  const ab = sh.getRange(first, 1, rows, 2).getValues();
+  const doneRange = sh.getRange(first, 8, rows, 1);
+  const done = doneRange.getValues();
+  const plan = planTaskTicks_(ab, done, new Date());
+  if (plan.undone) {
+    sh.getRange(first, 1, rows, 1).setValues(plan.ticks);
+    notify_(t_("msg.taskNeedsTitle", t_("tasks.title")));
+  }
+  doneRange.setValues(plan.done).setNumberFormat(t_("fmt.date"));
+  logEvent_("tasks-bulk", {
+    sheet: sh.getName(),
+    cell: r.getA1Notation(),
+    details: plan.undone + " untitled ticks undone",
+  });
+}
+
+/** Pure part of onTasksBulkEdit_: [[tick, title]] and [[date]] → new ticks, dates, undone count. */
+function planTaskTicks_(ab, done, now) {
+  let undone = 0;
+  const ticks = ab.map((r) => {
+    if (r[0] === true && !String(r[1]).trim()) {
+      undone++;
+      return [false];
+    }
+    return [r[0]];
+  });
+  const dates = ab.map((r, i) =>
+    ticks[i][0] === true
+      ? [done[i][0] instanceof Date ? done[i][0] : now]
+      : [""],
+  );
+  return { ticks, done: dates, undone };
+}
+
+/** Purchases go one at a time so the balance check runs: bulk ticks of «Bought» are undone. */
+function onShopBulkEdit_(sh, r) {
+  const first = Math.max(r.getRow(), 2);
+  const last = r.getLastRow();
+  if (r.getColumn() > 3 || r.getLastColumn() < 3 || last < first) return;
+  const rows = last - first + 1;
+  const ticks = sh.getRange(first, 3, rows, 1).getValues();
+  const dates = sh.getRange(first, 4, rows, 1).getValues();
+  let undone = 0;
+  const next = ticks.map((t, i) => {
+    if (t[0] === true && !(dates[i][0] instanceof Date)) {
+      undone++;
+      return [false];
+    }
+    return [t[0]];
+  });
+  if (!undone) return;
+  sh.getRange(first, 3, rows, 1).setValues(next);
+  logEvent_("purchase-refused", {
+    sheet: sh.getName(),
+    cell: r.getA1Notation(),
+    details: undone + " bulk purchases undone",
+  });
+  notify_(t_("msg.buyOneByOne"), 8);
 }
 
 function onShopEdit_(sh, r) {

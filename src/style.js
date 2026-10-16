@@ -523,10 +523,20 @@ function protectAll_() {
   });
   if (t) warn(t.getRange(1, 9, t.getMaxRows(), 1), t_("protect.taskLeft"));
   const sc = sheet_(SH.schedule);
-  if (sc)
+  if (sc) {
     warn(
       sc.getRange(1, SCHEDULE.DUR, sc.getMaxRows(), 1),
       t_("protect.scheduleDuration"),
     );
+    warn(
+      sc.getRange(
+        1,
+        SCHEDULE.TODAY,
+        sc.getMaxRows(),
+        SCHEDULE.LOOKUP + 8 - SCHEDULE.TODAY,
+      ),
+      t_("protect.scheduleToday"),
+    );
+  }
   if (s) warn(s.getRange("F1:G3"), t_("protect.balance"));
 }

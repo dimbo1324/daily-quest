@@ -119,8 +119,8 @@ function validateTrackItems_(items, label, fields, errs) {
     else if (names.has(h.name))
       errs.push("Duplicate " + label.toLowerCase() + ": " + h.name);
     names.add(h.name);
-    if (!(Number.isFinite(h.xp) && h.xp > 0 && h.xp <= 1000))
-      errs.push((h.name || id) + ": xp must be 1–1000");
+    if (!(Number.isFinite(h.xp) && h.xp >= 0 && h.xp <= 1000))
+      errs.push((h.name || id) + ": xp must be 0–1000");
     if (!DAYSETS[h.days])
       errs.push((h.name || id) + ": unknown days «" + h.days + "»");
   });
@@ -139,8 +139,10 @@ function validateSchedule_(cfg, errs) {
     }
     seen.add(a);
   });
-  if (cfg.schedule.length > 100)
-    errs.push("Too many schedule blocks (100 at most).");
+  if (cfg.schedule.length > MAX_SCHEDULE_BLOCKS)
+    errs.push(
+      "Too many schedule blocks (" + MAX_SCHEDULE_BLOCKS + " at most).",
+    );
   cfg.schedule.forEach((b, i) => {
     const id = "Schedule block #" + (i + 1);
     if (!isPlainObject_(b)) {
@@ -214,8 +216,11 @@ function validateStrings_(strings) {
     "sheet.shop",
     "sheet.settings",
   ];
-  const sheetNames = sheetKeys.map((k) => strings[k] || STRINGS_EN[k]);
-  const reserved = ["_backup", "Logs"];
+  // Google Sheets compares sheet names ignoring case.
+  const sheetNames = sheetKeys.map((k) =>
+    String(strings[k] || STRINGS_EN[k]).toLowerCase(),
+  );
+  const reserved = ["_backup", "logs"];
   if (
     new Set(sheetNames).size !== sheetNames.length ||
     sheetNames.some((n) => reserved.indexOf(n) >= 0)
