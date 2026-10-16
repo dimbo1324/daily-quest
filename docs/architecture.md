@@ -1,6 +1,6 @@
 # Architecture
 
-How Daily Quest is built right now (v2.6.0). The code is the fact; update this file when the
+How Daily Quest is built right now (v2.7.0). The code is the fact; update this file when the
 shape changes.
 
 ## Runtime
@@ -13,15 +13,16 @@ another file.
 | Module | Responsibility |
 |---|---|
 | `main.js` | `VERSION`, menu (`onOpen`), entry points, auto-extension of the calendar |
-| `config.js` | `DEFAULT_CFG`, `cfg_()` cache, normalization (v1 tuples → v2 objects), validation, chunked storage, `calendarPeriod_` |
+| `config.js` | `DEFAULT_CFG`, `DAYSETS`, `cfg_()` cache, normalization (v1 tuples, v2.6 schedule blocks), chunked storage, `calendarPeriod_` |
+| `validation.js` | `validateCfg_` and its parts: precise error lines, unknown keys and fields rejected |
 | `settings.js` | Settings sheet read-back (habits, rules, activities), JSON import / export dialogs, config reset |
 | `i18n.js` | `STRINGS_EN`, `t_()`, `tq_()` (formula literal), `names_()` (sheet names) |
 | `core.js` | layout constants, theme `TH`, date and formula utilities `U`, toasts, dialogs, `run_()` lock |
-| `trackers.js` | shared layer for day-tracked sheets (habits, rules): tracker list, column layout, building and appending days |
+| `trackers.js` | shared layer for day-tracked sheets (habits, rules, routine): tracker list, `routineItems_`, column layout, building and appending days |
 | `state.js` | `exportState_` snapshot, `_backup` write / read, tick restore |
 | `build.js` | `buildAll_`, Settings, Tasks and Shop builders; en_US formulas |
 | `dashboard.js`, `dashboard-style.js` | Dashboard cells and formulas; its styling and two charts |
-| `schedule.js` | Schedule sheet: build, snapshot (`readSchedule_`), styling, «Sort schedule» |
+| `schedule.js` | Schedule sheet: weekly template, helpers, «Today», summary, snapshot (`readSchedule_`, v2.6 migration), styling, «Sort schedule» |
 | `stats.js`, `stats-style.js` | Stats sheet: data block (columns BC+), KPI tiles, heatmap; styling and six charts on a 24 px grid |
 | `charts.js` | `insertDarkChart_`, `percentBars_`: the shared dark chart style |
 | `logs.js` | Logs sheet: `logEvent_` (append one row, never throws), `logEdit_` (onEdit capture), value sanitizing |
@@ -32,11 +33,12 @@ another file.
 
 | Sheet | Content |
 |---|---|
-| Dashboard | level, rank, XP, coins, today, streak, 7-day average, overdue and upcoming tasks, 30-day habit stats, rules section (clean streak and 30-day share per rule, below the habits), two charts (hidden data in X:Z) |
-| Stats | KPI tiles (rows 5–7), 26-week habit completion heatmap (rows 10–19), six charts from row 21; hidden chart data from column BC; live formulas only |
+| Dashboard | row 4 «Now / Next» from the Schedule summary; level, rank, XP, coins, today, streak, 7-day average, overdue and upcoming tasks, 30-day habit stats, rules section (clean streak and 30-day share per rule, below the habits), two charts (hidden data in X:Z) |
+| Stats | KPI tiles (rows 5–7), 26-week habit completion heatmap (rows 10–19), eight charts from row 21 (incl. «Where your time goes» and routine adherence); hidden chart data from column BC; live formulas only |
 | Habits | row 1 headers, row 2 XP per habit (linked to Settings), from row 3 one row per day: date, weekday, checkbox or «—» per habit, XP, completion %, streak |
 | Rules | same layout as Habits without the streak column: one checkbox per rule per day (tick = kept), XP, kept share; XP per rule in row 2 linked to Settings column K; built only when `rules` is not empty |
-| Schedule | Start, End (times), Activity (drop-down from Settings column O, free text allowed), Duration (formula, crosses midnight), Notes; summary in G1:H2; overlap and current-block highlighting; kept by rebuilds (display values) |
+| Schedule | A Days (day set or a one-off date), B Start, C End, D Activity (drop-down from Settings column O, free text allowed), E XP, F Duration, G Notes; I:L «Today» (filtered, sorted, ✅ / ⬜); N:O summary (hours per week, blocks, today's progress, Now, Next) and hint; hidden helpers T:Y (today?, now?, status, weekly hours, routine name, sort order) and the day-set lookup AA:AH; kept by rebuilds (display values) |
+| Routine | tracker of the weekly blocks with XP, same layout as Habits (checkbox = done on time, «—» when not planned, XP with the perfect-day bonus, share, streak); row 2 XP written as values; only when some block has XP |
 | Tasks | done, title, category, deadline, priority, XP, notes, completed date, days left |
 | Shop | reward, price, bought, date; balance block in F1:G3 |
 | Settings | habits A:C (name, XP, days), game parameters F2:F4 (XP per level, coins per XP, streak threshold), help in H, rules J:M (name, XP, type, days), activities O (the Schedule drop-down) |
@@ -58,7 +60,8 @@ limit.
 ## Rebuild and data safety
 
 `setup` / «Rebuild»: `exportState_` → `writeBackup_` → `applySettingsSheet_` →
-`buildAll_(state)` (deletes all sheets except `_backup` and `Logs`, rebuilds, restores habit and rule
+`buildAll_(state)` (first replaces `cfg.schedule` with the sheet's complete blocks, so the
+Routine tracker follows the sheet) (deletes all sheets except `_backup` and `Logs`, rebuilds, restores habit and rule
 ticks by date and name, restores tasks and shop rows, re-applies styling and protection). The
 calendar period comes from `calendarPeriod_`; kept data that starts earlier extends it
 backwards. Every operation and every user edit is appended to `Logs` (`logEvent_`,

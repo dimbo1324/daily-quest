@@ -44,9 +44,10 @@ Highlights:
   Dashboard.
 - The **Stats** sheet shows KPI tiles, a 26-week completion heatmap and six charts of your
   progress; it updates live.
-- The **Schedule** sheet holds your daily routine: time blocks with an activity from a
-  drop-down (`activities`, editable on the Settings sheet) or your own text, durations, and a
-  «Sort schedule by time» menu action. It survives rebuilds.
+- The **Schedule** sheet is your weekly routine: time blocks per day set (or a one-off date),
+  an activity from a drop-down (`activities`, editable on the Settings sheet) or your own
+  text, «Today» with Now / Next, planned hours per week. Blocks with XP are ticked daily on
+  the **Routine** sheet for XP, a streak and a perfect-day bonus. It survives rebuilds.
 - The **Logs** sheet records every edit and every operation (with time, old and new value,
   imported JSON) so anything can be reconstructed; it survives rebuilds.
 - Habits and rules can also be edited on the `Settings` sheet → menu **♻️ Rebuild**.

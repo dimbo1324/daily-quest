@@ -34,8 +34,8 @@ These sharpen the universal rules for this codebase. Stricter wins.
 - Only `SUMIF` / `COUNTIF` expand inside `ARRAYFORMULA`; `SUMIFS` / `COUNTIFS` do not.
 - Chart options: `chartArea` takes `left`, `top` and `backgroundColor` only — Google rejects
   `right` and `bottom` and the whole build fails.
-- User data is matched by date and habit name. Renaming a habit loses its old ticks — say so
-  whenever a task touches habit identity.
+- User data is matched by date and item name (habits, rules, routine blocks «HH:MM
+  activity»). Renaming loses old ticks — say so whenever a task touches item identity.
 
 ## Configuration
 
@@ -52,6 +52,9 @@ These sharpen the universal rules for this codebase. Stricter wins.
 - A new key is English in `STRINGS_EN` and appears in the regenerated schema; the owner's
   translation is added to `my-config.json` only when the owner asks (it is not tracked).
 - Sheet names come from `strings`; `_backup` is fixed so backups survive a language change.
+- UI string keys and config keys are never removed or renamed: stored personal configs
+  override them and validation rejects unknown keys, so a removed key would break the next
+  rebuild. Repurpose the text instead.
 - A sheet that holds user data (trackers, Tasks, Shop, Schedule) is snapshotted by
   `exportState_` and written back by its builder; times and dates are read as display
   values or ISO text, never through time-only `Date` objects (1899 time-zone offsets).

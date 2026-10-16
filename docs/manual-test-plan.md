@@ -16,7 +16,7 @@ Use a **fresh test spreadsheet** first; touch the real one only after the test c
 
 ## 1. Demo build (English, demo config)
 
-- [ ] Sheets in order: Dashboard, Stats, Habits, Rules, Schedule, Tasks, Shop, Settings, Logs;
+- [ ] Sheets in order: Dashboard, Stats, Habits, Rules, Routine, Schedule, Tasks, Shop, Settings, Logs;
       `_backup` hidden.
 - [ ] The build finishes without an error dialog (a year-long calendar takes 1–3 minutes).
 - [ ] Habits and Rules start today and run 60 days; inactive days show «—».
@@ -72,16 +72,24 @@ Use a **fresh test spreadsheet** first; touch the real one only after the test c
 - [ ] Export → `config-export`; a purchase without enough coins → `purchase-refused`.
 - [ ] Reload the spreadsheet → an `open` row.
 
-## 7. Schedule sheet
+## 7. Schedule, Today and Routine
 
-- [ ] A Schedule sheet after Rules with the demo (or personal) routine; times show as hh:mm.
-- [ ] Duration is filled for every block; 23:00 → 07:00 shows 8:00.
-- [ ] The Activity cell offers the list from Settings column O; free text is accepted.
-- [ ] Add an activity on Settings → it appears in the drop-down without a rebuild.
-- [ ] Make two blocks overlap → the later one turns red. The block of the current time is
-      highlighted.
-- [ ] Menu «Sort schedule by time» orders the blocks; a `schedule-sort` row appears in Logs.
-- [ ] Edit a block, then «Rebuild» → the edited schedule is unchanged, times did not shift.
+- [ ] Sheets in order include Rules, Routine, Schedule (Routine only when a block has XP).
+- [ ] Schedule columns: Days | Start | End | Activity | XP | Duration | Notes; a v2.6 sheet
+      came through the upgrade with every block on «every day».
+- [ ] Days offers every day, Mon–Fri, Mon–Sat, Sat–Sun and single weekdays; a typed date
+      (17.10.2026) is accepted and shows in yellow.
+- [ ] «Today» lists only today's blocks in time order; the current block is highlighted; a
+      one-off block for today hides the weekly block it overlaps.
+- [ ] Summary: hours per week, blocks, «✅ Today» progress, «Now» and «Next»; the Dashboard
+      row 4 shows the same Now / Next.
+- [ ] Give a block XP → «Rebuild» → a Routine column «HH:MM activity» exists; inactive days
+      show «—»; ticking it gives a toast, XP and ✅ in «Today».
+- [ ] Tick every routine block of today → the perfect-day toast and the bonus in the day's XP.
+- [ ] Menu «Sort schedule by time» orders blocks by day set and start; «Today» and the summary
+      stay in place; a `schedule-sort` row appears in Logs.
+- [ ] Stats: «Where your time goes» shows hours per activity; «Routine: on time» bars exist.
+- [ ] Edit a block, «Rebuild» → nothing lost, times did not shift.
 
 ## 8. Look and feel
 

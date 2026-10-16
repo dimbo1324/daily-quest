@@ -6,6 +6,20 @@ History of changes to the AI assistant rule system (`.ai/`, `CLAUDE.md`, `AGENTS
 
 Format: date, what changed, why, who decided. Newest first.
 
+## 2026-10-15 — Routine tracker, weekly schedule and the never-remove-keys rule
+
+**What changed.** `project/10-project-map.md` lists the Routine sheet and `validation.js`;
+`project/12-domain-rules.md` forbids removing or renaming UI string and config keys (stored
+configs would fail validation) and generalizes item identity to routine blocks;
+`project/14-config-reference.md` documents the new day sets, block `days` / `xp` and
+`schedulePerfectBonus`.
+
+**Why.** Owner instruction of 2026-10-15 to implement the agreed schedule-and-game plan; the
+key rule came from noticing that renaming `schedule.total` would have broken the owner's
+stored config on the next rebuild.
+
+**Decided by.** Owner instruction of 2026-10-15, recorded by the agent.
+
 ## 2026-10-15 — Schedule, formatting and the module split
 
 **What changed.** `project/10-project-map.md` lists the Schedule sheet and the new modules

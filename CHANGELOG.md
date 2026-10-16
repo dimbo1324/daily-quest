@@ -2,6 +2,26 @@
 
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versioning: [SemVer](https://semver.org/).
 
+## [2.7.0] - 2026-10-15
+### Added
+- Schedule by weekday: a Days column per block (every day, Mon–Fri, Mon–Sat, Sat–Sun or a
+  single weekday). Existing blocks become «every day».
+- One-off blocks: a date in the Days cell; the block is added to that day and hides the
+  weekly blocks it overlaps.
+- «Today» on the Schedule sheet: today's blocks in time order with ✅ / ⬜, the current block
+  highlighted; summary with planned hours per week, today's progress, «Now» and «Next».
+- XP per block and a Routine tracker sheet: blocks with XP are ticked day by day like habits;
+  their XP feeds levels and coins, with a streak of days on schedule and a perfect-day bonus
+  (`schedulePerfectBonus`, default 20). No penalties.
+- Dashboard «Now / Next» line; Stats charts «Where your time goes» (planned hours per week by
+  activity) and «Routine: on time, last 30 days»; routine XP in every total, the weekly chart
+  and the XP-by-source donut.
+- More day sets for habits and rules too (Sat–Sun and single weekdays).
+- Hourly recalculation so «Today», «Now» and «Next» follow the clock.
+### Changed
+- The v2.6 Schedule layout is read and migrated on the next rebuild; nothing is lost.
+- Config validation moved to `validation.js`.
+
 ## [2.6.0] - 2026-10-15
 ### Added
 - Schedule sheet: the daily routine as time blocks — start, end, activity, duration, notes —

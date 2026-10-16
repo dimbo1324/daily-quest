@@ -14,10 +14,11 @@
 | `daysToCreate` | 7–400 | calendar length when `endDate` is empty |
 | `xpPerLevel`, `coinsPerXp`, `streakThreshold` | numbers | game balance (also editable on the Settings sheet) |
 | `categories` | 1–12 names | task categories |
-| `habits` | `{ name, xp, days }[]` | `days`: `all`, `monsat`, `monfri`, `sat`, `sun` |
+| `habits` | `{ name, xp, days }[]` | `days`: `all`, `monfri`, `monsat`, `satsun`, `mon` … `sun` |
 | `rules` | `{ name, xp, kind, days }[]` | `kind`: `keep` or `avoid`; tick = kept that day; up to 30; empty = no Rules sheet |
 | `activities` | text list, ≤ 100, unique | drop-down base of the Schedule sheet; also Settings column O (read back on rebuild) |
-| `schedule` | `{ start, end, activity, notes? }[]`, ≤ 100 | `HH:MM` times (end < start crosses midnight); seeds a spreadsheet without a Schedule sheet, afterwards the sheet is the source |
+| `schedule` | `{ days?, start, end, activity, xp?, notes? }[]`, ≤ 100 | `days`: a day set (default `all`) or `YYYY-MM-DD` for a one-off block; `HH:MM` times (end < start crosses midnight); `xp` > 0 tracks a weekly block on the Routine sheet; seeds a spreadsheet without a Schedule sheet, afterwards the sheet is the source (v2.6 blocks and snapshot rows still load) |
+| `schedulePerfectBonus` | 0–1000 | bonus XP for a day with every routine block done |
 | `tasks` | `{ title, category, deadline, priority, xp }[]` | initial tasks (first build only); `priority`: `high`, `medium`, `low` (a label is accepted and mapped) |
 | `rewards` | `{ name, price }[]` | initial shop rewards (first build only) |
 | `strings` | `{ key: text }` | UI overrides; keys and defaults are `STRINGS_EN` |

@@ -37,7 +37,13 @@ survives rebuilds.
 **Done 2026-10-15 (code).** Schedule sheet with an activity base and a drop-down, kept across
 rebuilds; `npm run format` with Prettier; oversized modules split.
 
-## 7. Verify v2.6 in a real spreadsheet
+## 7. Schedule by weekday, routine in the game, time infographics, one-off days (v2.7.0)
+
+**Done 2026-10-15 (code).** Days per block and one-off dates; «Today», «Now / Next»; XP per
+block with a Routine tracker, streak and perfect-day bonus; «Where your time goes» and
+routine adherence charts.
+
+## 8. Verify v2.7 in a real spreadsheet
 
 Walk through `docs/manual-test-plan.md` in a fresh test spreadsheet, then in the real one
 with the personal config. Fix what breaks. Nothing after this item should ship before it is
@@ -45,14 +51,14 @@ done.
 
 Confirmed by the owner so far (2026-10-12): the personal config imports, the Rules sheet
 appears, and the year-long calendar builds since v2.3.1. Not yet confirmed: the chart fix of
-v2.4.1, the Stats sheet, the Logs sheet and the Schedule sheet.
+v2.4.1, the Stats, Logs, Schedule and Routine sheets.
 
-## 8. Content Tracker (second spreadsheet)
+## 9. Content Tracker (second spreadsheet)
 
 A LinkedIn and X posting calendar (every other day, Sunday off), an idea bank, metrics and
 contacts. Likely a separate Apps Script project in its own directory.
 
-## 9. Maybe: a web app over exported data
+## 10. Maybe: a web app over exported data
 
 An export of the spreadsheet data feeding a separate application (Python or Go). Not
 started; needs an owner decision on scope.

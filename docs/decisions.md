@@ -5,6 +5,14 @@ standing instruction in chat records it here in the same task.
 
 ## Decisions
 
+### 2026-10-15 — The schedule is a weekly template that plays in the game
+
+Blocks repeat on day sets (or a one-off date that is added to that day and hides the weekly
+blocks it overlaps). A block with XP is tracked daily on the Routine sheet («done on time»)
+and earns XP, a streak and a perfect-day bonus — never penalties. XP should not be given twice
+for one action: a habit answers «did I do it», a schedule block «did I do it on time». Ticks
+follow a block's name «HH:MM activity»; changing its start or activity starts a new column.
+
 ### 2026-10-15 — Daily schedule sheet
 
 The daily routine lives on its own sheet as free time blocks (start, end, activity, notes).
@@ -65,7 +73,6 @@ decision here.
 
 ## Open questions
 
-- Schedule: a "now / next" card on the Dashboard; weekday-specific routines.
 
 - Logs: rotation or archiving once the sheet grows large; hiding the sheet later.
 

@@ -336,7 +336,8 @@ live in their own top-level directories.
 ## Sheets the script builds
 
 `Dashboard`, `Stats` (charts, heatmap, KPI tiles), `Habits` (rows = days, columns = habits), `Rules` (same layout, things to keep
-or avoid; only when rules are configured), `Schedule` (daily routine), `Tasks`, `Shop`, `Settings`, the audit log `Logs` (fixed name, kept by rebuilds) and the
+or avoid; only when rules are configured), `Routine` (schedule blocks with XP, same layout), `Schedule` (weekly routine template with
+«Today»), `Tasks`, `Shop`, `Settings`, the audit log `Logs` (fixed name, kept by rebuilds) and the
 hidden `_backup`. Sheet names and all UI text are English by default and can be localized
 through the config's `strings` object.
 
@@ -344,16 +345,17 @@ through the config's `strings` object.
 
 - `src/` — the Apps Script project (clasp `rootDir`). All files share ONE global scope:
   - `main.js` — header, `VERSION`, menu, entry points (`onOpen`, `setup`, `menu*`).
-  - `config.js` — `DEFAULT_CFG` (the neutral demo config), normalization, validation,
+  - `validation.js` — `validateCfg_`: precise config errors.
+  - `config.js` — `DEFAULT_CFG` (the neutral demo config), `DAYSETS`, normalization,
     chunked persistence in document properties, calendar period.
   - `i18n.js` — `STRINGS_EN` (every UI string), `t_()`, `tq_()`, `names_()`.
   - `core.js` — layout constants, theme `TH`, utilities `U`, toasts, dialogs, `run_()` lock.
-  - `trackers.js` — shared layer for the day-tracked sheets (habits, rules).
+  - `trackers.js` — shared layer for the day-tracked sheets (habits, rules, routine).
   - `state.js` — snapshot (`exportState_`), backup and restore of user data.
   - `settings.js` — Settings sheet read-back, JSON import / export, config reset.
   - `build.js` — `buildAll_` and the Settings, Tasks and Shop builders.
   - `dashboard.js`, `dashboard-style.js` — the Dashboard and its styling.
-  - `schedule.js` — the Schedule sheet (daily routine).
+  - `schedule.js` — the Schedule sheet: weekly template, «Today», Now / Next, migration.
   - `stats.js`, `stats-style.js` — the Stats sheet: KPI tiles, heatmap, charts.
   - `charts.js` — shared dark chart helpers.
   - `logs.js` — the `Logs` audit sheet: `logEvent_`, `logEdit_`.
@@ -486,8 +488,8 @@ These sharpen the universal rules for this codebase. Stricter wins.
 - Only `SUMIF` / `COUNTIF` expand inside `ARRAYFORMULA`; `SUMIFS` / `COUNTIFS` do not.
 - Chart options: `chartArea` takes `left`, `top` and `backgroundColor` only — Google rejects
   `right` and `bottom` and the whole build fails.
-- User data is matched by date and habit name. Renaming a habit loses its old ticks — say so
-  whenever a task touches habit identity.
+- User data is matched by date and item name (habits, rules, routine blocks «HH:MM
+  activity»). Renaming loses old ticks — say so whenever a task touches item identity.
 
 ## Configuration
 
@@ -504,6 +506,9 @@ These sharpen the universal rules for this codebase. Stricter wins.
 - A new key is English in `STRINGS_EN` and appears in the regenerated schema; the owner's
   translation is added to `my-config.json` only when the owner asks (it is not tracked).
 - Sheet names come from `strings`; `_backup` is fixed so backups survive a language change.
+- UI string keys and config keys are never removed or renamed: stored personal configs
+  override them and validation rejects unknown keys, so a removed key would break the next
+  rebuild. Repurpose the text instead.
 - A sheet that holds user data (trackers, Tasks, Shop, Schedule) is snapshotted by
   `exportState_` and written back by its builder; times and dates are read as display
   values or ISO text, never through time-only `Date` objects (1899 time-zone offsets).
