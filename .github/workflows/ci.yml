@@ -16,7 +16,7 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -28,7 +28,7 @@ jobs:
     name: Forbidden files guard
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Fail if personal config or credentials are tracked
         run: |
           bad=$(git ls-files | grep -E '(^|/)(my-config\.json|\.clasp\.json|\.clasprc\.json|\.env|\.env\..+)$|\.local\.|\.(pem|key|p12)$|(^|/)secrets/|(credentials|client_secret|token|service-account)[^/]*\.json$' | grep -v '\.env\.example$' || true)
