@@ -16,7 +16,7 @@
 1. `git switch -c feat/my-feature`
 2. Edit `src/`. All files share one global scope; UI text goes into `STRINGS_EN`
    (`src/i18n.js`), settings into `DEFAULT_CFG` (`src/config.js`).
-3. `npm run check`
+3. `npm run format` (optional) and `npm run check`
 4. `npm run push`, try it in your spreadsheet.
 5. Commit, merge into `main`, push.
 

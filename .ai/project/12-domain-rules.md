@@ -11,7 +11,10 @@ These sharpen the universal rules for this codebase. Stricter wins.
 - No top-level code may depend on another file's declarations: file load order is not
   guaranteed. Read config only through `cfg_()` (lazy, cached), sheet names only through
   `names_()`, UI text only through `t_()` / `tq_()`.
-- A file past roughly 600 lines is split by meaning.
+- A file past roughly 600 lines is split by meaning (counted after `npm run format`).
+- Code style is Prettier (`.prettierrc.json`, 80 columns, double quotes). Run
+  `npm run format` on files you touch; formatting is never a gate and never mixed into an
+  unrelated commit.
 - Mutating menu actions run inside `run_()` (document lock, readable errors). Destructive ones
   ask through `confirm_()` first and write a backup before touching data.
 - Triggers are simple triggers (`onOpen`, `onEdit`); they must never throw and must stay fast.
@@ -49,6 +52,9 @@ These sharpen the universal rules for this codebase. Stricter wins.
 - A new key is English in `STRINGS_EN` and appears in the regenerated schema; the owner's
   translation is added to `my-config.json` only when the owner asks (it is not tracked).
 - Sheet names come from `strings`; `_backup` is fixed so backups survive a language change.
+- A sheet that holds user data (trackers, Tasks, Shop, Schedule) is snapshotted by
+  `exportState_` and written back by its builder; times and dates are read as display
+  values or ISO text, never through time-only `Date` objects (1899 time-zone offsets).
 
 ## Tests
 

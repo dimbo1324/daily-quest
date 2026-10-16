@@ -16,6 +16,8 @@
 | `categories` | 1–12 names | task categories |
 | `habits` | `{ name, xp, days }[]` | `days`: `all`, `monsat`, `monfri`, `sat`, `sun` |
 | `rules` | `{ name, xp, kind, days }[]` | `kind`: `keep` or `avoid`; tick = kept that day; up to 30; empty = no Rules sheet |
+| `activities` | text list, ≤ 100, unique | drop-down base of the Schedule sheet; also Settings column O (read back on rebuild) |
+| `schedule` | `{ start, end, activity, notes? }[]`, ≤ 100 | `HH:MM` times (end < start crosses midnight); seeds a spreadsheet without a Schedule sheet, afterwards the sheet is the source |
 | `tasks` | `{ title, category, deadline, priority, xp }[]` | initial tasks (first build only); `priority`: `high`, `medium`, `low` (a label is accepted and mapped) |
 | `rewards` | `{ name, price }[]` | initial shop rewards (first build only) |
 | `strings` | `{ key: text }` | UI overrides; keys and defaults are `STRINGS_EN` |
@@ -50,5 +52,6 @@ effective config back, with `$schema` for editor completion.
 `t_(key, ...args)` returns the override from `strings` or the English default; `{0}` style
 placeholders. Arrays: `weekdays` (exactly 7), `ranks`, `settings.help`. Changing sheet names
 renames the sheets on the next rebuild; state is exported with the old names first. The
-`_backup` and `Logs` sheet names are fixed and reserved; the `Logs` column headers are
+`_backup` and `Logs` sheet names are fixed and reserved (`sheet.schedule` is localizable like
+the others); the `Logs` column headers are
 localizable (`logs.*`).

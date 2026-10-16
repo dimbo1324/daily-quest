@@ -2,6 +2,21 @@
 
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versioning: [SemVer](https://semver.org/).
 
+## [2.6.0] - 2026-10-15
+### Added
+- Schedule sheet: the daily routine as time blocks — start, end, activity, duration, notes —
+  with a planned-time summary, red overlapping blocks, the current block highlighted and the
+  menu action «Sort schedule by time». The sheet is kept across rebuilds and backups.
+- `activities` (the drop-down base, also editable on the Settings sheet, column O) and
+  `schedule` (initial routine for a spreadsheet without the sheet) config keys.
+- Prettier: `npm run format` formats every .js, .mjs and .json file; `npm run format:check`
+  reports only. Neither blocks a commit.
+### Changed
+- Modules over 600 lines after the vertical reformat were split: `dashboard.js`,
+  `dashboard-style.js`, `stats-style.js`, `charts.js`, `settings.js`.
+### Fixed
+- The UI-string test found no keys after the switch to double quotes.
+
 ## [2.5.0] - 2026-10-12
 ### Added
 - Logs sheet: an append-only audit log with time (seconds and zone), event, sheet, cell,

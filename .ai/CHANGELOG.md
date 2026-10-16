@@ -6,6 +6,21 @@ History of changes to the AI assistant rule system (`.ai/`, `CLAUDE.md`, `AGENTS
 
 Format: date, what changed, why, who decided. Newest first.
 
+## 2026-10-15 — Schedule, formatting and the module split
+
+**What changed.** `project/10-project-map.md` lists the Schedule sheet and the new modules
+(`settings.js`, `dashboard*.js`, `schedule.js`, `stats-style.js`, `charts.js`).
+`project/11-commands.md` adds `format` / `format:check`. `project/12-domain-rules.md` makes
+Prettier the code style (not a gate), counts the 600-line rule after formatting, and requires
+user-data sheets to be snapshotted and written back with display values.
+`project/14-config-reference.md` documents `activities` and `schedule`.
+
+**Why.** Owner instructions of 2026-10-15 (a schedule sheet whose data must survive; one
+command for a uniform vertical style, commits in any style). The module split keeps the
+existing 600-line rule rather than loosening it.
+
+**Decided by.** Owner instruction of 2026-10-15, recorded by the agent.
+
 ## 2026-10-12 — Project state refresh
 
 **What changed.** `project/10-project-map.md` lists the test files and the manual test plan;

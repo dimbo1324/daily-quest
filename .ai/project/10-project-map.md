@@ -10,7 +10,7 @@ live in their own top-level directories.
 ## Sheets the script builds
 
 `Dashboard`, `Stats` (charts, heatmap, KPI tiles), `Habits` (rows = days, columns = habits), `Rules` (same layout, things to keep
-or avoid; only when rules are configured), `Tasks`, `Shop`, `Settings`, the audit log `Logs` (fixed name, kept by rebuilds) and the
+or avoid; only when rules are configured), `Schedule` (daily routine), `Tasks`, `Shop`, `Settings`, the audit log `Logs` (fixed name, kept by rebuilds) and the
 hidden `_backup`. Sheet names and all UI text are English by default and can be localized
 through the config's `strings` object.
 
@@ -19,13 +19,17 @@ through the config's `strings` object.
 - `src/` — the Apps Script project (clasp `rootDir`). All files share ONE global scope:
   - `main.js` — header, `VERSION`, menu, entry points (`onOpen`, `setup`, `menu*`).
   - `config.js` — `DEFAULT_CFG` (the neutral demo config), normalization, validation,
-    chunked persistence in document properties, calendar period, JSON import and export.
+    chunked persistence in document properties, calendar period.
   - `i18n.js` — `STRINGS_EN` (every UI string), `t_()`, `tq_()`, `names_()`.
   - `core.js` — layout constants, theme `TH`, utilities `U`, toasts, dialogs, `run_()` lock.
   - `trackers.js` — shared layer for the day-tracked sheets (habits, rules).
   - `state.js` — snapshot (`exportState_`), backup and restore of user data.
-  - `build.js` — building every sheet and its formulas.
-  - `stats.js` — the Stats sheet: KPI tiles, heatmap, charts.
+  - `settings.js` — Settings sheet read-back, JSON import / export, config reset.
+  - `build.js` — `buildAll_` and the Settings, Tasks and Shop builders.
+  - `dashboard.js`, `dashboard-style.js` — the Dashboard and its styling.
+  - `schedule.js` — the Schedule sheet (daily routine).
+  - `stats.js`, `stats-style.js` — the Stats sheet: KPI tiles, heatmap, charts.
+  - `charts.js` — shared dark chart helpers.
   - `logs.js` — the `Logs` audit sheet: `logEvent_`, `logEdit_`.
   - `style.js` — styling, conditional formatting, charts, soft protection.
   - `game.js` — `onEdit` reactions: XP toasts, level-ups, purchase checks.

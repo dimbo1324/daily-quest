@@ -19,6 +19,7 @@ npm run check        # lint + tests + config + schema + agents sync + language â
 | `check:language` | no Cyrillic in tracked files |
 | `push` / `pull` / `open` | clasp: upload `src/` to the owner's Apps Script project, download, open |
 | `deploy` | `check`, then `push` |
+| `format` / `format:check` | Prettier: rewrite / report the style of every .js, .mjs, .json file (not a gate) |
 
 **Standing duty â€” keep the tooling true.** A task that changes how the project is checked,
 built or published updates the matching script and this table in the same task. A source
@@ -44,6 +45,6 @@ Without clasp, the owner can paste each `src/*.js` file into the Apps Script edi
 
 Tests cover pure logic and a smoke run of the builders against a fake API; how sheets
 actually look and behave is only visible in Google Sheets. After a change to
-`build.js`, `style.js`, `state.js`, `trackers.js`, `stats.js`, `logs.js` or `game.js`, keep
+a builder, styling, state, tracker, stats, schedule, logs or game module, keep
 `docs/manual-test-plan.md` current and say in the final report which of its sections were
 run in a real spreadsheet, or that none were.

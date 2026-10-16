@@ -1,6 +1,6 @@
 # Architecture
 
-How Daily Quest is built right now (v2.5.0). The code is the fact; update this file when the
+How Daily Quest is built right now (v2.6.0). The code is the fact; update this file when the
 shape changes.
 
 ## Runtime
@@ -13,15 +13,19 @@ another file.
 | Module | Responsibility |
 |---|---|
 | `main.js` | `VERSION`, menu (`onOpen`), entry points, auto-extension of the calendar |
-| `config.js` | `DEFAULT_CFG`, `cfg_()` cache, normalization (v1 tuples → v2 objects), validation, chunked storage, `calendarPeriod_`, JSON import / export |
+| `config.js` | `DEFAULT_CFG`, `cfg_()` cache, normalization (v1 tuples → v2 objects), validation, chunked storage, `calendarPeriod_` |
+| `settings.js` | Settings sheet read-back (habits, rules, activities), JSON import / export dialogs, config reset |
 | `i18n.js` | `STRINGS_EN`, `t_()`, `tq_()` (formula literal), `names_()` (sheet names) |
 | `core.js` | layout constants, theme `TH`, date and formula utilities `U`, toasts, dialogs, `run_()` lock |
 | `trackers.js` | shared layer for day-tracked sheets (habits, rules): tracker list, column layout, building and appending days |
 | `state.js` | `exportState_` snapshot, `_backup` write / read, tick restore |
-| `build.js` | `buildAll_` and one builder per sheet; en_US formulas |
-| `stats.js` | Stats sheet: data block (columns BC+), KPI tiles, heatmap, six charts on a 24 px grid |
+| `build.js` | `buildAll_`, Settings, Tasks and Shop builders; en_US formulas |
+| `dashboard.js`, `dashboard-style.js` | Dashboard cells and formulas; its styling and two charts |
+| `schedule.js` | Schedule sheet: build, snapshot (`readSchedule_`), styling, «Sort schedule» |
+| `stats.js`, `stats-style.js` | Stats sheet: data block (columns BC+), KPI tiles, heatmap; styling and six charts on a 24 px grid |
+| `charts.js` | `insertDarkChart_`, `percentBars_`: the shared dark chart style |
 | `logs.js` | Logs sheet: `logEvent_` (append one row, never throws), `logEdit_` (onEdit capture), value sanitizing |
-| `style.js` | styling, conditional formats, charts, soft protection |
+| `style.js` | styling of Settings, trackers, Tasks and Shop; conditional formats; soft protection |
 | `game.js` | `onEdit`: XP toasts, level-ups, task completion dates, purchase checks |
 
 ## Sheets
@@ -32,9 +36,10 @@ another file.
 | Stats | KPI tiles (rows 5–7), 26-week habit completion heatmap (rows 10–19), six charts from row 21; hidden chart data from column BC; live formulas only |
 | Habits | row 1 headers, row 2 XP per habit (linked to Settings), from row 3 one row per day: date, weekday, checkbox or «—» per habit, XP, completion %, streak |
 | Rules | same layout as Habits without the streak column: one checkbox per rule per day (tick = kept), XP, kept share; XP per rule in row 2 linked to Settings column K; built only when `rules` is not empty |
+| Schedule | Start, End (times), Activity (drop-down from Settings column O, free text allowed), Duration (formula, crosses midnight), Notes; summary in G1:H2; overlap and current-block highlighting; kept by rebuilds (display values) |
 | Tasks | done, title, category, deadline, priority, XP, notes, completed date, days left |
 | Shop | reward, price, bought, date; balance block in F1:G3 |
-| Settings | habits A:C (name, XP, days), game parameters F2:F4 (XP per level, coins per XP, streak threshold), help in H, rules J:M (name, XP, type, days) |
+| Settings | habits A:C (name, XP, days), game parameters F2:F4 (XP per level, coins per XP, streak threshold), help in H, rules J:M (name, XP, type, days), activities O (the Schedule drop-down) |
 | Logs | append-only audit log: time, event, sheet, cell, old value, new value, details; fixed name; kept by rebuilds; visible |
 | `_backup` | hidden, JSON snapshot of user data; fixed name |
 
@@ -64,4 +69,5 @@ backwards. Every operation and every user edit is appended to `Logs` (`logEvent_
 `npm run check` = ESLint + `node:test` (`tests/harness.mjs` runs `src/` in a V8 context with
 stubbed `PropertiesService` and `Utilities`; `build-smoke.test.mjs` runs the dashboard and
 stats builders against a fake Spreadsheet API; `logs.test.mjs` covers the audit log) + config validation + schema sync + assistant
-sync + language guard. CI runs it on every push and pull request.
+sync + language guard. CI runs it on every push and pull request. Formatting is separate:
+`npm run format` (Prettier, `.prettierrc.json`) and is never a gate.

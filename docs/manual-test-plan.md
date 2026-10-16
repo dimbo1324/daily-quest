@@ -16,7 +16,7 @@ Use a **fresh test spreadsheet** first; touch the real one only after the test c
 
 ## 1. Demo build (English, demo config)
 
-- [ ] Sheets in order: Dashboard, Stats, Habits, Rules, Tasks, Shop, Settings, Logs;
+- [ ] Sheets in order: Dashboard, Stats, Habits, Rules, Schedule, Tasks, Shop, Settings, Logs;
       `_backup` hidden.
 - [ ] The build finishes without an error dialog (a year-long calendar takes 1–3 minutes).
 - [ ] Habits and Rules start today and run 60 days; inactive days show «—».
@@ -72,7 +72,18 @@ Use a **fresh test spreadsheet** first; touch the real one only after the test c
 - [ ] Export → `config-export`; a purchase without enough coins → `purchase-refused`.
 - [ ] Reload the spreadsheet → an `open` row.
 
-## 7. Look and feel
+## 7. Schedule sheet
+
+- [ ] A Schedule sheet after Rules with the demo (or personal) routine; times show as hh:mm.
+- [ ] Duration is filled for every block; 23:00 → 07:00 shows 8:00.
+- [ ] The Activity cell offers the list from Settings column O; free text is accepted.
+- [ ] Add an activity on Settings → it appears in the drop-down without a rebuild.
+- [ ] Make two blocks overlap → the later one turns red. The block of the current time is
+      highlighted.
+- [ ] Menu «Sort schedule by time» orders the blocks; a `schedule-sort` row appears in Logs.
+- [ ] Edit a block, then «Rebuild» → the edited schedule is unchanged, times did not shift.
+
+## 8. Look and feel
 
 - [ ] Dark, calm styling on every sheet; no white cells in used areas.
 - [ ] Today's row is highlighted; missed past days are dim red; Sundays are purple.

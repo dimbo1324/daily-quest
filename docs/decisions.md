@@ -5,6 +5,18 @@ standing instruction in chat records it here in the same task.
 
 ## Decisions
 
+### 2026-10-15 — Daily schedule sheet
+
+The daily routine lives on its own sheet as free time blocks (start, end, activity, notes).
+Activities come from a base list (config `activities`, editable on the Settings sheet) or are
+typed freely. Once the sheet exists it is the source of truth: rebuilds keep it, and the
+config's `schedule` only seeds a spreadsheet that has no Schedule sheet yet.
+
+### 2026-10-15 — Code style by command, not by gate
+
+Prettier formats the code on demand (`npm run format`) in a vertical style (80 columns).
+Formatting is not checked by `npm run check` or CI: code may be committed in any style.
+
 ### 2026-10-12 — Full audit log in a visible Logs sheet
 
 Every action of the owner is logged with its date and time: each cell edit with old and new
@@ -52,6 +64,8 @@ The script touches only its own spreadsheet. A new OAuth scope or external call 
 decision here.
 
 ## Open questions
+
+- Schedule: a "now / next" card on the Dashboard; weekday-specific routines.
 
 - Logs: rotation or archiving once the sheet grows large; hiding the sheet later.
 

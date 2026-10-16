@@ -336,7 +336,7 @@ live in their own top-level directories.
 ## Sheets the script builds
 
 `Dashboard`, `Stats` (charts, heatmap, KPI tiles), `Habits` (rows = days, columns = habits), `Rules` (same layout, things to keep
-or avoid; only when rules are configured), `Tasks`, `Shop`, `Settings`, the audit log `Logs` (fixed name, kept by rebuilds) and the
+or avoid; only when rules are configured), `Schedule` (daily routine), `Tasks`, `Shop`, `Settings`, the audit log `Logs` (fixed name, kept by rebuilds) and the
 hidden `_backup`. Sheet names and all UI text are English by default and can be localized
 through the config's `strings` object.
 
@@ -345,13 +345,17 @@ through the config's `strings` object.
 - `src/` — the Apps Script project (clasp `rootDir`). All files share ONE global scope:
   - `main.js` — header, `VERSION`, menu, entry points (`onOpen`, `setup`, `menu*`).
   - `config.js` — `DEFAULT_CFG` (the neutral demo config), normalization, validation,
-    chunked persistence in document properties, calendar period, JSON import and export.
+    chunked persistence in document properties, calendar period.
   - `i18n.js` — `STRINGS_EN` (every UI string), `t_()`, `tq_()`, `names_()`.
   - `core.js` — layout constants, theme `TH`, utilities `U`, toasts, dialogs, `run_()` lock.
   - `trackers.js` — shared layer for the day-tracked sheets (habits, rules).
   - `state.js` — snapshot (`exportState_`), backup and restore of user data.
-  - `build.js` — building every sheet and its formulas.
-  - `stats.js` — the Stats sheet: KPI tiles, heatmap, charts.
+  - `settings.js` — Settings sheet read-back, JSON import / export, config reset.
+  - `build.js` — `buildAll_` and the Settings, Tasks and Shop builders.
+  - `dashboard.js`, `dashboard-style.js` — the Dashboard and its styling.
+  - `schedule.js` — the Schedule sheet (daily routine).
+  - `stats.js`, `stats-style.js` — the Stats sheet: KPI tiles, heatmap, charts.
+  - `charts.js` — shared dark chart helpers.
   - `logs.js` — the `Logs` audit sheet: `logEvent_`, `logEdit_`.
   - `style.js` — styling, conditional formatting, charts, soft protection.
   - `game.js` — `onEdit` reactions: XP toasts, level-ups, purchase checks.
@@ -412,6 +416,7 @@ npm run check        # lint + tests + config + schema + agents sync + language �
 | `check:language` | no Cyrillic in tracked files |
 | `push` / `pull` / `open` | clasp: upload `src/` to the owner's Apps Script project, download, open |
 | `deploy` | `check`, then `push` |
+| `format` / `format:check` | Prettier: rewrite / report the style of every .js, .mjs, .json file (not a gate) |
 
 **Standing duty — keep the tooling true.** A task that changes how the project is checked,
 built or published updates the matching script and this table in the same task. A source
@@ -437,7 +442,7 @@ Without clasp, the owner can paste each `src/*.js` file into the Apps Script edi
 
 Tests cover pure logic and a smoke run of the builders against a fake API; how sheets
 actually look and behave is only visible in Google Sheets. After a change to
-`build.js`, `style.js`, `state.js`, `trackers.js`, `stats.js`, `logs.js` or `game.js`, keep
+a builder, styling, state, tracker, stats, schedule, logs or game module, keep
 `docs/manual-test-plan.md` current and say in the final report which of its sections were
 run in a real spreadsheet, or that none were.
 
@@ -458,7 +463,10 @@ These sharpen the universal rules for this codebase. Stricter wins.
 - No top-level code may depend on another file's declarations: file load order is not
   guaranteed. Read config only through `cfg_()` (lazy, cached), sheet names only through
   `names_()`, UI text only through `t_()` / `tq_()`.
-- A file past roughly 600 lines is split by meaning.
+- A file past roughly 600 lines is split by meaning (counted after `npm run format`).
+- Code style is Prettier (`.prettierrc.json`, 80 columns, double quotes). Run
+  `npm run format` on files you touch; formatting is never a gate and never mixed into an
+  unrelated commit.
 - Mutating menu actions run inside `run_()` (document lock, readable errors). Destructive ones
   ask through `confirm_()` first and write a backup before touching data.
 - Triggers are simple triggers (`onOpen`, `onEdit`); they must never throw and must stay fast.
@@ -496,6 +504,9 @@ These sharpen the universal rules for this codebase. Stricter wins.
 - A new key is English in `STRINGS_EN` and appears in the regenerated schema; the owner's
   translation is added to `my-config.json` only when the owner asks (it is not tracked).
 - Sheet names come from `strings`; `_backup` is fixed so backups survive a language change.
+- A sheet that holds user data (trackers, Tasks, Shop, Schedule) is snapshotted by
+  `exportState_` and written back by its builder; times and dates are read as display
+  values or ISO text, never through time-only `Date` objects (1899 time-zone offsets).
 
 ## Tests
 

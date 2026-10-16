@@ -32,7 +32,12 @@ batch cell writes for faster builds.
 **Done 2026-10-12 (code).** Audit log of every edit and operation in a `Logs` sheet that
 survives rebuilds.
 
-## 6. Verify v2.5 in a real spreadsheet
+## 6. Daily schedule and code formatting (v2.6.0)
+
+**Done 2026-10-15 (code).** Schedule sheet with an activity base and a drop-down, kept across
+rebuilds; `npm run format` with Prettier; oversized modules split.
+
+## 7. Verify v2.6 in a real spreadsheet
 
 Walk through `docs/manual-test-plan.md` in a fresh test spreadsheet, then in the real one
 with the personal config. Fix what breaks. Nothing after this item should ship before it is
@@ -40,14 +45,14 @@ done.
 
 Confirmed by the owner so far (2026-10-12): the personal config imports, the Rules sheet
 appears, and the year-long calendar builds since v2.3.1. Not yet confirmed: the chart fix of
-v2.4.1, the Stats sheet and the Logs sheet.
+v2.4.1, the Stats sheet, the Logs sheet and the Schedule sheet.
 
-## 7. Content Tracker (second spreadsheet)
+## 8. Content Tracker (second spreadsheet)
 
 A LinkedIn and X posting calendar (every other day, Sunday off), an idea bank, metrics and
 contacts. Likely a separate Apps Script project in its own directory.
 
-## 8. Maybe: a web app over exported data
+## 9. Maybe: a web app over exported data
 
 An export of the spreadsheet data feeding a separate application (Python or Go). Not
 started; needs an owner decision on scope.

@@ -44,6 +44,9 @@ Highlights:
   Dashboard.
 - The **Stats** sheet shows KPI tiles, a 26-week completion heatmap and six charts of your
   progress; it updates live.
+- The **Schedule** sheet holds your daily routine: time blocks with an activity from a
+  drop-down (`activities`, editable on the Settings sheet) or your own text, durations, and a
+  «Sort schedule by time» menu action. It survives rebuilds.
 - The **Logs** sheet records every edit and every operation (with time, old and new value,
   imported JSON) so anything can be reconstructed; it survives rebuilds.
 - Habits and rules can also be edited on the `Settings` sheet → menu **♻️ Rebuild**.
@@ -64,6 +67,7 @@ npm install
 npm run login                       # once: authorize clasp with your Google account
 cp .clasp.json.example .clasp.json  # then paste your scriptId (Apps Script → Project Settings)
 npm run check                       # lint, tests, config, schema, agent sync, language — same as CI
+npm run format                      # format all code with Prettier (optional, never a gate)
 npm run push                        # upload src/ to your Apps Script project
 ```
 
