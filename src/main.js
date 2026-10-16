@@ -17,7 +17,7 @@
  * Personal settings never live in code: see config.js and README.md.
  */
 
-const VERSION = "2.5.0";
+const VERSION = "2.6.0";
 
 // ═════════════════════════ Menu and entry points ═════════════════════════
 
@@ -27,6 +27,7 @@ function onOpen() {
     ui.createMenu(t_("app.title"))
       .addItem(t_("menu.today"), "goToday")
       .addItem(t_("menu.add30"), "add30Days")
+      .addItem(t_("menu.sortSchedule"), "menuSortSchedule")
       .addSeparator()
       .addSubMenu(
         ui

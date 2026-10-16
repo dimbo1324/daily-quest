@@ -66,6 +66,104 @@
       "days": "all"
     }
   ],
+  "activities": [
+    "Morning routine",
+    "Evening routine",
+    "Workout",
+    "Sport",
+    "Meditation",
+    "Shower",
+    "Breakfast",
+    "Lunch",
+    "Dinner",
+    "Cooking",
+    "Work",
+    "Study",
+    "Reading",
+    "Laundry",
+    "Cleaning",
+    "Shopping",
+    "Walk",
+    "Commute",
+    "Free time",
+    "Family time",
+    "Plan tomorrow",
+    "Sleep"
+  ],
+  "schedule": [
+    {
+      "start": "07:00",
+      "end": "07:30",
+      "activity": "Morning routine",
+      "notes": "Wake up, brush teeth, wash, a glass of water"
+    },
+    {
+      "start": "07:30",
+      "end": "08:30",
+      "activity": "Workout",
+      "notes": ""
+    },
+    {
+      "start": "08:30",
+      "end": "09:00",
+      "activity": "Breakfast",
+      "notes": ""
+    },
+    {
+      "start": "09:00",
+      "end": "13:00",
+      "activity": "Work",
+      "notes": ""
+    },
+    {
+      "start": "13:00",
+      "end": "14:00",
+      "activity": "Lunch",
+      "notes": ""
+    },
+    {
+      "start": "14:00",
+      "end": "18:00",
+      "activity": "Work",
+      "notes": ""
+    },
+    {
+      "start": "18:00",
+      "end": "19:00",
+      "activity": "Sport",
+      "notes": ""
+    },
+    {
+      "start": "19:00",
+      "end": "20:00",
+      "activity": "Dinner",
+      "notes": ""
+    },
+    {
+      "start": "20:00",
+      "end": "21:30",
+      "activity": "Free time",
+      "notes": ""
+    },
+    {
+      "start": "21:30",
+      "end": "22:00",
+      "activity": "Plan tomorrow",
+      "notes": ""
+    },
+    {
+      "start": "22:00",
+      "end": "22:30",
+      "activity": "Evening routine",
+      "notes": ""
+    },
+    {
+      "start": "23:00",
+      "end": "07:00",
+      "activity": "Sleep",
+      "notes": ""
+    }
+  ],
   "tasks": [
     {
       "title": "My first task",

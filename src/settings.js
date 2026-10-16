@@ -51,6 +51,15 @@ function applySettingsSheet_() {
     const rules = readTable(SETTINGS_COL.rules, true);
     if (rules.length) cfg.rules = rules;
   }
+  if (sh.getMaxColumns() >= SETTINGS_COL.activities) {
+    const seen = new Set();
+    const acts = sh
+      .getRange(2, SETTINGS_COL.activities, rows, 1)
+      .getValues()
+      .map((r) => String(r[0]).trim())
+      .filter((a) => a && !seen.has(a) && seen.add(a));
+    if (acts.length) cfg.activities = acts;
+  }
   saveCfg_();
 }
 

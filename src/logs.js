@@ -49,7 +49,7 @@ function logText_(v) {
         : String(v);
   if (s.length > LOG_MAX_TEXT)
     s = s.slice(0, LOG_MAX_TEXT) + " …[+" + (s.length - LOG_MAX_TEXT) + "]";
-  return /^[=+\-@]/.test(s) ? "'" + s : s;
+  return asText_(s);
 }
 
 function logTime_() {

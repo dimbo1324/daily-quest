@@ -7,7 +7,7 @@
  */
 
 // First column of each item table on the Settings sheet: habits A:C, rules J:M.
-const SETTINGS_COL = { habits: 1, rules: 10 };
+const SETTINGS_COL = { habits: 1, rules: 10, activities: 15 };
 
 /** Trackers in sheet order. Rules are optional: no rules, no Rules sheet. */
 function trackers_() {

@@ -13,12 +13,14 @@ const STRINGS_EN = {
   "sheet.stats": "Stats",
   "sheet.habits": "Habits",
   "sheet.rules": "Rules",
+  "sheet.schedule": "Schedule",
   "sheet.tasks": "Tasks",
   "sheet.shop": "Shop",
   "sheet.settings": "Settings",
 
   "menu.today": "📅 Go to today",
   "menu.add30": "➕ Add 30 days",
+  "menu.sortSchedule": "🕒 Sort schedule by time",
   "menu.settings": "⚙️ Settings",
   "menu.import": "📥 Import from JSON",
   "menu.export": "📤 Export to JSON",
@@ -73,6 +75,7 @@ const STRINGS_EN = {
   "op.today": "Going to today",
   "op.addDays": "Adding days",
   "op.resetConfig": "Resetting settings",
+  "op.sortSchedule": "Sorting the schedule",
 
   "msg.rebuilt": "♻️ Tracker rebuilt, all ticks kept.",
   "msg.built": "✅ Tracker built. Have a good game!",
@@ -101,6 +104,7 @@ const STRINGS_EN = {
     "Restore the example habits, tasks and rewards from the code?\n\n" +
     "Ticks of habits that exist in the examples are kept; the rest are dropped (a backup is made).",
   "msg.configReset": "↩️ Default settings restored.",
+  "msg.scheduleSorted": "🕒 Schedule sorted by start time.",
   "msg.configApplied": "✅ Settings applied",
   "msg.dayClosed": "🏆 Day closed at 100 %! Keep it up.",
   "msg.taskNeedsTitle": "Type the task into the «{0}» column first.",
@@ -132,6 +136,7 @@ const STRINGS_EN = {
 
   "settings.habit": "Habit",
   "settings.rule": "Rule",
+  "settings.activity": "Activity",
   "settings.kind": "Type",
   "settings.xp": "XP",
   "settings.days": "Days",
@@ -146,6 +151,7 @@ const STRINGS_EN = {
     "• On the right: XP per level, coins per 1 XP, streak threshold (share of habits done).",
     "• New habit: add a row below the list (name, XP, days), then menu «♻️ Rebuild».",
     "• Rules (table on the right): things to keep or to avoid. Tick a rule on the Rules sheet when you kept it that day.",
+    "• Activities (far right): the drop-down list of the Schedule sheet. New rows appear in the list at once.",
     "• A backup is saved automatically before every rebuild.",
     "• The script only works with this spreadsheet (@OnlyCurrentDoc).",
   ],
@@ -265,6 +271,19 @@ const STRINGS_EN = {
   "logs.new": "New value",
   "logs.details": "Details",
 
+  "schedule.start": "Start",
+  "schedule.end": "End",
+  "schedule.activity": "Activity",
+  "schedule.duration": "Duration",
+  "schedule.notes": "Notes",
+  "schedule.total": "🕒 Planned",
+  "schedule.blocks": "Blocks",
+  "schedule.hint":
+    "Type a start and an end time (for example 07:30) and pick an activity from the list or type your own. The list lives on the Settings sheet. Menu «Sort schedule by time» puts the day in order. Overlapping blocks turn red; the current block is highlighted.",
+  "schedule.timeHelp": "Enter a time, for example 07:30",
+  "schedule.activityHelp": "Pick from the list or type your own",
+  "protect.scheduleDuration": "the duration is calculated",
+
   "protect.logs":
     "the log is written automatically; editing it breaks the audit trail",
   "protect.stats": "statistics are calculated automatically",
@@ -305,6 +324,7 @@ function names_() {
     habits: t_("sheet.habits"),
     tasks: t_("sheet.tasks"),
     rules: t_("sheet.rules"),
+    schedule: t_("sheet.schedule"),
     shop: t_("sheet.shop"),
     cfg: t_("sheet.settings"),
     backup: "_backup",

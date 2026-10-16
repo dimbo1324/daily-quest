@@ -36,6 +36,49 @@ const DEFAULT_CFG = {
     { name: "🛏️ Make the bed", xp: 5, kind: "keep", days: "all" },
     { name: "🌳 Fresh air 20 min", xp: 10, kind: "keep", days: "all" },
   ],
+  activities: [
+    "Morning routine",
+    "Evening routine",
+    "Workout",
+    "Sport",
+    "Meditation",
+    "Shower",
+    "Breakfast",
+    "Lunch",
+    "Dinner",
+    "Cooking",
+    "Work",
+    "Study",
+    "Reading",
+    "Laundry",
+    "Cleaning",
+    "Shopping",
+    "Walk",
+    "Commute",
+    "Free time",
+    "Family time",
+    "Plan tomorrow",
+    "Sleep",
+  ],
+  schedule: [
+    {
+      start: "07:00",
+      end: "07:30",
+      activity: "Morning routine",
+      notes: "Wake up, brush teeth, wash, a glass of water",
+    },
+    { start: "07:30", end: "08:30", activity: "Workout", notes: "" },
+    { start: "08:30", end: "09:00", activity: "Breakfast", notes: "" },
+    { start: "09:00", end: "13:00", activity: "Work", notes: "" },
+    { start: "13:00", end: "14:00", activity: "Lunch", notes: "" },
+    { start: "14:00", end: "18:00", activity: "Work", notes: "" },
+    { start: "18:00", end: "19:00", activity: "Sport", notes: "" },
+    { start: "19:00", end: "20:00", activity: "Dinner", notes: "" },
+    { start: "20:00", end: "21:30", activity: "Free time", notes: "" },
+    { start: "21:30", end: "22:00", activity: "Plan tomorrow", notes: "" },
+    { start: "22:00", end: "22:30", activity: "Evening routine", notes: "" },
+    { start: "23:00", end: "07:00", activity: "Sleep", notes: "" },
+  ],
   tasks: [
     {
       title: "My first task",
@@ -158,6 +201,8 @@ function normalizeCfg_(user, base) {
     Array.isArray(h) ? { name: h[0], xp: h[1], days: h[2] } : h,
   );
   cfg.rules = asArray_(cfg.rules);
+  cfg.activities = asArray_(cfg.activities);
+  cfg.schedule = asArray_(cfg.schedule);
   cfg.tasks = asArray_(cfg.tasks).map((t) => {
     const o = Array.isArray(t)
       ? {
@@ -264,6 +309,8 @@ function validateCfg_(cfg) {
     }
   });
 
+  validateSchedule_(cfg, errs);
+
   cfg.tasks.forEach((t, i) => {
     const id = "Task #" + (i + 1);
     if (!isPlainObject_(t)) {
@@ -330,6 +377,43 @@ function validateTrackItems_(items, label, fields, errs) {
   });
 }
 
+/** Activity base (unique names) and schedule blocks ({ start, end, activity, notes }). */
+function validateSchedule_(cfg, errs) {
+  const acts = cfg.activities;
+  if (acts.length > 100) errs.push("Too many activities (100 at most).");
+  const seen = new Set();
+  acts.forEach((a, i) => {
+    if (typeof a !== "string" || !a.trim()) {
+      errs.push("Activity #" + (i + 1) + ": must be a non-empty text");
+    } else if (seen.has(a)) {
+      errs.push("Duplicate activity: " + a);
+    }
+    seen.add(a);
+  });
+  if (cfg.schedule.length > 100)
+    errs.push("Too many schedule blocks (100 at most).");
+  cfg.schedule.forEach((b, i) => {
+    const id = "Schedule block #" + (i + 1);
+    if (!isPlainObject_(b)) {
+      errs.push(id + ": must be an object");
+      return;
+    }
+    unknownFields_(b, ["start", "end", "activity", "notes"]).forEach((f) =>
+      errs.push(id + ": unknown field «" + f + "»"),
+    );
+    ["start", "end"].forEach((k) => {
+      if (parseTime_(b[k]) === null)
+        errs.push(id + ": " + k + " must be a time HH:MM");
+    });
+    if (typeof b.activity !== "string" || !b.activity.trim()) {
+      errs.push(id + ": empty activity");
+    }
+    if (b.notes !== undefined && typeof b.notes !== "string") {
+      errs.push(id + ": notes must be a text");
+    }
+  });
+}
+
 function unknownFields_(obj, allowed) {
   return Object.keys(obj).filter((k) => allowed.indexOf(k) < 0);
 }
@@ -359,6 +443,7 @@ function validateStrings_(strings) {
     "sheet.stats",
     "sheet.habits",
     "sheet.rules",
+    "sheet.schedule",
     "sheet.tasks",
     "sheet.shop",
     "sheet.settings",

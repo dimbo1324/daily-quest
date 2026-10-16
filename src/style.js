@@ -12,6 +12,7 @@ function styleAll_() {
       [SH.shop, styleShop_],
       [SH.dash, styleDashboard_],
       [SH.stats, styleStats_],
+      [SH.schedule, styleSchedule_],
     ],
   );
   SpreadsheetApp.flush();
@@ -25,6 +26,7 @@ function styleAll_() {
     [SH.stats]: "#7dd3fc",
     [SH.habits]: "#4ade80",
     [SH.rules]: TH.purple,
+    [SH.schedule]: "#fb923c",
     [SH.tasks]: "#60a5fa",
     [SH.shop]: "#facc15",
     [SH.cfg]: "#6b7280",
@@ -142,6 +144,11 @@ function styleSettings_(sh) {
   const m = cfg_().rules.length;
   const R = SETTINGS_COL.rules;
   headerStyle_(sh.getRange(1, R, 1, 4));
+  const A = SETTINGS_COL.activities;
+  headerStyle_(sh.getRange(1, A));
+  if (cfg_().activities.length) {
+    sh.getRange(2, A, cfg_().activities.length, 1).setBackground(TH.surface);
+  }
   if (m) {
     sh.getRange(2, R, m, 4).setBackground(TH.surface);
     sh.getRange(2, R + 1, m, 1)
@@ -166,6 +173,8 @@ function styleSettings_(sh) {
   sh.setColumnWidth(R + 1, 70);
   sh.setColumnWidth(R + 2, 110);
   sh.setColumnWidth(R + 3, 110);
+  sh.setColumnWidth(R + 4, 24);
+  fitColumn_(sh, A, 200, 320);
   sh.setRowHeights(1, sh.getMaxRows(), 26);
   sh.setFrozenRows(1);
 }
@@ -508,5 +517,8 @@ function protectAll_() {
     );
   });
   if (t) warn(t.getRange(1, 9, t.getMaxRows(), 1), t_("protect.taskLeft"));
+  const sc = sheet_(SH.schedule);
+  if (sc)
+    warn(sc.getRange(1, 4, sc.getMaxRows(), 1), t_("protect.scheduleDuration"));
   if (s) warn(s.getRange("F1:G3"), t_("protect.balance"));
 }

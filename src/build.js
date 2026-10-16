@@ -30,6 +30,7 @@ function buildAll_(state) {
     .concat(
       trackers.map((t) => [t.key, t.sheet]),
       [
+        ["schedule", SH.schedule],
         ["tasks", SH.tasks],
         ["shop", SH.shop],
         ["cfg", SH.cfg],
@@ -48,6 +49,7 @@ function buildAll_(state) {
 
   buildSettings_(sheets.cfg, state);
   trackers.forEach((t) => buildTracker_(sheets[t.key], t, start, days));
+  buildSchedule_(sheets.schedule, state);
   buildTasks_(sheets.tasks, state);
   buildShop_(sheets.shop, state);
   buildDashboard_(sheets.dash);
@@ -106,11 +108,18 @@ function buildSettings_(sh, state) {
       : [cfg.xpPerLevel, cfg.coinsPerXp, cfg.streakThreshold];
   const help = t_("settings.help");
   const R = SETTINGS_COL.rules;
+  const A = SETTINGS_COL.activities;
   trimSheet_(
     sh,
-    Math.max(rows.length, ruleRows.length, help.length) + 13,
-    R + 3,
+    Math.max(rows.length, ruleRows.length, help.length, SCHEDULE.ROWS) + 13,
+    A,
   );
+  sh.getRange(1, A).setValue(t_("settings.activity"));
+  if (cfg.activities.length) {
+    sh.getRange(2, A, cfg.activities.length, 1).setValues(
+      cfg.activities.map((a) => [asText_(a)]),
+    );
+  }
 
   sh.getRange(1, 1, 1, 3).setValues([
     [t_("settings.habit"), t_("settings.xp"), t_("settings.days")],

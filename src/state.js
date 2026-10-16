@@ -54,6 +54,10 @@ function exportState_() {
     if (p.every((v) => Number.isFinite(v) && v > 0)) state.params = p;
   }
 
+  // Only a spreadsheet that has the sheet carries a schedule; others get the config's.
+  const sch = sheet_(SH.schedule);
+  if (sch) state.schedule = readSchedule_(sch);
+
   const t = sheet_(SH.tasks);
   if (t && t.getLastRow() >= 2) {
     const w = Math.min(8, t.getMaxColumns());

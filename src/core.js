@@ -108,6 +108,12 @@ const U = {
     Array.from({ length: rows }, () => Array(cols).fill(v)),
 };
 
+/** User text written into a cell: a leading = + - @ must not turn it into a formula. */
+function asText_(v) {
+  const s = v === undefined || v === null ? "" : String(v);
+  return /^[=+\-@]/.test(s) ? "'" + s : s;
+}
+
 function ss_() {
   return SpreadsheetApp.getActive();
 }

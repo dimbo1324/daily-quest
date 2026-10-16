@@ -44,7 +44,7 @@ function build(personal) {
   context.Charts = { ChartType: new Proxy({}, { get: (_, k) => String(k) }) };
   if (personal) docProps.setProperty("dq_config", JSON.stringify(personal));
   run(
-    "buildDashboard_(SpreadsheetApp); styleDashboard_(SpreadsheetApp); buildStats_(SpreadsheetApp); styleStats_(SpreadsheetApp)",
+    "buildDashboard_(SpreadsheetApp); styleDashboard_(SpreadsheetApp); buildStats_(SpreadsheetApp); styleStats_(SpreadsheetApp); buildSchedule_(SpreadsheetApp, null); styleSchedule_(SpreadsheetApp)",
   );
   const formulas = log.grids
     .flat(2)

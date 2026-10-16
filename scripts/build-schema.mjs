@@ -10,6 +10,7 @@ const strings = run("STRINGS_EN");
 const days = Object.keys(run("DAYSETS"));
 const priorities = run("PRIORITY_KEYS");
 const kinds = run("RULE_KINDS");
+const time = run("HHMM").source;
 const maxDays = run("MAX_CALENDAR_DAYS");
 
 const date = {
@@ -116,6 +117,36 @@ const schema = {
             enum: days,
             description: "Days of the week the rule is active.",
           },
+        },
+      },
+    },
+    activities: {
+      type: "array",
+      maxItems: 100,
+      uniqueItems: true,
+      items: { type: "string", minLength: 1 },
+      description:
+        "Base of daily activities: the drop-down list of the Schedule sheet (also editable on the Settings sheet).",
+    },
+    schedule: {
+      type: "array",
+      maxItems: 100,
+      description:
+        "Initial daily routine, used only when the spreadsheet has no Schedule sheet yet; afterwards the sheet is the source.",
+      items: {
+        type: "object",
+        additionalProperties: false,
+        required: ["start", "end", "activity"],
+        properties: {
+          start: { type: "string", pattern: time, description: "HH:MM" },
+          end: {
+            type: "string",
+            pattern: time,
+            description:
+              "HH:MM; earlier than start means the block crosses midnight",
+          },
+          activity: { type: "string", minLength: 1 },
+          notes: { type: "string" },
         },
       },
     },
