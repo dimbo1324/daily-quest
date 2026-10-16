@@ -26,6 +26,7 @@ function styleAll_() {
     [SH.stats]: "#7dd3fc",
     [SH.habits]: "#4ade80",
     [SH.rules]: TH.purple,
+    [SH.routine]: "#fdba74",
     [SH.schedule]: "#fb923c",
     [SH.tasks]: "#60a5fa",
     [SH.shop]: "#facc15",
@@ -508,7 +509,11 @@ function protectAll_() {
     const body = h.getMaxRows() - LAYOUT.FIRST_ROW + 1;
     warn(
       h.getRange(1, 1, 2, c.width),
-      t_(tr.key === "rules" ? "protect.ruleHeader" : "protect.habitHeader"),
+      t_(
+        { rules: "protect.ruleHeader", routine: "protect.routineHeader" }[
+          tr.key
+        ] || "protect.habitHeader",
+      ),
     );
     warn(h.getRange(LAYOUT.FIRST_ROW, 1, body, 2), t_("protect.dates"));
     warn(
@@ -519,6 +524,9 @@ function protectAll_() {
   if (t) warn(t.getRange(1, 9, t.getMaxRows(), 1), t_("protect.taskLeft"));
   const sc = sheet_(SH.schedule);
   if (sc)
-    warn(sc.getRange(1, 4, sc.getMaxRows(), 1), t_("protect.scheduleDuration"));
+    warn(
+      sc.getRange(1, SCHEDULE.DUR, sc.getMaxRows(), 1),
+      t_("protect.scheduleDuration"),
+    );
   if (s) warn(s.getRange("F1:G3"), t_("protect.balance"));
 }

@@ -20,6 +20,11 @@ function fakeSheets() {
       get(_, key) {
         if (key in numbers) return () => numbers[key];
         if (key === "getCharts") return () => [];
+        if (key === "setFormulasR1C1")
+          return (grid) => {
+            log.grids.push(grid);
+            return chain();
+          };
         if (key === "setValues")
           return (grid) => {
             log.grids.push(grid);
@@ -44,7 +49,11 @@ function build(personal) {
   context.Charts = { ChartType: new Proxy({}, { get: (_, k) => String(k) }) };
   if (personal) docProps.setProperty("dq_config", JSON.stringify(personal));
   run(
-    "buildDashboard_(SpreadsheetApp); styleDashboard_(SpreadsheetApp); buildStats_(SpreadsheetApp); styleStats_(SpreadsheetApp); buildSchedule_(SpreadsheetApp, null); styleSchedule_(SpreadsheetApp)",
+    "buildDashboard_(SpreadsheetApp); styleDashboard_(SpreadsheetApp);" +
+      " buildStats_(SpreadsheetApp); styleStats_(SpreadsheetApp);" +
+      " buildSchedule_(SpreadsheetApp, null); styleSchedule_(SpreadsheetApp);" +
+      " trackers_().forEach((t) => { buildTracker_(SpreadsheetApp, t, [2026, 10, 13], 30);" +
+      " styleTracker_(SpreadsheetApp, t); });",
   );
   const formulas = log.grids
     .flat(2)
@@ -53,8 +62,10 @@ function build(personal) {
 }
 
 for (const [name, personal, charts] of [
-  ["demo config", null, 2 + 6],
-  ["no rules", { rules: [] }, 2 + 5],
+  // dashboard 2 + stats: total, weekly, source, habits, rules, weekday, time, routine
+  ["demo config", null, 2 + 8],
+  ["no rules", { rules: [] }, 2 + 7],
+  ["no routine XP", { schedule: [] }, 2 + 7],
 ]) {
   test(`builders run cleanly: ${name}`, () => {
     const { log, formulas } = build(personal);

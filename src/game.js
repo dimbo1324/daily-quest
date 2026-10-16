@@ -32,6 +32,18 @@ function onTrackerEdit_(sh, r, t) {
     celebrate_(xp, t_("msg.ruleKept", t.items[col - c.first].name));
     return;
   }
+  if (t.key === "routine") {
+    celebrate_(xp, t_("msg.routineDone", t.items[col - c.first].name));
+    const done = Number(sh.getRange(row, c.pct).getValue());
+    if (done >= 1 && t.bonus) {
+      logEvent_("routine-perfect-day", {
+        sheet: sh.getName(),
+        details: "+" + t.bonus + " XP",
+      });
+      notify_(t_("msg.routinePerfect", t.bonus), 8);
+    }
+    return;
+  }
   celebrate_(xp);
   const pct = Number(sh.getRange(row, c.pct).getValue());
   if (pct >= 1) notify_(t_("msg.dayClosed"), 6);

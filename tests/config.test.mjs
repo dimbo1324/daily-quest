@@ -238,12 +238,16 @@ test("rules: the demo config ships keep and avoid rules", () => {
   assert.deepEqual(plain(run("trackers_().map(t => t.key)")), [
     "habits",
     "rules",
+    "routine",
   ]);
 });
 
 test("rules: an empty list removes the Rules tracker", () => {
   const { run } = app({ rules: [] });
-  assert.deepEqual(plain(run("trackers_().map(t => t.key)")), ["habits"]);
+  assert.deepEqual(plain(run("trackers_().map(t => t.key)")), [
+    "habits",
+    "routine",
+  ]);
   assert.deepEqual(plain(run("validateCfg_(cfg_())")), []);
 });
 

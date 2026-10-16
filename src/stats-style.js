@@ -126,11 +126,28 @@ function styleStats_(sh) {
   const barH = (items) => Math.max(300, 26 * items + 90);
   const range = (c1, c2, rows) => sh.getRange(2, c1, rows + 1, c2 - c1 + 1);
   const weekly = sh.getRange(2, K.weekLabel, 13, 1);
+  const routine = tracker_("routine");
+  const o = routine ? routine.items.length : 0;
   const weeklyRanges = [weekly, sh.getRange(2, K.wHabits, 13, 1)].concat(
     rules ? [sh.getRange(2, K.wRules, 13, 1)] : [],
+    routine ? [sh.getRange(2, K.wRoutine, 13, 1)] : [],
     [sh.getRange(2, K.wTasks, 13, 1)],
   );
-  const sourceColors = [TH.green].concat(rules ? [TH.purple] : [], ["#60a5fa"]);
+  const sourceColors = [TH.green].concat(
+    rules ? [TH.purple] : [],
+    routine ? [TH.orange] : [],
+    ["#60a5fa"],
+  );
+  const timeColors = [
+    TH.accent,
+    TH.green,
+    TH.yellow,
+    TH.orange,
+    TH.purple,
+    "#60a5fa",
+    TH.red,
+    TH.muted,
+  ];
 
   const layout = [
     [
@@ -160,7 +177,7 @@ function styleStats_(sh) {
       },
       {
         type: Charts.ChartType.PIE,
-        ranges: [range(K.source, K.sourceXp, rules ? 3 : 2)],
+        ranges: [range(K.source, K.sourceXp, sourceColors.length)],
         w: W,
         h: 320,
         title: t_("stats.chartSource"),
@@ -209,6 +226,35 @@ function styleStats_(sh) {
         },
       },
     ],
+    [
+      {
+        type: Charts.ChartType.PIE,
+        ranges: [range(K.timeAct, K.timeHours, 38)],
+        w: W,
+        h: 360,
+        title: t_("stats.chartTime"),
+        opts: {
+          pieHole: 0.55,
+          colors: timeColors,
+          pieSliceBorderColor: TH.surface,
+          pieSliceTextStyle: { color: TH.bg },
+          legend: { position: "right" },
+        },
+      },
+    ].concat(
+      routine
+        ? [
+            {
+              type: Charts.ChartType.BAR,
+              ranges: [range(K.routineName, K.routineRate, o)],
+              w: W,
+              h: Math.max(360, barH(o)),
+              title: t_("stats.chartRoutine"),
+              opts: percentBars_(TH.orange),
+            },
+          ]
+        : [],
+    ),
   ];
 
   let y = 0;

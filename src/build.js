@@ -8,8 +8,15 @@ function buildAll_(state) {
   assertValidCfg_(cfg);
   const SH = names_();
   const ss = ss_();
+  // Once the Schedule sheet exists it is the source: its blocks decide the Routine tracker.
+  if (state && Array.isArray(state.schedule)) {
+    cfg.schedule = validScheduleBlocks_(state.schedule);
+    saveCfg_();
+  }
   ss.setSpreadsheetTimeZone(cfg.timezone);
   ss.setSpreadsheetLocale("en_US");
+  // «Now / Next» and «Today» depend on the clock; refresh them hourly, not only on edits.
+  ss.setRecalculationInterval(SpreadsheetApp.RecalculationInterval.HOUR);
   SpreadsheetApp.flush();
 
   // Delete everything except the backup.

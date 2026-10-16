@@ -17,7 +17,7 @@
  * Personal settings never live in code: see config.js and README.md.
  */
 
-const VERSION = "2.6.0";
+const VERSION = "2.7.0";
 
 // ═════════════════════════ Menu and entry points ═════════════════════════
 

@@ -14,6 +14,7 @@ function exportState_() {
     firstDate: "",
     habits: {},
     rules: {},
+    routine: {},
     xp: {},
     ruleXp: {},
     params: null,
@@ -24,6 +25,7 @@ function exportState_() {
   [
     ["habits", SH.habits],
     ["rules", SH.rules],
+    ["routine", SH.routine],
   ].forEach(([key, name]) => {
     const ticks = readTicks_(sheet_(name));
     state[key] = ticks.byDate;

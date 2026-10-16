@@ -14,6 +14,7 @@ const STRINGS_EN = {
   "sheet.habits": "Habits",
   "sheet.rules": "Rules",
   "sheet.schedule": "Schedule",
+  "sheet.routine": "Routine",
   "sheet.tasks": "Tasks",
   "sheet.shop": "Shop",
   "sheet.settings": "Settings",
@@ -36,6 +37,12 @@ const STRINGS_EN = {
   "days.monfri": "Mon–Fri",
   "days.sat": "Sat",
   "days.sun": "Sun",
+  "days.satsun": "Sat–Sun",
+  "days.mon": "Mon",
+  "days.tue": "Tue",
+  "days.wed": "Wed",
+  "days.thu": "Thu",
+  "days.fri": "Fri",
   weekdays: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
 
   "kind.keep": "✅ Keep",
@@ -64,6 +71,7 @@ const STRINGS_EN = {
   "fmt.chartDayMonth": "dd.MM",
   "fmt.dateTime": "dd.MM.yyyy HH:mm",
   "fmt.daysLeft": '"in "0" d.";"overdue "0" d.";"today"',
+  "fmt.hours": '0.#" h"',
   "fmt.streakDays": '0" d."',
 
   "op.busy": "⏳ Another operation is running. Try again in a minute.",
@@ -113,6 +121,8 @@ const STRINGS_EN = {
   "msg.bought": "🛒 Bought: {0}. Balance left: {1} 🪙",
   "msg.levelUp": "🎉 NEW LEVEL {0}: {1}!",
   "msg.ruleKept": "🛡️ {0}",
+  "msg.routineDone": "⏰ {0}",
+  "msg.routinePerfect": "🌟 Perfect day on schedule! +{0} XP bonus",
   "msg.xpGained": "+{0} XP · to level {1}: {2} XP",
 
   "err.settingsDays":
@@ -166,6 +176,7 @@ const STRINGS_EN = {
   "habits.done": "Done",
   "habits.streak": "Streak",
   "rules.kept": "Kept",
+  "routine.done": "On time",
 
   "tasks.done": "✓",
   "tasks.title": "Task",
@@ -220,6 +231,8 @@ const STRINGS_EN = {
   "dash.deadline": "DEADLINE",
   "dash.left": "LEFT",
   "dash.noTasks": "No open tasks with a deadline 🎉",
+  "dash.now": "🕒 Now: ",
+  "dash.next": "    ⏭ Next: ",
   "dash.habits30": "📊 HABITS, LAST 30 DAYS →",
   "dash.progress": "PROGRESS",
   "dash.done": "DONE",
@@ -262,6 +275,11 @@ const STRINGS_EN = {
   "stats.chartHabits": "Habits: completion, last 30 days",
   "stats.chartRules": "Rules: kept, last 30 days",
   "stats.chartWeekday": "Average completion by weekday",
+  "stats.routine": "Routine",
+  "stats.activity": "Activity",
+  "stats.hours": "Hours",
+  "stats.chartTime": "Where your time goes · planned hours per week",
+  "stats.chartRoutine": "Routine: on time, last 30 days",
 
   "logs.time": "Time",
   "logs.event": "Event",
@@ -271,17 +289,27 @@ const STRINGS_EN = {
   "logs.new": "New value",
   "logs.details": "Details",
 
+  "schedule.days": "Days",
   "schedule.start": "Start",
   "schedule.end": "End",
   "schedule.activity": "Activity",
   "schedule.duration": "Duration",
   "schedule.notes": "Notes",
-  "schedule.total": "🕒 Planned",
+  "schedule.xp": "XP",
+  "schedule.status": "✓",
+  "schedule.today": "📅 Today",
+  "schedule.progress": "✅ Today",
+  "schedule.now": "▶ Now",
+  "schedule.next": "⏭ Next",
+  "schedule.total": "🕒 Planned / week",
   "schedule.blocks": "Blocks",
   "schedule.hint":
-    "Type a start and an end time (for example 07:30) and pick an activity from the list or type your own. The list lives on the Settings sheet. Menu «Sort schedule by time» puts the day in order. Overlapping blocks turn red; the current block is highlighted.",
+    "Days: pick a set of weekdays, or type a date for a one-off block (it is added to that day and hides the weekly blocks it overlaps). Give a block XP to track it on the Routine sheet; 0 means plan only. Menu «Sort schedule by time» puts the blocks in order. Overlaps turn red; the current block is highlighted.",
   "schedule.timeHelp": "Enter a time, for example 07:30",
   "schedule.activityHelp": "Pick from the list or type your own",
+  "schedule.daysHelp":
+    "Pick days from the list, or type a date for a one-off block",
+  "schedule.xpHelp": "XP for doing the block on time; 0 = plan only",
   "protect.scheduleDuration": "the duration is calculated",
 
   "protect.logs":
@@ -290,6 +318,8 @@ const STRINGS_EN = {
   "protect.dashboard": "the dashboard is calculated automatically",
   "protect.habitHeader": "habit headers and XP",
   "protect.ruleHeader": "rule headers and XP",
+  "protect.routineHeader":
+    "routine headers and XP (change XP on the Schedule sheet)",
   "protect.dates": "dates",
   "protect.formulas": "XP / % / streak formulas",
   "protect.taskLeft": "the «Left» column is calculated",
@@ -325,6 +355,7 @@ function names_() {
     tasks: t_("sheet.tasks"),
     rules: t_("sheet.rules"),
     schedule: t_("sheet.schedule"),
+    routine: t_("sheet.routine"),
     shop: t_("sheet.shop"),
     cfg: t_("sheet.settings"),
     backup: "_backup",

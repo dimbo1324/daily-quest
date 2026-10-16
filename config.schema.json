@@ -81,8 +81,14 @@
           "days": {
             "enum": [
               "all",
-              "monsat",
               "monfri",
+              "monsat",
+              "satsun",
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
               "sat",
               "sun"
             ],
@@ -124,8 +130,14 @@
           "days": {
             "enum": [
               "all",
-              "monsat",
               "monfri",
+              "monsat",
+              "satsun",
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
               "sat",
               "sun"
             ],
@@ -157,6 +169,30 @@
           "activity"
         ],
         "properties": {
+          "days": {
+            "description": "Weekdays the block repeats on, or a date YYYY-MM-DD for a one-off block (default all).",
+            "anyOf": [
+              {
+                "enum": [
+                  "all",
+                  "monfri",
+                  "monsat",
+                  "satsun",
+                  "mon",
+                  "tue",
+                  "wed",
+                  "thu",
+                  "fri",
+                  "sat",
+                  "sun"
+                ]
+              },
+              {
+                "type": "string",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+              }
+            ]
+          },
           "start": {
             "type": "string",
             "pattern": "^([01]?\\d|2[0-3]):([0-5]\\d)$",
@@ -171,11 +207,23 @@
             "type": "string",
             "minLength": 1
           },
+          "xp": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1000,
+            "description": "XP for doing the block on time; > 0 tracks a weekly block on the Routine sheet (default 0)."
+          },
           "notes": {
             "type": "string"
           }
         }
       }
+    },
+    "schedulePerfectBonus": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1000,
+      "description": "Bonus XP for a day with every routine block done."
     },
     "tasks": {
       "type": "array",
@@ -271,6 +319,11 @@
           "type": "string",
           "minLength": 1,
           "default": "Schedule"
+        },
+        "sheet.routine": {
+          "type": "string",
+          "minLength": 1,
+          "default": "Routine"
         },
         "sheet.tasks": {
           "type": "string",
@@ -372,6 +425,36 @@
           "minLength": 1,
           "default": "Sun"
         },
+        "days.satsun": {
+          "type": "string",
+          "minLength": 1,
+          "default": "Sat–Sun"
+        },
+        "days.mon": {
+          "type": "string",
+          "minLength": 1,
+          "default": "Mon"
+        },
+        "days.tue": {
+          "type": "string",
+          "minLength": 1,
+          "default": "Tue"
+        },
+        "days.wed": {
+          "type": "string",
+          "minLength": 1,
+          "default": "Wed"
+        },
+        "days.thu": {
+          "type": "string",
+          "minLength": 1,
+          "default": "Thu"
+        },
+        "days.fri": {
+          "type": "string",
+          "minLength": 1,
+          "default": "Fri"
+        },
         "weekdays": {
           "type": "array",
           "items": {
@@ -462,6 +545,11 @@
           "type": "string",
           "minLength": 1,
           "default": "\"in \"0\" d.\";\"overdue \"0\" d.\";\"today\""
+        },
+        "fmt.hours": {
+          "type": "string",
+          "minLength": 1,
+          "default": "0.#\" h\""
         },
         "fmt.streakDays": {
           "type": "string",
@@ -647,6 +735,16 @@
           "type": "string",
           "minLength": 1,
           "default": "🛡️ {0}"
+        },
+        "msg.routineDone": {
+          "type": "string",
+          "minLength": 1,
+          "default": "⏰ {0}"
+        },
+        "msg.routinePerfect": {
+          "type": "string",
+          "minLength": 1,
+          "default": "🌟 Perfect day on schedule! +{0} XP bonus"
         },
         "msg.xpGained": {
           "type": "string",
@@ -839,6 +937,11 @@
           "type": "string",
           "minLength": 1,
           "default": "Kept"
+        },
+        "routine.done": {
+          "type": "string",
+          "minLength": 1,
+          "default": "On time"
         },
         "tasks.done": {
           "type": "string",
@@ -1085,6 +1188,16 @@
           "minLength": 1,
           "default": "No open tasks with a deadline 🎉"
         },
+        "dash.now": {
+          "type": "string",
+          "minLength": 1,
+          "default": "🕒 Now: "
+        },
+        "dash.next": {
+          "type": "string",
+          "minLength": 1,
+          "default": "    ⏭ Next: "
+        },
         "dash.habits30": {
           "type": "string",
           "minLength": 1,
@@ -1290,6 +1403,31 @@
           "minLength": 1,
           "default": "Average completion by weekday"
         },
+        "stats.routine": {
+          "type": "string",
+          "minLength": 1,
+          "default": "Routine"
+        },
+        "stats.activity": {
+          "type": "string",
+          "minLength": 1,
+          "default": "Activity"
+        },
+        "stats.hours": {
+          "type": "string",
+          "minLength": 1,
+          "default": "Hours"
+        },
+        "stats.chartTime": {
+          "type": "string",
+          "minLength": 1,
+          "default": "Where your time goes · planned hours per week"
+        },
+        "stats.chartRoutine": {
+          "type": "string",
+          "minLength": 1,
+          "default": "Routine: on time, last 30 days"
+        },
         "logs.time": {
           "type": "string",
           "minLength": 1,
@@ -1325,6 +1463,11 @@
           "minLength": 1,
           "default": "Details"
         },
+        "schedule.days": {
+          "type": "string",
+          "minLength": 1,
+          "default": "Days"
+        },
         "schedule.start": {
           "type": "string",
           "minLength": 1,
@@ -1350,10 +1493,40 @@
           "minLength": 1,
           "default": "Notes"
         },
+        "schedule.xp": {
+          "type": "string",
+          "minLength": 1,
+          "default": "XP"
+        },
+        "schedule.status": {
+          "type": "string",
+          "minLength": 1,
+          "default": "✓"
+        },
+        "schedule.today": {
+          "type": "string",
+          "minLength": 1,
+          "default": "📅 Today"
+        },
+        "schedule.progress": {
+          "type": "string",
+          "minLength": 1,
+          "default": "✅ Today"
+        },
+        "schedule.now": {
+          "type": "string",
+          "minLength": 1,
+          "default": "▶ Now"
+        },
+        "schedule.next": {
+          "type": "string",
+          "minLength": 1,
+          "default": "⏭ Next"
+        },
         "schedule.total": {
           "type": "string",
           "minLength": 1,
-          "default": "🕒 Planned"
+          "default": "🕒 Planned / week"
         },
         "schedule.blocks": {
           "type": "string",
@@ -1363,7 +1536,7 @@
         "schedule.hint": {
           "type": "string",
           "minLength": 1,
-          "default": "Type a start and an end time (for example 07:30) and pick an activity from the list or type your own. The list lives on the Settings sheet. Menu «Sort schedule by time» puts the day in order. Overlapping blocks turn red; the current block is highlighted."
+          "default": "Days: pick a set of weekdays, or type a date for a one-off block (it is added to that day and hides the weekly blocks it overlaps). Give a block XP to track it on the Routine sheet; 0 means plan only. Menu «Sort schedule by time» puts the blocks in order. Overlaps turn red; the current block is highlighted."
         },
         "schedule.timeHelp": {
           "type": "string",
@@ -1374,6 +1547,16 @@
           "type": "string",
           "minLength": 1,
           "default": "Pick from the list or type your own"
+        },
+        "schedule.daysHelp": {
+          "type": "string",
+          "minLength": 1,
+          "default": "Pick days from the list, or type a date for a one-off block"
+        },
+        "schedule.xpHelp": {
+          "type": "string",
+          "minLength": 1,
+          "default": "XP for doing the block on time; 0 = plan only"
         },
         "protect.scheduleDuration": {
           "type": "string",
@@ -1404,6 +1587,11 @@
           "type": "string",
           "minLength": 1,
           "default": "rule headers and XP"
+        },
+        "protect.routineHeader": {
+          "type": "string",
+          "minLength": 1,
+          "default": "routine headers and XP (change XP on the Schedule sheet)"
         },
         "protect.dates": {
           "type": "string",

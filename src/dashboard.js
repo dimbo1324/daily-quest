@@ -36,9 +36,14 @@ function buildDashboard_(sh) {
   const at = (col, day) => atIn(hS, col, day);
   const rc = rules ? trackCols_(rules) : null;
   const rS = rules ? U.q(rules.sheet) : "";
-  const rXpL = rules ? U.col(rc.xp) : "";
-  const rPctL = rules ? U.col(rc.pct) : "";
-  const plusRules = (expr) => (rules ? "+" + expr : "");
+  // Every tracker besides habits (rules, routine) adds its XP to the totals.
+  const extras = trackers_()
+    .filter((t) => t.key !== "habits")
+    .map((t) => {
+      const tc = trackCols_(t);
+      return { S: U.q(t.sheet), c: tc, xpL: U.col(tc.xp), pctL: U.col(tc.pct) };
+    });
+  const plusExtras = (fn) => extras.map((e) => "+" + fn(e)).join("");
   const todayPct = at(pctL, "TODAY()");
   const per = cS + "!$F$2",
     coin = cS + "!$F$3",
@@ -56,6 +61,20 @@ function buildDashboard_(sh) {
 
   const cells = {
     B2: t_("dash.title"),
+    B4:
+      "=" +
+      tq_("dash.now") +
+      "&" +
+      U.q(SH.schedule) +
+      "!" +
+      U.col(SCHEDULE.SUM + 1) +
+      "4&" +
+      tq_("dash.next") +
+      "&" +
+      U.q(SH.schedule) +
+      "!" +
+      U.col(SCHEDULE.SUM + 1) +
+      "5",
     B3:
       "=" +
       tq_("dash.subLevel") +
@@ -79,7 +98,7 @@ function buildDashboard_(sh) {
       ":" +
       xpL +
       ")" +
-      plusRules("SUM(" + rS + "!" + rXpL + FR + ":" + rXpL + ")") +
+      plusExtras((e) => "SUM(" + e.S + "!" + e.xpL + FR + ":" + e.xpL + ")") +
       "+SUMIF(" +
       tS +
       "!A2:A,TRUE," +
@@ -118,7 +137,8 @@ function buildDashboard_(sh) {
     B10: t_("dash.todayXp"),
     D10: t_("dash.streakDays"),
     F10: t_("dash.avg7"),
-    B11: "=" + at(xpL, "TODAY()") + plusRules(atIn(rS, rXpL, "TODAY()")),
+    B11:
+      "=" + at(xpL, "TODAY()") + plusExtras((e) => atIn(e.S, e.xpL, "TODAY()")),
     D11: "=MAX(N(" + at(stL, "TODAY()") + "),N(" + at(stL, "TODAY()-1") + "))",
     F11:
       "=IFERROR(AVERAGEIFS(" +
@@ -166,17 +186,18 @@ function buildDashboard_(sh) {
       "," +
       last7 +
       ")" +
-      plusRules(
-        "SUMIFS(" +
-          rS +
+      plusExtras(
+        (e) =>
+          "SUMIFS(" +
+          e.S +
           "!" +
-          rXpL +
+          e.xpL +
           ":" +
-          rXpL +
+          e.xpL +
           "," +
-          rS +
+          e.S +
           '!A:A,"<="&TODAY(),' +
-          rS +
+          e.S +
           '!A:A,">"&(TODAY()-7))',
       ) +
       ")",
@@ -352,15 +373,16 @@ function buildDashboard_(sh) {
     "," +
     c.xp +
     ",FALSE),0)" +
-    plusRules(
-      "IFERROR(VLOOKUP(X3:X32," +
-        rS +
+    plusExtras(
+      (e) =>
+        "IFERROR(VLOOKUP(X3:X32," +
+        e.S +
         "!A" +
         FR +
         ":" +
-        rPctL +
+        e.pctL +
         "," +
-        (rc ? rc.xp : 0) +
+        e.c.xp +
         ",FALSE),0)",
     ) +
     ")";

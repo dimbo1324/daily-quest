@@ -52,7 +52,12 @@ function statsCols_() {
     source: d + 19,
     sourceXp: d + 20,
     heatStart: d + 22,
-    last: d + 22,
+    wRoutine: d + 24,
+    routineName: d + 26,
+    routineRate: d + 27,
+    timeAct: d + 29,
+    timeHours: d + 30,
+    last: d + 30,
   };
 }
 
@@ -62,6 +67,8 @@ function buildStats_(sh) {
   const rules = tracker_("rules");
   const hc = trackCols_(habits);
   const rc = rules ? trackCols_(rules) : null;
+  const routine = tracker_("routine");
+  const oc = routine ? trackCols_(routine) : null;
   const K = statsCols_();
   const L = U.col;
   const FR = LAYOUT.FIRST_ROW;
@@ -79,6 +86,9 @@ function buildStats_(sh) {
     hPct = col(hS, hc.pct);
   const rA = rules ? col(rS, 1) : "",
     rXp = rules ? col(rS, rc.xp) : "";
+  const oS = routine ? U.q(routine.sheet) : "";
+  const oA = routine ? col(oS, 1) : "",
+    oXp = routine ? col(oS, oc.xp) : "";
   const tDone = tS + "!H2:H",
     tXp = tS + "!F2:F";
   const upToToday = (a) => a + ',"<="&TODAY()';
@@ -121,6 +131,16 @@ function buildStats_(sh) {
             FR +
             ":" +
             L(rc.last) +
+            ",TRUE)"
+          : "") +
+        (routine
+          ? "+COUNTIF(" +
+            oS +
+            "!" +
+            L(oc.first) +
+            FR +
+            ":" +
+            L(oc.last) +
             ",TRUE)"
           : ""),
       t_("stats.ticksHint"),
@@ -212,6 +232,7 @@ function buildStats_(sh) {
     "=IFERROR(ARRAYFORMULA(" +
       sumTo(hA, hXp) +
       (rules ? "+" + sumTo(rA, rXp) : "") +
+      (routine ? "+" + sumTo(oA, oXp) : "") +
       "+" +
       sumTo(tDone, tXp) +
       '),"")',
@@ -255,6 +276,12 @@ function buildStats_(sh) {
     rules ? "=" + inWeek(rA, rXp) : "=ARRAYFORMULA(0*SEQUENCE(12))",
   );
   put(K.wTasks, 3, "=" + inWeek(tDone, tXp));
+  put(K.wRoutine, 2, t_("stats.routine"));
+  put(
+    K.wRoutine,
+    3,
+    routine ? "=" + inWeek(oA, oXp) : "=ARRAYFORMULA(0*SEQUENCE(12))",
+  );
 
   // Completion over the last 30 days, per habit and per rule
   const rateRows = (t, c, nameCol, rateCol, settingsCol, header) => {
@@ -274,7 +301,13 @@ function buildStats_(sh) {
       const range = sq + "!" + L(c.first + i) + "$" + FR + ":" + L(c.first + i);
       const yes = "COUNTIFS(" + range + ",TRUE," + win + ")";
       const no = "COUNTIFS(" + range + ",FALSE," + win + ")";
-      put(nameCol, 3 + i, "=" + cS + "!" + L(settingsCol) + (i + 2));
+      put(
+        nameCol,
+        3 + i,
+        settingsCol
+          ? "=" + cS + "!" + L(settingsCol) + (i + 2)
+          : asText_(item.name),
+      );
       put(rateCol, 3 + i, "=IFERROR(" + yes + "/(" + yes + "+" + no + "),0)");
     });
   };
@@ -295,6 +328,42 @@ function buildStats_(sh) {
       SETTINGS_COL.rules,
       t_("stats.rules"),
     );
+
+  if (routine)
+    rateRows(
+      routine,
+      oc,
+      K.routineName,
+      K.routineRate,
+      null,
+      t_("stats.routine"),
+    );
+
+  // Planned hours per week by activity, from the Schedule sheet's helper column W
+  const sch = U.q(SH.schedule);
+  const acts = sch + "!" + L(SCHEDULE.ACT) + "2:" + L(SCHEDULE.ACT);
+  const hours = sch + "!" + L(SCHEDULE.HELP + 3) + "2:" + L(SCHEDULE.HELP + 3);
+  const actList = L(K.timeAct) + "3:" + L(K.timeAct) + "40";
+  put(K.timeAct, 2, t_("stats.activity"));
+  put(K.timeHours, 2, t_("stats.hours"));
+  put(
+    K.timeAct,
+    3,
+    "=IFERROR(SORT(UNIQUE(FILTER(" + acts + "," + hours + '>0))),"")',
+  );
+  put(
+    K.timeHours,
+    3,
+    "=IFERROR(ARRAYFORMULA(SUMIF(" +
+      acts +
+      ",FILTER(" +
+      actList +
+      "," +
+      actList +
+      '<>""),' +
+      hours +
+      ')),"")',
+  );
 
   // Average completion by weekday (days up to today)
   put(K.weekday, 2, t_("stats.weekday"));
@@ -340,6 +409,7 @@ function buildStats_(sh) {
     [t_("stats.habits"), "=SUM(" + hXp + ")"],
     [t_("stats.tasks"), "=SUMIF(" + tS + "!A2:A,TRUE," + tXp + ")"],
   ];
+  if (routine) sources.splice(1, 0, [t_("stats.routine"), "=SUM(" + oXp + ")"]);
   if (rules) sources.splice(1, 0, [t_("stats.rules"), "=SUM(" + rXp + ")"]);
   sources.forEach(([name, f], i) => {
     put(K.source, 3 + i, name);

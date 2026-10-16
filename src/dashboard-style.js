@@ -22,7 +22,7 @@ function styleDashboard_(sh) {
   for (let col = 8; col <= 23; col++) sh.setColumnWidth(col, 60);
   [24, 25, 26].forEach((col) => sh.setColumnWidth(col, 70));
 
-  const heights = { 1: 14, 2: 46, 3: 22, 4: 12, 9: 12, 14: 12, 18: 18, 28: 18 };
+  const heights = { 1: 14, 2: 46, 3: 22, 4: 22, 9: 12, 14: 12, 18: 18, 28: 18 };
   [D.C1, D.C2].forEach((r) => {
     heights[r] = 24;
     heights[r + 1] = 46;
@@ -46,6 +46,7 @@ function styleDashboard_(sh) {
     .setFontSize(22)
     .setFontWeight("bold")
     .setFontColor(TH.text);
+  sh.getRange("B4:F4").merge().setFontColor(TH.accent).setFontSize(10);
   sh.getRange("B3:F3").merge().setFontColor(TH.muted).setFontSize(10);
 
   const card = (col, r0, nrows, valueColor) => {

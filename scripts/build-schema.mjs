@@ -138,6 +138,14 @@ const schema = {
         additionalProperties: false,
         required: ["start", "end", "activity"],
         properties: {
+          days: {
+            description:
+              "Weekdays the block repeats on, or a date YYYY-MM-DD for a one-off block (default all).",
+            anyOf: [
+              { enum: days },
+              { type: "string", pattern: "^\\d{4}-\\d{2}-\\d{2}$" },
+            ],
+          },
           start: { type: "string", pattern: time, description: "HH:MM" },
           end: {
             type: "string",
@@ -146,9 +154,22 @@ const schema = {
               "HH:MM; earlier than start means the block crosses midnight",
           },
           activity: { type: "string", minLength: 1 },
+          xp: {
+            type: "number",
+            minimum: 0,
+            maximum: 1000,
+            description:
+              "XP for doing the block on time; > 0 tracks a weekly block on the Routine sheet (default 0).",
+          },
           notes: { type: "string" },
         },
       },
+    },
+    schedulePerfectBonus: {
+      type: "number",
+      minimum: 0,
+      maximum: 1000,
+      description: "Bonus XP for a day with every routine block done.",
     },
     tasks: {
       type: "array",
