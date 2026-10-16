@@ -62,23 +62,119 @@ const DEFAULT_CFG = {
   ],
   schedule: [
     {
+      days: "monfri",
       start: "07:00",
       end: "07:30",
       activity: "Morning routine",
+      xp: 10,
       notes: "Wake up, brush teeth, wash, a glass of water",
     },
-    { start: "07:30", end: "08:30", activity: "Workout", notes: "" },
-    { start: "08:30", end: "09:00", activity: "Breakfast", notes: "" },
-    { start: "09:00", end: "13:00", activity: "Work", notes: "" },
-    { start: "13:00", end: "14:00", activity: "Lunch", notes: "" },
-    { start: "14:00", end: "18:00", activity: "Work", notes: "" },
-    { start: "18:00", end: "19:00", activity: "Sport", notes: "" },
-    { start: "19:00", end: "20:00", activity: "Dinner", notes: "" },
-    { start: "20:00", end: "21:30", activity: "Free time", notes: "" },
-    { start: "21:30", end: "22:00", activity: "Plan tomorrow", notes: "" },
-    { start: "22:00", end: "22:30", activity: "Evening routine", notes: "" },
-    { start: "23:00", end: "07:00", activity: "Sleep", notes: "" },
+    {
+      days: "monfri",
+      start: "07:30",
+      end: "08:30",
+      activity: "Workout",
+      xp: 15,
+      notes: "",
+    },
+    {
+      days: "monfri",
+      start: "08:30",
+      end: "09:00",
+      activity: "Breakfast",
+      xp: 0,
+      notes: "",
+    },
+    {
+      days: "monfri",
+      start: "09:00",
+      end: "13:00",
+      activity: "Work",
+      xp: 10,
+      notes: "",
+    },
+    {
+      days: "monfri",
+      start: "13:00",
+      end: "14:00",
+      activity: "Lunch",
+      xp: 0,
+      notes: "",
+    },
+    {
+      days: "monfri",
+      start: "14:00",
+      end: "18:00",
+      activity: "Work",
+      xp: 10,
+      notes: "",
+    },
+    {
+      days: "monfri",
+      start: "19:00",
+      end: "20:00",
+      activity: "Dinner",
+      xp: 0,
+      notes: "",
+    },
+    {
+      days: "all",
+      start: "21:30",
+      end: "22:00",
+      activity: "Plan tomorrow",
+      xp: 5,
+      notes: "",
+    },
+    {
+      days: "all",
+      start: "22:00",
+      end: "22:30",
+      activity: "Evening routine",
+      xp: 0,
+      notes: "",
+    },
+    {
+      days: "all",
+      start: "23:00",
+      end: "07:00",
+      activity: "Sleep",
+      xp: 10,
+      notes: "",
+    },
+    {
+      days: "satsun",
+      start: "08:30",
+      end: "09:00",
+      activity: "Morning routine",
+      xp: 10,
+      notes: "",
+    },
+    {
+      days: "satsun",
+      start: "10:00",
+      end: "12:00",
+      activity: "Sport",
+      xp: 15,
+      notes: "",
+    },
+    {
+      days: "satsun",
+      start: "12:00",
+      end: "16:00",
+      activity: "Family time",
+      xp: 0,
+      notes: "",
+    },
+    {
+      days: "sat",
+      start: "16:00",
+      end: "17:00",
+      activity: "Cleaning",
+      xp: 5,
+      notes: "",
+    },
   ],
+  schedulePerfectBonus: 20,
   tasks: [
     {
       title: "My first task",
@@ -98,10 +194,17 @@ const DEFAULT_CFG = {
 };
 
 const CFG_KEYS = Object.keys(DEFAULT_CFG);
+// Day sets offered in every "days" drop-down, in this order; weeks start on Monday.
 const DAYSETS = {
   all: [1, 1, 1, 1, 1, 1, 1],
-  monsat: [1, 1, 1, 1, 1, 1, 0],
   monfri: [1, 1, 1, 1, 1, 0, 0],
+  monsat: [1, 1, 1, 1, 1, 1, 0],
+  satsun: [0, 0, 0, 0, 0, 1, 1],
+  mon: [1, 0, 0, 0, 0, 0, 0],
+  tue: [0, 1, 0, 0, 0, 0, 0],
+  wed: [0, 0, 1, 0, 0, 0, 0],
+  thu: [0, 0, 0, 1, 0, 0, 0],
+  fri: [0, 0, 0, 0, 1, 0, 0],
   sat: [0, 0, 0, 0, 0, 1, 0],
   sun: [0, 0, 0, 0, 0, 0, 1],
 };
@@ -202,7 +305,7 @@ function normalizeCfg_(user, base) {
   );
   cfg.rules = asArray_(cfg.rules);
   cfg.activities = asArray_(cfg.activities);
-  cfg.schedule = asArray_(cfg.schedule);
+  cfg.schedule = asArray_(cfg.schedule).map(scheduleBlock_);
   cfg.tasks = asArray_(cfg.tasks).map((t) => {
     const o = Array.isArray(t)
       ? {
@@ -255,215 +358,36 @@ function isRealDate_(iso) {
   );
 }
 
-/** All problems of a normalized config as human-readable lines (empty when valid). */
-function validateCfg_(cfg) {
-  const errs = [];
-  if (cfg.unknownKeys_)
-    errs.push("Unknown settings: " + cfg.unknownKeys_.join(", "));
-  if (typeof cfg.timezone !== "string" || !cfg.timezone)
-    errs.push("timezone must be a non-empty string");
-
-  ["startDate", "endDate"].forEach((k) => {
-    if (cfg[k] !== "" && !isRealDate_(cfg[k]))
-      errs.push(k + " must be YYYY-MM-DD or empty");
+/**
+ * A schedule block in the current shape { days, start, end, activity, xp, notes }. Accepts the
+ * v2.6 shapes: objects without days / xp, and snapshot rows [start, end, activity, notes].
+ * Valid times are padded to HH:MM so a block's tracker name stays stable.
+ */
+function scheduleBlock_(b) {
+  const o = Array.isArray(b)
+    ? { start: b[0], end: b[1], activity: b[2], notes: b[3] }
+    : isPlainObject_(b)
+      ? Object.assign({}, b)
+      : b;
+  if (!isPlainObject_(o)) return o;
+  if (o.days === undefined || o.days === "") o.days = "all";
+  if (o.xp === undefined || o.xp === "") o.xp = 0;
+  if (o.notes === undefined) o.notes = "";
+  ["start", "end"].forEach((k) => {
+    const f = parseTime_(o[k]);
+    if (f !== null) o[k] = timeText_(f);
   });
-  if (cfg.endDate && !cfg.startDate) errs.push("endDate needs startDate");
-  if (isRealDate_(cfg.startDate) && isRealDate_(cfg.endDate)) {
-    const span = U.diffDays(U.parts(cfg.startDate), U.parts(cfg.endDate)) + 1;
-    if (span < 1) errs.push("endDate must not be before startDate");
-    if (span > MAX_CALENDAR_DAYS)
-      errs.push("the calendar may span at most " + MAX_CALENDAR_DAYS + " days");
-  }
-  [
-    ["xpPerLevel", 1, 1e6],
-    ["coinsPerXp", 0, 100],
-    ["streakThreshold", 0.01, 1],
-    ["daysToCreate", 7, 400],
-  ].forEach(([k, a, b]) => {
-    if (!(typeof cfg[k] === "number" && cfg[k] >= a && cfg[k] <= b))
-      errs.push(k + " must be a number in " + a + "–" + b);
-  });
-
-  const cats = cfg.categories;
-  if (
-    !Array.isArray(cats) ||
-    !cats.length ||
-    cats.length > 12 ||
-    cats.some((c) => typeof c !== "string" || !c)
-  ) {
-    errs.push("categories: 1–12 non-empty names");
-  }
-
-  if (!cfg.habits.length) errs.push("The habit list is empty.");
-  if (cfg.habits.length > 40) errs.push("Too many habits (40 at most).");
-  validateTrackItems_(cfg.habits, "Habit", ["name", "xp", "days"], errs);
-  if (cfg.rules.length > 30) errs.push("Too many rules (30 at most).");
-  validateTrackItems_(cfg.rules, "Rule", ["name", "xp", "kind", "days"], errs);
-  cfg.rules.forEach((r, i) => {
-    if (isPlainObject_(r) && RULE_KINDS.indexOf(r.kind) < 0) {
-      errs.push(
-        (r.name || "Rule #" + (i + 1)) +
-          ": kind must be one of " +
-          RULE_KINDS.join(", "),
-      );
-    }
-  });
-
-  validateSchedule_(cfg, errs);
-
-  cfg.tasks.forEach((t, i) => {
-    const id = "Task #" + (i + 1);
-    if (!isPlainObject_(t)) {
-      errs.push(id + ": must be an object");
-      return;
-    }
-    unknownFields_(t, [
-      "title",
-      "category",
-      "deadline",
-      "priority",
-      "xp",
-    ]).forEach((f) => errs.push(id + ": unknown field «" + f + "»"));
-    if (!t.title || typeof t.title !== "string")
-      errs.push(id + ": empty title");
-    if (t.deadline && !isRealDate_(t.deadline))
-      errs.push(id + ": deadline must be YYYY-MM-DD or empty");
-    if (Array.isArray(cats) && cats.indexOf(t.category) < 0)
-      errs.push(id + ": unknown category «" + t.category + "»");
-    if (PRIORITY_KEYS.indexOf(t.priority) < 0)
-      errs.push(id + ": priority must be one of " + PRIORITY_KEYS.join(", "));
-    if (!(Number.isFinite(t.xp) && t.xp >= 0 && t.xp <= 500))
-      errs.push(id + ": xp must be 0–500");
-  });
-
-  cfg.rewards.forEach((r, i) => {
-    const id = "Reward #" + (i + 1);
-    if (!isPlainObject_(r)) {
-      errs.push(id + ": must be an object");
-      return;
-    }
-    unknownFields_(r, ["name", "price"]).forEach((f) =>
-      errs.push(id + ": unknown field «" + f + "»"),
-    );
-    if (!r.name || typeof r.name !== "string") errs.push(id + ": empty name");
-    if (!(Number.isFinite(r.price) && r.price > 0))
-      errs.push(id + ": price must be > 0");
-  });
-
-  validateStrings_(cfg.strings).forEach((e) => errs.push(e));
-  return errs;
+  return o;
 }
 
-/** Shared checks for day-tracked items (habits, rules): name, XP, days, no unknown fields. */
-function validateTrackItems_(items, label, fields, errs) {
-  const names = new Set();
-  items.forEach((h, i) => {
-    const id = label + " #" + (i + 1);
-    if (!isPlainObject_(h)) {
-      errs.push(id + ": must be an object");
-      return;
-    }
-    unknownFields_(h, fields).forEach((f) =>
-      errs.push(id + ": unknown field «" + f + "»"),
-    );
-    if (!h.name || typeof h.name !== "string") errs.push(id + ": empty name");
-    else if (names.has(h.name))
-      errs.push("Duplicate " + label.toLowerCase() + ": " + h.name);
-    names.add(h.name);
-    if (!(Number.isFinite(h.xp) && h.xp > 0 && h.xp <= 1000))
-      errs.push((h.name || id) + ": xp must be 1–1000");
-    if (!DAYSETS[h.days])
-      errs.push((h.name || id) + ": unknown days «" + h.days + "»");
-  });
-}
-
-/** Activity base (unique names) and schedule blocks ({ start, end, activity, notes }). */
-function validateSchedule_(cfg, errs) {
-  const acts = cfg.activities;
-  if (acts.length > 100) errs.push("Too many activities (100 at most).");
-  const seen = new Set();
-  acts.forEach((a, i) => {
-    if (typeof a !== "string" || !a.trim()) {
-      errs.push("Activity #" + (i + 1) + ": must be a non-empty text");
-    } else if (seen.has(a)) {
-      errs.push("Duplicate activity: " + a);
-    }
-    seen.add(a);
-  });
-  if (cfg.schedule.length > 100)
-    errs.push("Too many schedule blocks (100 at most).");
-  cfg.schedule.forEach((b, i) => {
-    const id = "Schedule block #" + (i + 1);
-    if (!isPlainObject_(b)) {
-      errs.push(id + ": must be an object");
-      return;
-    }
-    unknownFields_(b, ["start", "end", "activity", "notes"]).forEach((f) =>
-      errs.push(id + ": unknown field «" + f + "»"),
-    );
-    ["start", "end"].forEach((k) => {
-      if (parseTime_(b[k]) === null)
-        errs.push(id + ": " + k + " must be a time HH:MM");
-    });
-    if (typeof b.activity !== "string" || !b.activity.trim()) {
-      errs.push(id + ": empty activity");
-    }
-    if (b.notes !== undefined && typeof b.notes !== "string") {
-      errs.push(id + ": notes must be a text");
-    }
-  });
-}
-
-function unknownFields_(obj, allowed) {
-  return Object.keys(obj).filter((k) => allowed.indexOf(k) < 0);
-}
-
-function validateStrings_(strings) {
-  if (!isPlainObject_(strings)) return ["strings must be an object"];
-  const errs = [];
-  Object.keys(strings).forEach((k) => {
-    const base = STRINGS_EN[k];
-    const v = strings[k];
-    if (base === undefined) {
-      errs.push("strings: unknown key «" + k + "»");
-      return;
-    }
-    if (Array.isArray(base)) {
-      if (!Array.isArray(v) || v.some((x) => typeof x !== "string"))
-        errs.push("strings." + k + " must be a list of texts");
-      else if (k === "weekdays" && v.length !== 7)
-        errs.push("strings.weekdays needs 7 names");
-      else if (!v.length) errs.push("strings." + k + " must not be empty");
-    } else if (typeof v !== "string" || !v) {
-      errs.push("strings." + k + " must be a non-empty text");
-    }
-  });
-  const sheetKeys = [
-    "sheet.dashboard",
-    "sheet.stats",
-    "sheet.habits",
-    "sheet.rules",
-    "sheet.schedule",
-    "sheet.tasks",
-    "sheet.shop",
-    "sheet.settings",
-  ];
-  const sheetNames = sheetKeys.map((k) => strings[k] || STRINGS_EN[k]);
-  const reserved = ["_backup", "Logs"];
-  if (
-    new Set(sheetNames).size !== sheetNames.length ||
-    sheetNames.some((n) => reserved.indexOf(n) >= 0)
-  ) {
-    errs.push(
-      "strings: sheet names must be unique and must not be «_backup» or «Logs»",
-    );
-  }
-  return errs;
-}
-
-function assertValidCfg_(cfg) {
-  const errs = validateCfg_(cfg);
-  if (errs.length) throw new Error(t_("err.config", errs.join("\n• ")));
+/** Day fraction → 'HH:MM'. */
+function timeText_(f) {
+  const mins = Math.round(f * 1440);
+  return (
+    ("0" + Math.floor(mins / 60)).slice(-2) +
+    ":" +
+    ("0" + (mins % 60)).slice(-2)
+  );
 }
 
 /**
