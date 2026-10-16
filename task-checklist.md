@@ -22,18 +22,18 @@ Marks: `[ ]` open, `+` done, `-` not done or partially done (with a note).
 
 ## 1. Formatting
 
-[ ] Prettier config, ignore file, npm scripts; fix the string-key test for double quotes
-[ ] Split `build.js`, `style.js`, `stats.js` below ~600 lines
++ Prettier config, ignore file, npm scripts; fix the string-key test for double quotes
++ Split `build.js`, `style.js`, `stats.js` below ~600 lines
 
 ## 2. Schedule
 
-[ ] Config: `activities`, `schedule` (defaults, validation, example, schema, tests)
-[ ] `src/schedule.js`: build, style, snapshot, restore, sort menu action (logged)
-[ ] Settings sheet: activities column, read back on rebuild
-[ ] English UI strings; personal activities, schedule and Russian strings in `my-config.json`
++ Config: `activities`, `schedule` (defaults, validation, example, schema, tests)
++ `src/schedule.js`: build, style, snapshot, restore, sort menu action (logged)
++ Settings sheet: activities column, read back on rebuild
++ English UI strings; personal activities, schedule and Russian strings in `my-config.json`
 
 ## 3. Verification and completion
 
-[ ] Tests (config, time parsing, builder smoke), `npm run check` green
-[ ] Docs, manual test plan, changelog, version 2.6.0, rule modules synced
-[ ] Merge into `main`
++ Tests (config, time parsing, builder smoke), `npm run check` green
++ Docs, manual test plan, changelog, version 2.6.0, rule modules synced
++ Merge into `main`
