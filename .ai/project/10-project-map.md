@@ -29,7 +29,8 @@ through the config's `strings` object.
   - `settings.js` — Settings sheet read-back, JSON import / export, config reset.
   - `build.js` — `buildAll_` and the Settings, Tasks and Shop builders.
   - `dashboard.js`, `dashboard-style.js` — the Dashboard and its styling.
-  - `schedule.js` — the Schedule sheet: weekly template, «Today», Now / Next, migration.
+  - `schedule.js`, `schedule-style.js` — the Schedule sheet: weekly template, «Today»,
+    Now / Next, migration; its styling.
   - `stats.js`, `stats-style.js` — the Stats sheet: KPI tiles, heatmap, charts.
   - `charts.js` — shared dark chart helpers.
   - `logs.js` — the `Logs` audit sheet: `logEvent_`, `logEdit_`.
@@ -40,8 +41,9 @@ through the config's `strings` object.
 - `config.schema.json` — GENERATED from `src/` by `npm run schema`; never edit by hand.
 - `my-config.json` — the owner's personal config. **Git-ignored**; may contain any language.
 - `tests/` — `node:test` suite; `harness.mjs` loads `src/` into a V8 context with stubs;
-  `config.test.mjs` (config, i18n, trackers, stats layout), `build-smoke.test.mjs` (builders
-  against a fake Spreadsheet API), `logs.test.mjs` (audit log).
+  `config.test.mjs` (config, i18n, trackers, stats layout), `schedule.test.mjs` (schedule,
+  migration, routine names), `fixes.test.mjs` (audit regressions), `build-smoke.test.mjs`
+  (builders against a fake Spreadsheet API), `logs.test.mjs` (audit log).
 - `scripts/` — repo tooling: `check-config`, `check-language`, `build-schema`, `sync-agents`.
 - `docs/` — `ROADMAP.md`, `architecture.md`, `decisions.md` (state documents) and
   `manual-test-plan.md` (checks in a real spreadsheet).

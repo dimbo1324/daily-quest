@@ -8,7 +8,8 @@ description: Use when adding or changing a config key, a habit/task/reward field
 Reference: `.ai/project/14-config-reference.md`. Every step in the same task:
 
 1. `src/config.js` — default in `DEFAULT_CFG`; legacy input handled in `normalizeCfg_`;
-   precise errors in `validateCfg_` (unknown fields stay errors).
+   `src/validation.js` — precise errors in `validateCfg_` (unknown fields stay errors).
+   Never remove or rename an existing key: stored personal configs still carry it.
 2. `src/i18n.js` — English text for any new UI string in `STRINGS_EN`.
 3. Code that uses the setting reads it through `cfg_()`.
 4. `config.example.json` — mirror the new defaults (neutral, generic content only).

@@ -24,7 +24,7 @@
 
 1. Bump `VERSION` in `src/main.js` and `version` in `package.json` (SemVer).
 2. Add an entry to `CHANGELOG.md`.
-3. `git tag vX.Y.Z && git push --tags`.
+3. Optionally tag the release: `git tag vX.Y.Z && git push --tags`.
 
 ## Rules
 

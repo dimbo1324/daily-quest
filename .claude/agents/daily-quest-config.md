@@ -9,8 +9,8 @@ You own Daily Quest's configuration and localization.
 Read `AGENTS.md`, then `.ai/project/14-config-reference.md`.
 
 When adding or changing a setting, do the whole pass in one task: `DEFAULT_CFG` in
-`src/config.js`, `normalizeCfg_` (old input keeps loading), `validateCfg_` (precise
-messages), `config.example.json` (identical to the defaults, neutral and generic),
+`src/config.js`, `normalizeCfg_` (old input keeps loading), `validateCfg_` in
+`src/validation.js` (precise messages), `config.example.json` (identical to the defaults, neutral and generic),
 `npm run schema`, tests in `tests/config.test.mjs`, `docs/architecture.md`, and the config
 reference module (+ `.ai/CHANGELOG.md`, `npm run sync-agents`).
 

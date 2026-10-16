@@ -24,7 +24,7 @@ owner's personal rules live in `my-config.json`.
 
 ## 4. Stats sheet with charts and infographics (v2.4.0)
 
-**Done 2026-10-12 (code).** Stats sheet with KPI tiles, a 26-week heatmap and six charts;
+**Done 2026-10-12 (code).** Stats sheet with KPI tiles, a 26-week heatmap and the first charts (eight since v2.7);
 batch cell writes for faster builds.
 
 ## 5. Logs sheet (v2.5.0)
@@ -43,7 +43,16 @@ rebuilds; `npm run format` with Prettier; oversized modules split.
 block with a Routine tracker, streak and perfect-day bonus; «Where your time goes» and
 routine adherence charts.
 
-## 8. Verify v2.7 in a real spreadsheet
+## 8. Audit fixes (v2.8.0)
+
+**Done 2026-10-15 (code).** Four review agents audited the project; data-safety, number and
+schedule defects fixed with regression tests; the owner's plan for 2026-10-16 added to the
+personal config.
+
+## 9. Verify v2.8 in a real spreadsheet — the hard next step
+
+No new feature before this. Five releases (v2.4.1–v2.8.0) have only been verified by code and
+tests.
 
 Walk through `docs/manual-test-plan.md` in a fresh test spreadsheet, then in the real one
 with the personal config. Fix what breaks. Nothing after this item should ship before it is
@@ -53,12 +62,12 @@ Confirmed by the owner so far (2026-10-12): the personal config imports, the Rul
 appears, and the year-long calendar builds since v2.3.1. Not yet confirmed: the chart fix of
 v2.4.1, the Stats, Logs, Schedule and Routine sheets.
 
-## 9. Content Tracker (second spreadsheet)
+## 10. Content Tracker (second spreadsheet)
 
 A LinkedIn and X posting calendar (every other day, Sunday off), an idea bank, metrics and
 contacts. Likely a separate Apps Script project in its own directory.
 
-## 10. Maybe: a web app over exported data
+## 11. Maybe: a web app over exported data
 
 An export of the spreadsheet data feeding a separate application (Python or Go). Not
 started; needs an owner decision on scope.

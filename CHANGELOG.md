@@ -2,6 +2,42 @@
 
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versioning: [SemVer](https://semver.org/).
 
+## [2.8.0] - 2026-10-15
+Fixes from an audit by four parallel review agents.
+### Fixed — data safety
+- An interrupted rebuild (error or time limit) no longer lets the next rebuild overwrite the
+  backup with the half-built sheets: the next rebuild recovers from the backup.
+- A failed import puts the previous stored config back.
+- «Restore from backup» keeps the state before it as the backup (restore again to undo).
+- Rebuilds delete only the script's own sheets; the owner's other sheets survive.
+- The Logs sheet survives a rename (remembered by id).
+- Schedule: times are read from cell values (7:30 PM, 07:30:00 no longer vanish); unknown
+  day text is kept as typed instead of becoming «every day»; rows with only days or XP are
+  kept; sorting writes a backup first; routine ticks follow a block whose name changed
+  because a twin block was added or removed or the language changed; identical blocks get
+  distinct names.
+- Names starting with + - = @ (habits, rules, tasks, rewards) stay text.
+### Fixed — numbers
+- Days with nothing planned no longer count as 0 % or reset streaks.
+- Untitled task rows never earn XP; bulk-ticked tasks get completion dates; task XP appears
+  in today's XP, the week's XP and the 30-day chart; tasks done today count in the
+  cumulative series; a task XP of 0 stays 0.
+- Bulk «Bought» ticks are undone (purchases go one at a time so the balance is checked).
+- The level-up toast includes the perfect-day bonus.
+- One-off blocks no longer hide an adjacent weekly block (time tolerance); «Now» covers the
+  after-midnight part of a block that started yesterday.
+- Habit and rule XP 0 is valid (the Settings sheet allows it); game parameters typed on the
+  Settings sheet are read one by one and exported; Export no longer changes the stored config;
+  imported keys win over values kept from the sheets; an import tells when the Schedule sheet
+  kept the schedule; sheet names must differ ignoring case.
+### Changed
+- Schedule helper columns are hidden and «Today» / summary are soft-protected.
+- Log timestamps keep seconds and the zone.
+- Up to 300 schedule blocks.
+- CI secrets guard matches the .gitignore secrets block; the assistant permission file denies
+  the home clasp token and no longer allows a blanket `npm install`.
+- Docs: install and by-hand upgrade steps, rule precedence, test list, chart counts.
+
 ## [2.7.0] - 2026-10-15
 ### Added
 - Schedule by weekday: a Days column per block (every day, Mon–Fri, Mon–Sat, Sat–Sun or a

@@ -28,6 +28,8 @@ together with the regenerated artifact.
 
 ## Publishing (owner decision 2026-10-12)
 
+- This section overrides `universal/01-workflow.md` (owner decision 2026-10-12, a standing
+  instruction): merge commits are fine, and a trivial one-commit fix may go to `main`.
 - Pet project, fast loop, **no pull requests**. Work on a short task branch
   (`type/short-description`), commit in logical units, merge into `main` locally, push
   `main`. A trivial one-commit fix may go straight to `main`.

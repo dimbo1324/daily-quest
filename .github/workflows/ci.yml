@@ -31,6 +31,6 @@ jobs:
       - uses: actions/checkout@v4
       - name: Fail if personal config or credentials are tracked
         run: |
-          bad=$(git ls-files | grep -E '(^|/)(my-config\.json|\.clasp\.json|\.clasprc\.json|\.env)$|\.local\.json$|credentials.*\.json$|client_secret.*\.json$' || true)
+          bad=$(git ls-files | grep -E '(^|/)(my-config\.json|\.clasp\.json|\.clasprc\.json|\.env|\.env\..+)$|\.local\.|\.(pem|key|p12)$|(^|/)secrets/|(credentials|client_secret|token|service-account)[^/]*\.json$' | grep -v '\.env\.example$' || true)
           if [ -n "$bad" ]; then echo "::error::Forbidden files tracked:"; echo "$bad"; exit 1; fi
           echo "No forbidden files tracked."

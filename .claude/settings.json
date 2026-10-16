@@ -14,7 +14,6 @@
       "Bash(npm run schema:*)",
       "Bash(npm run sync-agents:*)",
       "Bash(npm ci:*)",
-      "Bash(npm install:*)",
       "Bash(node --test:*)",
       "Bash(node scripts/check-config.mjs:*)",
       "Bash(node scripts/check-language.mjs:*)",
@@ -39,6 +38,7 @@
       "Bash(npm publish*)",
       "Read(./.clasp.json)",
       "Read(./.clasprc.json)",
+      "Read(~/.clasprc.json)",
       "Read(./.env)",
       "Read(./.env.*)"
     ]

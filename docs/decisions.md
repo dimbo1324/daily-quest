@@ -73,10 +73,7 @@ decision here.
 
 ## Open questions
 
-
 - Logs: rotation or archiving once the sheet grows large; hiding the sheet later.
 
-- How exactly the personal config should be set up and delivered to the sheet (the owner
-  will specify in a following task).
 - Rules: penalties for a slip, a bonus for long clean streaks, rule categories — not
   decided; the current model only rewards kept days.

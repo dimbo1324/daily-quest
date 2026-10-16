@@ -91,7 +91,19 @@ Use a **fresh test spreadsheet** first; touch the real one only after the test c
 - [ ] Stats: «Where your time goes» shows hours per activity; «Routine: on time» bars exist.
 - [ ] Edit a block, «Rebuild» → nothing lost, times did not shift.
 
-## 8. Look and feel
+## 8. Data safety after the v2.8 audit
+
+- [ ] Rebuild twice in a row → both succeed; Logs shows `backup` and `rebuild` rows.
+- [ ] «Restore from backup», then again → the second restore brings back the state before the
+      first (undo).
+- [ ] Add an extra sheet of your own, «Rebuild» → it is still there.
+- [ ] Rename `Logs`, «Rebuild» → the renamed log keeps its rows and gets new ones.
+- [ ] Tasks: select several empty rows in column A and press Space → the ticks are undone;
+      tick several titled tasks at once → each gets a completion date.
+- [ ] Settings: set a habit's XP to 0 and XP per level to 300, «Rebuild» → both stay.
+- [ ] Schedule: a day with only Mon–Fri items on Saturday shows no 0 % and keeps the streak.
+
+## 9. Look and feel
 
 - [ ] Dark, calm styling on every sheet; no white cells in used areas.
 - [ ] Today's row is highlighted; missed past days are dim red; Sundays are purple.

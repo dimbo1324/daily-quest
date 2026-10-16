@@ -15,8 +15,16 @@ English UI out of the box, fully localizable through the config.
 `src/` (same names, paste the contents) and replace `appsscript.json` (Project Settings →
 show the manifest) → Save.
 
-Then run `setup` and grant access (the script only touches this spreadsheet:
-`@OnlyCurrentDoc`). Reload the sheet → menu **🎮 Daily Quest**.
+Then run `setup` once:
+
+1. In the spreadsheet: **Extensions → Apps Script** (with clasp: `npm run open`).
+2. In the toolbar, pick `setup` in the function drop-down and press **▶ Run**.
+3. **Review permissions** → choose your account → **Advanced** → **Go to the project** → **Allow**
+   (the script only touches this spreadsheet: `@OnlyCurrentDoc`).
+4. Reload the spreadsheet tab → the **🎮 Daily Quest** menu appears.
+
+A year-long calendar takes 1–3 minutes to build. If a build is ever interrupted, run
+**♻️ Rebuild** again: it rebuilds from the backup.
 
 ## Configure it (no code edits)
 
@@ -42,8 +50,8 @@ Highlights:
 - `rules` lists things to keep or to avoid (`kind: "keep" | "avoid"`), tracked day by day on
   the Rules sheet: tick a rule when you kept it. Each rule shows its clean streak on the
   Dashboard.
-- The **Stats** sheet shows KPI tiles, a 26-week completion heatmap and six charts of your
-  progress; it updates live.
+- The **Stats** sheet shows KPI tiles, a 26-week completion heatmap and charts of your
+  progress (up to eight with rules and routine blocks); it updates live.
 - The **Schedule** sheet is your weekly routine: time blocks per day set (or a one-off date),
   an activity from a drop-down (`activities`, editable on the Settings sheet) or your own
   text, «Today» with Now / Next, planned hours per week. Blocks with XP are ticked daily on
@@ -55,9 +63,15 @@ Highlights:
 
 ## Upgrade
 
-Push or paste the new `src/` → menu **♻️ Rebuild (data is kept)**. Ticks, tasks and shop state
-are kept (backup in the hidden sheet `_backup`; **🛟 Restore from backup** brings it back).
-Ticks are matched by date and habit name, so renaming a habit drops its old ticks.
+1. **With clasp:** `npm run push`. **By hand:** compare the file list in the Apps Script
+   editor with `src/` — add every new file, update every changed one, delete files that no
+   longer exist in `src/` (the CHANGELOG names new modules).
+2. In the sheet: menu **♻️ Rebuild (data is kept)**.
+
+Ticks, tasks, purchases and the schedule are kept (backup in the hidden sheet `_backup`).
+**🛟 Restore from backup** brings the backup back and keeps the state before it as the new
+backup, so restoring again undoes it. Ticks are matched by date and item name, so renaming a
+habit, rule or schedule block drops its old ticks.
 
 ## Development
 

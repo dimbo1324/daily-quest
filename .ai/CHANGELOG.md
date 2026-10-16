@@ -6,6 +6,21 @@ History of changes to the AI assistant rule system (`.ai/`, `CLAUDE.md`, `AGENTS
 
 Format: date, what changed, why, who decided. Newest first.
 
+## 2026-10-15 — Audit corrections
+
+**What changed.** `project/11-commands.md` states that its publishing section overrides
+`universal/01-workflow.md`; `project/12-domain-rules.md` says its 600-line limit replaces the
+universal one (including `main.js`); `project/10-project-map.md` lists every test file. The
+`config-change` skill and the `daily-quest-config` agent point at `src/validation.js` and
+forbid removing keys. `.claude/settings.json` denies `~/.clasprc.json` and drops the blanket
+`npm install` allow entry (a tightening).
+
+**Why.** Findings of the owner-requested audit by four review agents: stale paths, an
+unstated precedence between modules, and a permission gap. Corrections and tightenings,
+allowed without approval.
+
+**Decided by.** Owner instruction of 2026-10-15 (audit and fix), carried out by the agent.
+
 ## 2026-10-15 — Routine tracker, weekly schedule and the never-remove-keys rule
 
 **What changed.** `project/10-project-map.md` lists the Routine sheet and `validation.js`;

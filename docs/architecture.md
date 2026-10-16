@@ -22,8 +22,8 @@ another file.
 | `state.js` | `exportState_` snapshot, `_backup` write / read, tick restore |
 | `build.js` | `buildAll_`, Settings, Tasks and Shop builders; en_US formulas |
 | `dashboard.js`, `dashboard-style.js` | Dashboard cells and formulas; its styling and two charts |
-| `schedule.js` | Schedule sheet: weekly template, helpers, «Today», summary, snapshot (`readSchedule_`, v2.6 migration), styling, «Sort schedule» |
-| `stats.js`, `stats-style.js` | Stats sheet: data block (columns BC+), KPI tiles, heatmap; styling and six charts on a 24 px grid |
+| `schedule.js`, `schedule-style.js` | Schedule sheet: weekly template, helpers, «Today», summary, snapshot (`readSchedule_`, v2.6 migration), styling, «Sort schedule» |
+| `stats.js`, `stats-style.js` | Stats sheet: data block (columns BC+), KPI tiles, heatmap; styling and up to eight charts on a 24 px grid |
 | `charts.js` | `insertDarkChart_`, `percentBars_`: the shared dark chart style |
 | `logs.js` | Logs sheet: `logEvent_` (append one row, never throws), `logEdit_` (onEdit capture), value sanitizing |
 | `style.js` | styling of Settings, trackers, Tasks and Shop; conditional formats; soft protection |
@@ -59,18 +59,31 @@ limit.
 
 ## Rebuild and data safety
 
-`setup` / «Rebuild»: `exportState_` → `writeBackup_` → `applySettingsSheet_` →
-`buildAll_(state)` (first replaces `cfg.schedule` with the sheet's complete blocks, so the
-Routine tracker follows the sheet) (deletes all sheets except `_backup` and `Logs`, rebuilds, restores habit and rule
-ticks by date and name, restores tasks and shop rows, re-applies styling and protection). The
-calendar period comes from `calendarPeriod_`; kept data that starts earlier extends it
-backwards. Every operation and every user edit is appended to `Logs` (`logEvent_`,
-`logEdit_`).
+`setup` / «Rebuild»:
+
+1. `captureState_` snapshots all user data and writes it to `_backup`. If the previous build
+   was interrupted (flag `dq_build_incomplete`), the sheets are incomplete: the backup is used
+   instead and is not overwritten.
+2. `applySettingsSheet_` stores what was typed on the Settings sheet (habits, rules,
+   activities, game parameters).
+3. `buildAll_(state)` sets the flag, replaces `cfg.schedule` with the Schedule sheet's complete
+   blocks, deletes the script's own sheets (tagged with developer metadata, or named like
+   them, or empty; `_backup`, `Logs` and the owner's other sheets stay), rebuilds every
+   sheet, restores ticks by date and item name (renamed routine blocks are matched by their
+   base name and weekday), restores tasks, purchases and the schedule, re-applies styling and
+   protection, and clears the flag.
+
+Import saves the new config only after a successful build and puts the previous one back
+on failure; keys present in the imported JSON win over values kept from the sheets (the
+Schedule sheet stays the source of the schedule). «Restore from backup» swaps: the state
+before it becomes the backup. Every operation and every user edit is appended to `Logs`
+(`logEvent_`, `logEdit_`), found by name or by its remembered sheet id.
 
 ## Tooling
 
 `npm run check` = ESLint + `node:test` (`tests/harness.mjs` runs `src/` in a V8 context with
-stubbed `PropertiesService` and `Utilities`; `build-smoke.test.mjs` runs the dashboard and
-stats builders against a fake Spreadsheet API; `logs.test.mjs` covers the audit log) + config validation + schema sync + assistant
+stubbed `PropertiesService` and `Utilities`; `build-smoke.test.mjs` runs the dashboard, stats, schedule and
+tracker builders against a fake Spreadsheet API; `schedule.test.mjs`, `fixes.test.mjs` and
+`logs.test.mjs` cover the schedule, the audit regressions and the audit log) + config validation + schema sync + assistant
 sync + language guard. CI runs it on every push and pull request. Formatting is separate:
 `npm run format` (Prettier, `.prettierrc.json`) and is never a gate.

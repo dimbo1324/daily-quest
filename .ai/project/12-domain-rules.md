@@ -11,7 +11,8 @@ These sharpen the universal rules for this codebase. Stricter wins.
 - No top-level code may depend on another file's declarations: file load order is not
   guaranteed. Read config only through `cfg_()` (lazy, cached), sheet names only through
   `names_()`, UI text only through `t_()` / `tq_()`.
-- A file past roughly 600 lines is split by meaning (counted after `npm run format`).
+- A file past roughly 600 lines is split by meaning (counted after `npm run format`). This
+  limit replaces the universal one, including for `main.js` (menu and entry points).
 - Code style is Prettier (`.prettierrc.json`, 80 columns, double quotes). Run
   `npm run format` on files you touch; formatting is never a gate and never mixed into an
   unrelated commit.
